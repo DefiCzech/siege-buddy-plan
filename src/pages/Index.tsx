@@ -94,8 +94,8 @@ const Index = () => {
       </header>
 
       <main className="container max-w-6xl mx-auto px-4 py-6">
-        {/* Today's overview */}
-        <div className="mb-6 rounded border border-border bg-card p-4 space-y-3">
+        {/* Today's overview - hero section */}
+        <div className="mb-8 rounded-lg border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-5 space-y-4 shadow-lg shadow-primary/5">
           <div className="flex items-center justify-between">
             <h2 className="font-mono font-bold tracking-wider text-sm">
               // DNES — {todayName.toUpperCase()}
