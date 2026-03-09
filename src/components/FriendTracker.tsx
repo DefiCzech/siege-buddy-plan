@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { FriendData } from "@/hooks/use-friends";
+import { ScheduleEntry } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { UserPlus, X, CheckCircle2, Circle, Users } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { UserPlus, X, CheckCircle2, Circle, Users, ExternalLink } from "lucide-react";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 
 interface Props {
@@ -16,12 +18,12 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
   const [friendCode, setFriendCode] = useState("");
   const [expandedFriend, setExpandedFriend] = useState<string | null>(null);
   const [showAddInput, setShowAddInput] = useState(false);
+  const [detailEntry, setDetailEntry] = useState<{ friendId: string; activityId: string } | null>(null);
   const { confirm, ConfirmDialog } = useConfirmDialog();
 
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayIdx = (new Date().getDay() + 6) % 7;
 
-  // Close on Escape
   useEffect(() => {
     if (!expandedFriend) return;
     const handler = (e: KeyboardEvent) => {
@@ -44,9 +46,25 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
     if (ok) onRemoveFriend(friend.userId);
   };
 
+  const getVideoEmbedUrl = (url: string) => {
+    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+    if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+    return url;
+  };
+
+  // Resolve detail dialog data
+  const detailFriend = detailEntry ? friends.find((f) => f.userId === detailEntry.friendId) : null;
+  const detailActivity = detailFriend?.schedule.activities.find((a) => a.id === detailEntry?.activityId);
+  const detailCategory = detailActivity ? detailFriend?.schedule.categories.find((c) => c.id === detailActivity.categoryId) : null;
+  const detailEntryData = detailFriend?.schedule.entries.find(
+    (e) => e.dayOfWeek === todayIdx && e.activityId === detailEntry?.activityId
+  );
+  const detailCompletion = detailFriend?.completions.find(
+    (c) => c.activityId === detailEntry?.activityId && c.completedDate === todayStr
+  );
+
   return (
     <div className="space-y-2">
-      {/* Backdrop to close on outside click */}
       {expandedFriend && (
         <div className="fixed inset-0 z-10" onClick={() => setExpandedFriend(null)} />
       )}
@@ -132,12 +150,98 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
                   todayIdx={todayIdx}
                   todayStr={todayStr}
                   onRemove={(e) => handleRemove(e, friend)}
+                  onActivityClick={(activityId) => {
+                    setDetailEntry({ friendId: friend.userId, activityId });
+                  }}
                 />
               )}
             </div>
           );
         })}
       </div>
+
+      {/* Activity detail dialog */}
+      <Dialog open={!!detailEntry} onOpenChange={(open) => !open && setDetailEntry(null)}>
+        <DialogContent className="bg-card border-border max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-mono flex items-center gap-2">
+              {detailCategory && <span>{detailCategory.icon}</span>}
+              {detailActivity?.name}
+              {detailFriend && (
+                <span className="text-xs font-normal text-muted-foreground ml-2">
+                  ({detailFriend.displayName})
+                </span>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {detailActivity?.description && (
+              <p className="text-sm text-muted-foreground">{detailActivity.description}</p>
+            )}
+
+            {/* Assigned maps */}
+            {detailEntryData?.assignedMaps && detailEntryData.assignedMaps.length > 0 && (
+              <div>
+                <p className="text-xs font-mono font-bold text-primary mb-1">📋 Přiřazené mapy na dnes</p>
+                <div className="flex flex-wrap gap-1">
+                  {detailEntryData.assignedMaps.map((map) => (
+                    <span key={map} className="text-xs bg-secondary border border-border rounded px-2 py-0.5 font-mono">
+                      {map}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Completion info */}
+            {detailCompletion && (
+              <div className="rounded border border-success/30 bg-success/10 p-3 space-y-1">
+                <p className="text-xs font-mono text-success flex items-center gap-1">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Splněno dnes
+                </p>
+                {detailCompletion.durationMinutes && (
+                  <p className="text-xs text-muted-foreground">Doba tréninku: {detailCompletion.durationMinutes} min</p>
+                )}
+                {detailCompletion.completedMaps && detailCompletion.completedMaps.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Naučené mapy:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {detailCompletion.completedMaps.map((map) => (
+                        <span key={map} className="text-xs bg-success/20 border border-success/30 rounded px-2 py-0.5 font-mono">
+                          {map}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Video */}
+            {detailActivity?.videoUrl && (
+              <div className="space-y-2">
+                <div className="aspect-video rounded overflow-hidden border border-border">
+                  <iframe
+                    src={getVideoEmbedUrl(detailActivity.videoUrl)}
+                    className="w-full h-full"
+                    allowFullScreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  />
+                </div>
+                <a
+                  href={detailActivity.videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  <ExternalLink className="h-3 w-3" /> Otevřít video
+                </a>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {ConfirmDialog}
     </div>
@@ -149,11 +253,13 @@ function FriendDetail({
   todayIdx,
   todayStr,
   onRemove,
+  onActivityClick,
 }: {
   friend: FriendData;
   todayIdx: number;
   todayStr: string;
   onRemove: (e: React.MouseEvent) => void;
+  onActivityClick: (activityId: string) => void;
 }) {
   const todayEntries = friend.schedule.entries.filter((e) => e.dayOfWeek === todayIdx);
   const todayCompletions = friend.completions.filter((c) => c.completedDate === todayStr);
@@ -165,7 +271,6 @@ function FriendDetail({
 
   return (
     <div className="absolute top-full left-0 mt-1 w-56 rounded-lg border border-border bg-card shadow-lg p-2.5 space-y-2">
-      {/* Rank display */}
       {friend.rankName && (
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
           {friend.rankImageUrl && <img src={friend.rankImageUrl} alt="" className="h-4 w-4" />}
@@ -185,9 +290,13 @@ function FriendDetail({
             const completion = todayCompletions.find((c) => c.activityId === entry.activityId);
 
             return (
-              <div
+              <button
                 key={entry.activityId}
-                className={`text-[11px] flex items-center gap-1.5 py-0.5 ${done ? "opacity-50" : ""}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onActivityClick(entry.activityId);
+                }}
+                className={`w-full text-left text-[11px] flex items-center gap-1.5 py-1 px-1 rounded hover:bg-secondary/60 transition-colors cursor-pointer ${done ? "opacity-50" : ""}`}
               >
                 {done ? (
                   <CheckCircle2 className="h-3 w-3 text-success shrink-0" />
@@ -199,7 +308,7 @@ function FriendDetail({
                 {done && completion?.durationMinutes && (
                   <span className="ml-auto text-[10px] opacity-50">{completion.durationMinutes}m</span>
                 )}
-              </div>
+              </button>
             );
           })}
         </div>
