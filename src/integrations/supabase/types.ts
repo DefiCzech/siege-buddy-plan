@@ -75,6 +75,7 @@ export type Database = {
         Row: {
           activity_id: string
           assigned_maps: string[] | null
+          assigned_operators: string[] | null
           created_at: string
           day_of_week: number
           id: string
@@ -83,6 +84,7 @@ export type Database = {
         Insert: {
           activity_id: string
           assigned_maps?: string[] | null
+          assigned_operators?: string[] | null
           created_at?: string
           day_of_week: number
           id?: string
@@ -91,6 +93,7 @@ export type Database = {
         Update: {
           activity_id?: string
           assigned_maps?: string[] | null
+          assigned_operators?: string[] | null
           created_at?: string
           day_of_week?: number
           id?: string

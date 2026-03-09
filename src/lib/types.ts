@@ -5,7 +5,7 @@ export interface Category {
   color: string; // tailwind color classes
 }
 
-export type ActivityType = "default" | "map-learning";
+export type ActivityType = "default" | "map-learning" | "operator-training";
 
 export interface TrainingActivity {
   id: string;
