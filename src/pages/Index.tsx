@@ -115,6 +115,9 @@ const Index = () => {
                   {act.description && (
                     <p className="text-xs mt-1 opacity-70">{act.description}</p>
                   )}
+                  {entry.assignedMaps && entry.assignedMaps.length > 0 && (
+                    <p className="text-xs mt-1 opacity-80">📋 {entry.assignedMaps.join(", ")}</p>
+                  )}
                 </div>
               );
             })}
