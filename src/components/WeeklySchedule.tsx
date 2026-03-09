@@ -188,6 +188,7 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
                   const cat = getCategory(act.categoryId);
                   const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
                   const isMapActivity = act.activityType === "map-learning";
+                  const isOperatorActivity = act.activityType === "operator-training";
                   return (
                     <div
                       key={entry.activityId}
@@ -207,6 +208,12 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
                               onToggle={(map) => toggleAssignedMap(dayIdx, entry.activityId, map)}
                             />
                           )}
+                          {isOperatorActivity && (
+                            <OperatorAssignPopover
+                              assignedOperators={entry.assignedOperators || []}
+                              onToggle={(op) => toggleAssignedOperator(dayIdx, entry.activityId, op)}
+                            />
+                          )}
                           <button
                             onClick={() => removeEntry(dayIdx, entry.activityId)}
                             className="hover:text-destructive shrink-0"
@@ -219,6 +226,11 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
                       {entry.assignedMaps && entry.assignedMaps.length > 0 && (
                         <div className="text-[10px] opacity-70">
                           📋 {entry.assignedMaps.join(", ")}
+                        </div>
+                      )}
+                      {entry.assignedOperators && entry.assignedOperators.length > 0 && (
+                        <div className="text-[10px] opacity-70">
+                          🛡️ {entry.assignedOperators.join(", ")}
                         </div>
                       )}
                     </div>

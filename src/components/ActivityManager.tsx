@@ -189,6 +189,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
                 <SelectContent>
                   <SelectItem value="default">Standardní</SelectItem>
                   <SelectItem value="map-learning">Učení map (výběr map při dokončení)</SelectItem>
+                  <SelectItem value="operator-training">Trénink operátorů (výběr operátorů)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
