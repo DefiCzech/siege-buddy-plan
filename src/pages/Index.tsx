@@ -92,22 +92,25 @@ const Index = () => {
                   className={`rounded border p-3 ${colorClass} cursor-pointer hover:opacity-90 transition-opacity`}
                   onClick={() => (act.description || act.videoUrl) && setDetailActivityId(act.id)}
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 text-sm font-medium">
                         {cat && <span>{cat.icon}</span>}
                         {act.name}
-                        {entry.assignedMaps && entry.assignedMaps.length > 0 && (
-                          <span className="text-xs font-mono font-bold text-primary">
-                            — {entry.assignedMaps.join(", ")}
-                          </span>
-                        )}
                       </div>
+                      {entry.assignedMaps && entry.assignedMaps.length > 0 && (
+                        <p className="text-xs font-mono font-bold text-primary mt-1">
+                          📋 {entry.assignedMaps.join(", ")}
+                        </p>
+                      )}
+                      {act.description && (
+                        <p className="text-xs mt-1 opacity-70">{act.description}</p>
+                      )}
                     </div>
                     <Button
                       size="sm"
                       variant="default"
-                      className="ml-2 gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs shrink-0"
+                      className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs shrink-0 w-full sm:w-auto"
                       onClick={(e) => {
                         e.stopPropagation();
                         setCompletingEntry(entry.activityId);
@@ -119,9 +122,6 @@ const Index = () => {
                       Splnit
                     </Button>
                   </div>
-                  {act.description && (
-                    <p className="text-xs mt-1 opacity-70">{act.description}</p>
-                  )}
                 </div>
               );
             })}
