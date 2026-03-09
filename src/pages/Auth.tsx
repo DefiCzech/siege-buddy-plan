@@ -33,7 +33,7 @@ const Auth = () => {
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        toast.success("Registrace úspěšná! Zkontroluj svůj email pro ověření.");
+        navigate("/signup-success", { replace: true });
       } else if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
