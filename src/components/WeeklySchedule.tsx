@@ -69,6 +69,25 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
     updateEntryMaps(dayOfWeek, activityId, updated);
   };
 
+  const updateEntryOperators = (dayOfWeek: number, activityId: string, operators: string[]) => {
+    onChange(
+      entries.map((e) =>
+        e.dayOfWeek === dayOfWeek && e.activityId === activityId
+          ? { ...e, assignedOperators: operators.length > 0 ? operators : undefined }
+          : e
+      )
+    );
+  };
+
+  const toggleAssignedOperator = (dayOfWeek: number, activityId: string, opName: string) => {
+    const entry = entries.find((e) => e.dayOfWeek === dayOfWeek && e.activityId === activityId);
+    const current = entry?.assignedOperators || [];
+    const updated = current.includes(opName)
+      ? current.filter((o) => o !== opName)
+      : [...current, opName];
+    updateEntryOperators(dayOfWeek, activityId, updated);
+  };
+
   // Czech public holidays for current year
   const holidays = useMemo(() => {
     const year = new Date().getFullYear();
