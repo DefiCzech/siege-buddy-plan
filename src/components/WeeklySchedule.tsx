@@ -41,7 +41,7 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
 
   const addEntry = (dayOfWeek: number, activityId: string) => {
     if (entries.some((e) => e.dayOfWeek === dayOfWeek && e.activityId === activityId)) return;
-    onChange([...entries, { dayOfWeek, activityId, completed: false }]);
+    onChange([...entries, { dayOfWeek, activityId }]);
   };
 
   const removeEntry = async (dayOfWeek: number, activityId: string) => {
