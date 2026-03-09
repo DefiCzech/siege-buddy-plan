@@ -98,17 +98,17 @@ const Index = () => {
         <div className="mb-8 rounded-lg border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-5 space-y-4 shadow-lg shadow-primary/5">
           <div className="flex items-center justify-between">
             <h2 className="font-mono font-bold tracking-wider text-base text-primary">
-              🎯 DNES — {todayName.toUpperCase()}
+              🎯 CO TĚ DNES ČEKÁ
             </h2>
             {todayEntries.length > 0 && completedToday === todayEntries.length && (
-              <span className="text-xs font-mono text-success">✓ VŠE HOTOVO</span>
+              <span className="text-xs font-mono text-success">✓ MÁME HOTOVO, JDI HRÁT 🎮</span>
             )}
           </div>
           {remainingToday.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               {todayEntries.length === 0
-                ? "Na dnes nemáš naplánovaný žádný trénink."
-                : "Všechny dnešní tréninky jsou splněné! 💪"}
+                ? "Dneska volno? Nebo ses bál si něco naplánovat? 😏"
+                : "Vše odtrénováno — teď můžeš bez výčitek rankovat! 🏆"}
             </p>
           ) : (
             <div className="space-y-2">
