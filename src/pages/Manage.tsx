@@ -69,6 +69,10 @@ const Manage = () => {
             onChange={(categories) => updateSchedule({ categories })}
           />
         </TabsContent>
+
+        <TabsContent value="security">
+          <MfaSettings />
+        </TabsContent>
       </Tabs>
     </main>
   );
