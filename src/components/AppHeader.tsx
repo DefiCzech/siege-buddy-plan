@@ -13,6 +13,7 @@ interface Props {
 
 export function AppHeader({ schedule, completedToday, totalToday }: Props) {
   const location = useLocation();
+  const { signOut } = useAuth();
 
   const navItems = [
     { to: "/", icon: Calendar, label: "Přehled" },
