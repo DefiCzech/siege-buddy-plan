@@ -16,6 +16,7 @@ interface Props {
 }
 
 export function ActivityManager({ activities, categories, onChange }: Props) {
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const [showForm, setShowForm] = useState(false);
   const [editingActivity, setEditingActivity] = useState<TrainingActivity | null>(null);
   const [form, setForm] = useState({ name: "", categoryId: categories[0]?.id || "", description: "", videoUrl: "" });

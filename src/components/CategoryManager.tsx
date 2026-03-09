@@ -15,6 +15,7 @@ interface Props {
 const COLOR_OPTIONS = DEFAULT_CATEGORY_COLORS;
 
 export function CategoryManager({ categories, onChange }: Props) {
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [form, setForm] = useState({ name: "", icon: "", color: COLOR_OPTIONS[0] });
