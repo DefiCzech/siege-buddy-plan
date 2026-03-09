@@ -75,11 +75,18 @@ const Index = () => {
     setCompletingEntry(null);
     setDuration("");
     setSelectedMaps([]);
+    setSelectedOperators([]);
   };
 
   const toggleMap = (map: string) => {
     setSelectedMaps((prev) =>
       prev.includes(map) ? prev.filter((m) => m !== map) : [...prev, map]
+    );
+  };
+
+  const toggleOperator = (op: string) => {
+    setSelectedOperators((prev) =>
+      prev.includes(op) ? prev.filter((o) => o !== op) : [...prev, op]
     );
   };
 
