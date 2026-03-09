@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
-import { ScheduleEntry, TrainingActivity, Category, DAY_NAMES, R6S_MAPS, R6S_OPERATORS, R6S_OPERATORS } from "@/lib/types";
+import { ScheduleEntry, TrainingActivity, Category, DAY_NAMES, R6S_MAPS, R6S_OPERATORS } from "@/lib/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
-import, Shield { Plus, X, Map } from "lucide-react";
+import { Plus, X, Map, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Props {
