@@ -41,6 +41,9 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          rank_image_url: string | null
+          rank_name: string | null
+          ubisoft_username: string | null
           updated_at: string
           user_id: string
         }
@@ -49,6 +52,9 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          rank_image_url?: string | null
+          rank_name?: string | null
+          ubisoft_username?: string | null
           updated_at?: string
           user_id: string
         }
@@ -57,6 +63,9 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          rank_image_url?: string | null
+          rank_name?: string | null
+          ubisoft_username?: string | null
           updated_at?: string
           user_id?: string
         }
