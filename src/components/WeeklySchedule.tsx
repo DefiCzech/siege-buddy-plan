@@ -1,9 +1,6 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { ScheduleEntry, TrainingActivity, Category, DAY_NAMES } from "@/lib/types";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, CheckCircle2, Clock, X } from "lucide-react";
 
 interface Props {
