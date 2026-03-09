@@ -243,7 +243,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
           )}
         </DialogContent>
       </Dialog>
-      <ConfirmDialog />
+      {ConfirmDialog}
     </div>
   );
 }
