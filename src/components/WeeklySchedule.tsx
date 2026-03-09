@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { ScheduleEntry, TrainingActivity, Category, DAY_NAMES } from "@/lib/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 import { Plus, CheckCircle2, Clock, X } from "lucide-react";
 
 interface Props {
