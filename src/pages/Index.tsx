@@ -4,17 +4,25 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CheckCircle2, Info, ExternalLink } from "lucide-react";
+import { CheckCircle2, Info, ExternalLink, Loader2 } from "lucide-react";
 import { R6S_MAPS } from "@/lib/types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
-  const { schedule, updateSchedule } = useSchedule();
+  const { schedule, updateSchedule, loading } = useSchedule();
   const [completingEntry, setCompletingEntry] = useState<string | null>(null);
   const [duration, setDuration] = useState("");
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
   const [detailActivityId, setDetailActivityId] = useState<string | null>(null);
   const [mapFilter, setMapFilter] = useState<"all" | "ranked" | "unranked">("ranked");
+
+  if (loading) {
+    return (
+      <main className="container max-w-6xl mx-auto px-4 py-24 flex justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </main>
+    );
+  }
 
   const todayIdx = (new Date().getDay() + 6) % 7;
   const todayEntries = schedule.entries.filter((e) => e.dayOfWeek === todayIdx);

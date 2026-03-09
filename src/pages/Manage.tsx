@@ -4,10 +4,18 @@ import { WeeklySchedule } from "@/components/WeeklySchedule";
 import { CategoryManager } from "@/components/CategoryManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Calendar, Settings, Tags, AlertTriangle } from "lucide-react";
+import { Calendar, Settings, Tags, AlertTriangle, Loader2 } from "lucide-react";
 
 const Manage = () => {
-  const { schedule, updateSchedule } = useSchedule();
+  const { schedule, updateSchedule, loading } = useSchedule();
+
+  if (loading) {
+    return (
+      <main className="container max-w-6xl mx-auto px-4 py-24 flex justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </main>
+    );
+  }
 
   return (
     <main className="container max-w-6xl mx-auto px-4 py-6">
