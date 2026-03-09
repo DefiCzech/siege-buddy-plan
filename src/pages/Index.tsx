@@ -225,6 +225,36 @@ const Index = () => {
                 </div>
               </div>
             )}
+            {isOperatorTraining && !hasAssignedOperators && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-muted-foreground">Které operátory jsi trénoval/a?</p>
+                </div>
+                <Tabs defaultValue="all" className="mb-2">
+                  <TabsList className="h-7">
+                    <TabsTrigger value="all" className="text-xs h-6" onClick={() => setOpFilter("all")}>Všichni</TabsTrigger>
+                    <TabsTrigger value="attack" className="text-xs h-6" onClick={() => setOpFilter("attack")}>Útok</TabsTrigger>
+                    <TabsTrigger value="defense" className="text-xs h-6" onClick={() => setOpFilter("defense")}>Obrana</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+                <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto">
+                  {R6S_OPERATORS
+                    .filter((o) => opFilter === "all" ? true : o.side === opFilter)
+                    .map((op) => (
+                    <label
+                      key={op.name}
+                      className="flex items-center gap-2 text-sm p-1.5 rounded hover:bg-secondary/50 cursor-pointer"
+                    >
+                      <Checkbox
+                        checked={selectedOperators.includes(op.name)}
+                        onCheckedChange={() => toggleOperator(op.name)}
+                      />
+                      {op.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
             <Button onClick={completeToday} className="w-full">Dokončit</Button>
           </div>
         </DialogContent>
