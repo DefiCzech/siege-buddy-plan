@@ -134,6 +134,11 @@ const Index = () => {
                           📋 {entry.assignedMaps.join(", ")}
                         </p>
                       )}
+                      {entry.assignedOperators && entry.assignedOperators.length > 0 && (
+                        <p className="text-xs font-mono font-bold text-primary mt-1">
+                          🛡️ {entry.assignedOperators.join(", ")}
+                        </p>
+                      )}
                       {act.description && (
                         <p className="text-xs mt-1 opacity-70">{act.description}</p>
                       )}
