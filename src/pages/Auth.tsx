@@ -95,6 +95,8 @@ const Auth = () => {
                 className="bg-secondary border-border"
                 required
                 minLength={6}
+                autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                name="password"
               />
             </div>
           )}
