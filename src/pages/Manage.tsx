@@ -26,6 +26,10 @@ const Manage = () => {
             <Tags className="h-3.5 w-3.5" />
             Kategorie
           </TabsTrigger>
+          <TabsTrigger value="security" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Zabezpečení
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="schedule">
