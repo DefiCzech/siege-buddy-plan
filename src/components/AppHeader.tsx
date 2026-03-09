@@ -1,0 +1,61 @@
+import { Link, useLocation } from "react-router-dom";
+import { Crosshair, Calendar, Settings, BarChart3 } from "lucide-react";
+import { Schedule } from "@/lib/types";
+import { ShareButton } from "@/components/ShareButton";
+
+interface Props {
+  schedule: Schedule;
+  completedToday: number;
+  totalToday: number;
+}
+
+export function AppHeader({ schedule, completedToday, totalToday }: Props) {
+  const location = useLocation();
+
+  const navItems = [
+    { to: "/", icon: Calendar, label: "Přehled" },
+    { to: "/manage", icon: Settings, label: "Správa" },
+    { to: "/stats", icon: BarChart3, label: "Statistiky" },
+  ];
+
+  return (
+    <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+      <div className="container max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Crosshair className="h-6 w-6 text-primary" />
+          <div>
+            <h1 className="text-sm font-mono font-bold tracking-widest text-primary">R6S TRAINER</h1>
+            <p className="text-xs text-muted-foreground">Tréninkový plán</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <nav className="flex items-center gap-1">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.to;
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-mono transition-colors ${
+                    isActive
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  }`}
+                >
+                  <item.icon className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+          {totalToday > 0 && (
+            <div className="text-xs font-mono text-muted-foreground">
+              <span className="text-success">{completedToday}</span>/{totalToday}
+            </div>
+          )}
+          <ShareButton schedule={schedule} />
+        </div>
+      </div>
+    </header>
+  );
+}
