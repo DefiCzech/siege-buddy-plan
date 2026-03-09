@@ -103,29 +103,25 @@ const Index = () => {
               <span className="text-xs font-mono text-success">✓ VŠE HOTOVO</span>
             )}
           </div>
-          {todayEntries.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Na dnes nemáš naplánovaný žádný trénink.</p>
+          {remainingToday.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {todayEntries.length === 0
+                ? "Na dnes nemáš naplánovaný žádný trénink."
+                : "Všechny dnešní tréninky jsou splněné! 💪"}
+            </p>
           ) : (
             <div className="space-y-2">
-              {todayEntries.map((entry) => {
+              {remainingToday.map((entry) => {
                 const act = getActivity(entry.activityId);
                 if (!act) return null;
                 const cat = getCategory(act.categoryId);
                 const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
                 return (
-                  <div
-                    key={entry.activityId}
-                    className={`rounded border p-3 ${entry.completed ? "bg-success/10 border-success/30" : colorClass}`}
-                  >
+                  <div key={entry.activityId} className={`rounded border p-3 ${colorClass}`}>
                     <div className="flex items-center justify-between">
-                      <div className={`flex items-center gap-2 text-sm font-medium ${entry.completed ? "text-success line-through opacity-70" : ""}`}>
+                      <div className="flex items-center gap-2 text-sm font-medium">
                         {cat && <span>{cat.icon}</span>}
                         {act.name}
-                        {entry.completed && entry.durationMinutes && (
-                          <span className="flex items-center gap-0.5 text-xs text-success/70 no-underline">
-                            <Clock className="h-3 w-3" /> {entry.durationMinutes} min
-                          </span>
-                        )}
                       </div>
                       <div className="flex items-center gap-1.5">
                         {(act.description || act.videoUrl) && (
@@ -137,21 +133,16 @@ const Index = () => {
                             <Info className="h-4 w-4" />
                           </button>
                         )}
-                        {!entry.completed && (
-                          <button
-                            onClick={() => { setCompletingEntry(entry.activityId); setDuration(""); }}
-                            className="text-muted-foreground hover:text-success transition-colors"
-                            title="Označit jako hotové"
-                          >
-                            <CheckCircle2 className="h-4 w-4" />
-                          </button>
-                        )}
-                        {entry.completed && (
-                          <CheckCircle2 className="h-4 w-4 text-success" />
-                        )}
+                        <button
+                          onClick={() => { setCompletingEntry(entry.activityId); setDuration(""); }}
+                          className="text-muted-foreground hover:text-success transition-colors"
+                          title="Označit jako hotové"
+                        >
+                          <CheckCircle2 className="h-4 w-4" />
+                        </button>
                       </div>
                     </div>
-                    {act.description && !entry.completed && (
+                    {act.description && (
                       <p className="text-xs mt-1 opacity-70">{act.description}</p>
                     )}
                   </div>
