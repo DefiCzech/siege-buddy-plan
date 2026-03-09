@@ -40,8 +40,9 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
     onChange([...entries, { dayOfWeek, activityId, completed: false }]);
   };
 
-  const removeEntry = (dayOfWeek: number, activityId: string) => {
-    if (!window.confirm("Opravdu chceš odebrat tuto aktivitu z rozvrhu?")) return;
+  const removeEntry = async (dayOfWeek: number, activityId: string) => {
+    const ok = await confirm({ message: "Opravdu chceš odebrat tuto aktivitu z rozvrhu?" });
+    if (!ok) return;
     onChange(entries.filter((e) => !(e.dayOfWeek === dayOfWeek && e.activityId === activityId)));
   };
 
