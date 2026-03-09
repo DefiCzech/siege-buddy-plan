@@ -12,6 +12,7 @@ import Manage from "./pages/Manage";
 import Stats from "./pages/Stats";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
+import SignupSuccess from "./pages/SignupSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
