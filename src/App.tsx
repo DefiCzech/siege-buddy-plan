@@ -9,7 +9,6 @@ import { MfaVerify } from "@/components/MfaVerify";
 import { AppLayout } from "@/components/AppLayout";
 import Index from "./pages/Index";
 import Manage from "./pages/Manage";
-import Stats from "./pages/Stats";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import SignupSuccess from "./pages/SignupSuccess";
@@ -54,7 +53,6 @@ const App = () => (
             >
               <Route path="/" element={<Index />} />
               <Route path="/manage" element={<Manage />} />
-              <Route path="/stats" element={<Stats />} />
               <Route path="/account" element={<Account />} />
             </Route>
             <Route path="*" element={<NotFound />} />

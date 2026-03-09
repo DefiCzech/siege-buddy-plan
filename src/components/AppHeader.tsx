@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Crosshair, Calendar, Settings, BarChart3, LogOut, UserCog } from "lucide-react";
+import { Crosshair, Calendar, Settings, LogOut, UserCog } from "lucide-react";
 import { Schedule } from "@/lib/types";
 import { ShareButton } from "@/components/ShareButton";
 import { useAuth } from "@/hooks/use-auth";
@@ -18,7 +18,6 @@ export function AppHeader({ schedule, completedToday, totalToday }: Props) {
   const navItems = [
     { to: "/", icon: Calendar, label: "Přehled" },
     { to: "/manage", icon: Settings, label: "Plánování" },
-    { to: "/stats", icon: BarChart3, label: "Statistiky" },
     { to: "/account", icon: UserCog, label: "Účet" },
   ];
 
