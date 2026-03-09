@@ -45,32 +45,53 @@ export type Database = {
         Row: {
           activity_id: string
           assigned_maps: string[] | null
-          completed: boolean
-          completed_maps: string[] | null
           created_at: string
           day_of_week: number
-          duration_minutes: number | null
           id: string
           user_id: string
         }
         Insert: {
           activity_id: string
           assigned_maps?: string[] | null
-          completed?: boolean
-          completed_maps?: string[] | null
           created_at?: string
           day_of_week: number
-          duration_minutes?: number | null
           id?: string
           user_id: string
         }
         Update: {
           activity_id?: string
           assigned_maps?: string[] | null
-          completed?: boolean
-          completed_maps?: string[] | null
           created_at?: string
           day_of_week?: number
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      training_completions: {
+        Row: {
+          activity_id: string
+          completed_date: string
+          completed_maps: string[] | null
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          activity_id: string
+          completed_date?: string
+          completed_maps?: string[] | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          activity_id?: string
+          completed_date?: string
+          completed_maps?: string[] | null
+          created_at?: string
           duration_minutes?: number | null
           id?: string
           user_id?: string
