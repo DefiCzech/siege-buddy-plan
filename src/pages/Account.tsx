@@ -20,6 +20,12 @@ const Account = () => {
   const [displayName, setDisplayName] = useState("");
   const [loadingName, setLoadingName] = useState(false);
 
+  const [ubisoftUsername, setUbisoftUsername] = useState("");
+  const [rankName, setRankName] = useState<string | null>(null);
+  const [rankImageUrl, setRankImageUrl] = useState<string | null>(null);
+  const [loadingUbisoft, setLoadingUbisoft] = useState(false);
+  const [fetchingRank, setFetchingRank] = useState(false);
+
   const [newEmail, setNewEmail] = useState("");
   const [loadingEmail, setLoadingEmail] = useState(false);
 
@@ -27,7 +33,6 @@ const Account = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loadingPassword, setLoadingPassword] = useState(false);
 
-  
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteText, setDeleteText] = useState("");
   const [deleting, setDeleting] = useState(false);
