@@ -93,9 +93,16 @@ const Index = () => {
                   onClick={() => (act.description || act.videoUrl) && setDetailActivityId(act.id)}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm font-medium flex-1 min-w-0">
-                      {cat && <span>{cat.icon}</span>}
-                      {act.name}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 text-sm font-medium">
+                        {cat && <span>{cat.icon}</span>}
+                        {act.name}
+                        {entry.assignedMaps && entry.assignedMaps.length > 0 && (
+                          <span className="text-xs font-mono font-bold text-primary">
+                            — {entry.assignedMaps.join(", ")}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <Button
                       size="sm"
@@ -114,9 +121,6 @@ const Index = () => {
                   </div>
                   {act.description && (
                     <p className="text-xs mt-1 opacity-70">{act.description}</p>
-                  )}
-                  {entry.assignedMaps && entry.assignedMaps.length > 0 && (
-                    <p className="text-xs mt-1 opacity-80">📋 {entry.assignedMaps.join(", ")}</p>
                   )}
                 </div>
               );
