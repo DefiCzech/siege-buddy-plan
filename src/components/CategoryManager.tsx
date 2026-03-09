@@ -82,10 +82,10 @@ export function CategoryManager({ categories, onChange }: Props) {
               {c.name}
             </span>
             <span className="flex-1" />
-            <Button size="icon" variant="ghost" onClick={() => openEdit(c)} className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button size="icon" variant="ghost" onClick={() => openEdit(c)} className="h-7 w-7">
               <Edit2 className="h-3 w-3" />
             </Button>
-            <Button size="icon" variant="ghost" onClick={() => removeCategory(c.id)} className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-destructive">
+            <Button size="icon" variant="ghost" onClick={() => removeCategory(c.id)} className="h-7 w-7 text-destructive">
               <Trash2 className="h-3 w-3" />
             </Button>
           </div>
