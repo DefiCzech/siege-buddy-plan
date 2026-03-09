@@ -36,7 +36,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
   };
 
   const openEdit = (a: TrainingActivity) => {
-    setForm({ name: a.name, categoryId: a.categoryId, description: a.description || "", videoUrl: a.videoUrl || "" });
+    setForm({ name: a.name, categoryId: a.categoryId, description: a.description || "", videoUrl: a.videoUrl || "", activityType: a.activityType || "default" });
     setEditingActivity(a);
     setShowForm(true);
   };
