@@ -193,6 +193,20 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
               </div>
             )}
 
+            {/* Assigned operators */}
+            {detailEntryData?.assignedOperators && detailEntryData.assignedOperators.length > 0 && (
+              <div>
+                <p className="text-xs font-mono font-bold text-primary mb-1">🛡️ Přiřazení operátoři na dnes</p>
+                <div className="flex flex-wrap gap-1">
+                  {detailEntryData.assignedOperators.map((op) => (
+                    <span key={op} className="text-xs bg-secondary border border-border rounded px-2 py-0.5 font-mono">
+                      {op}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Completion info */}
             {detailCompletion && (
               <div className="rounded border border-success/30 bg-success/10 p-3 space-y-1">
