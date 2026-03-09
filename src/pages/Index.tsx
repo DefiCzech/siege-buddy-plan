@@ -122,7 +122,7 @@ const Index = () => {
 
       {/* Complete dialog */}
       <Dialog open={!!completingEntry} onOpenChange={(open) => !open && setCompletingEntry(null)}>
-        <DialogContent className="bg-card border-border">
+        <DialogContent className="bg-card border-border max-w-md">
           <DialogHeader>
             <DialogTitle className="font-mono">DOKONČIT TRÉNINK</DialogTitle>
           </DialogHeader>
@@ -134,12 +134,31 @@ const Index = () => {
                 placeholder="Minuty"
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && completeToday()}
+                onKeyDown={(e) => e.key === "Enter" && !isMapLearning && completeToday()}
                 className="bg-secondary border-border"
                 autoFocus
               />
               <span className="text-sm text-muted-foreground">min</span>
             </div>
+            {isMapLearning && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">Které mapy jsi se učil/a?</p>
+                <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto">
+                  {R6S_MAPS.map((map) => (
+                    <label
+                      key={map}
+                      className="flex items-center gap-2 text-sm p-1.5 rounded hover:bg-secondary/50 cursor-pointer"
+                    >
+                      <Checkbox
+                        checked={selectedMaps.includes(map)}
+                        onCheckedChange={() => toggleMap(map)}
+                      />
+                      {map}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
             <Button onClick={completeToday} className="w-full">Dokončit</Button>
           </div>
         </DialogContent>
