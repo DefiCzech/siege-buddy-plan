@@ -8,9 +8,10 @@ import { toast } from "sonner";
 import { useSchedule } from "@/hooks/use-schedule";
 import { encodeScheduleForShare } from "@/lib/schedule-store";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Copy, Check, User, Lock, Mail, Share2, Download, Upload, Trash2 } from "lucide-react";
+import { Copy, Check, User, Lock, Mail, Share2, Download, Upload, Trash2, BarChart3 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MfaSettings } from "@/components/MfaSettings";
+import { TrainingStats } from "@/components/TrainingStats";
 
 const Account = () => {
   const { user, signOut } = useAuth();
