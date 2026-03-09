@@ -143,7 +143,7 @@ export function CategoryManager({ categories, onChange }: Props) {
           </div>
         </DialogContent>
       </Dialog>
-      <ConfirmDialog />
+      {ConfirmDialog}
     </div>
   );
 }
