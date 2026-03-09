@@ -2,9 +2,10 @@ import { useSchedule } from "@/hooks/use-schedule";
 import { ActivityManager } from "@/components/ActivityManager";
 import { WeeklySchedule } from "@/components/WeeklySchedule";
 import { CategoryManager } from "@/components/CategoryManager";
+import { MfaSettings } from "@/components/MfaSettings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Calendar, Settings, Tags, AlertTriangle } from "lucide-react";
+import { Calendar, Settings, Tags, AlertTriangle, ShieldCheck } from "lucide-react";
 
 const Manage = () => {
   const { schedule, updateSchedule } = useSchedule();
@@ -24,6 +25,10 @@ const Manage = () => {
           <TabsTrigger value="categories" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Tags className="h-3.5 w-3.5" />
             Kategorie
+          </TabsTrigger>
+          <TabsTrigger value="security" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Zabezpečení
           </TabsTrigger>
         </TabsList>
 
@@ -63,6 +68,10 @@ const Manage = () => {
             categories={schedule.categories}
             onChange={(categories) => updateSchedule({ categories })}
           />
+        </TabsContent>
+
+        <TabsContent value="security">
+          <MfaSettings />
         </TabsContent>
       </Tabs>
     </main>
