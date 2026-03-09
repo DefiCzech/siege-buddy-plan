@@ -94,11 +94,11 @@ const Index = () => {
       </header>
 
       <main className="container max-w-6xl mx-auto px-4 py-6">
-        {/* Today's overview */}
-        <div className="mb-6 rounded border border-border bg-card p-4 space-y-3">
+        {/* Today's overview - hero section */}
+        <div className="mb-8 rounded-lg border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-5 space-y-4 shadow-lg shadow-primary/5">
           <div className="flex items-center justify-between">
-            <h2 className="font-mono font-bold tracking-wider text-sm">
-              // DNES — {todayName.toUpperCase()}
+            <h2 className="font-mono font-bold tracking-wider text-base text-primary">
+              🎯 DNES — {todayName.toUpperCase()}
             </h2>
             {todayEntries.length > 0 && completedToday === todayEntries.length && (
               <span className="text-xs font-mono text-success">✓ VŠE HOTOVO</span>
@@ -215,8 +215,8 @@ const Index = () => {
           </DialogContent>
         </Dialog>
 
-        <Tabs defaultValue="schedule" className="space-y-6">
-          <TabsList className="bg-secondary border border-border">
+        <Tabs defaultValue="schedule" className="space-y-4 opacity-80 hover:opacity-100 transition-opacity">
+          <TabsList className="bg-secondary/50 border border-border/50">
             <TabsTrigger value="schedule" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Calendar className="h-3.5 w-3.5" />
               Rozvrh
