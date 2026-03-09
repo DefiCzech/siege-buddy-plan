@@ -28,18 +28,33 @@ const Index = () => {
     return url;
   };
 
+  const completingActivity = completingEntry ? getActivity(completingEntry) : null;
+  const isMapLearning = completingActivity?.activityType === "map-learning";
+
   const completeToday = () => {
     if (!completingEntry) return;
     const mins = parseInt(duration) || 0;
     updateSchedule({
       entries: schedule.entries.map((e) =>
         e.dayOfWeek === todayIdx && e.activityId === completingEntry
-          ? { ...e, completed: true, durationMinutes: mins > 0 ? mins : undefined }
+          ? {
+              ...e,
+              completed: true,
+              durationMinutes: mins > 0 ? mins : undefined,
+              completedMaps: isMapLearning && selectedMaps.length > 0 ? selectedMaps : undefined,
+            }
           : e
       ),
     });
     setCompletingEntry(null);
     setDuration("");
+    setSelectedMaps([]);
+  };
+
+  const toggleMap = (map: string) => {
+    setSelectedMaps((prev) =>
+      prev.includes(map) ? prev.filter((m) => m !== map) : [...prev, map]
+    );
   };
 
   const detailActivity = detailActivityId ? getActivity(detailActivityId) : null;
