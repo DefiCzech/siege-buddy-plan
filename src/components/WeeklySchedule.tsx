@@ -55,6 +55,49 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
   const getActivity = (id: string) => activities.find((a) => a.id === id);
   const dayEntries = (day: number) => entries.filter((e) => e.dayOfWeek === day);
 
+  // Czech public holidays for current year
+  const holidays = useMemo(() => {
+    const year = new Date().getFullYear();
+    const easterDate = getEasterDate(year);
+    const easterFriday = new Date(easterDate);
+    easterFriday.setDate(easterFriday.getDate() - 2);
+    const easterMonday = new Date(easterDate);
+    easterMonday.setDate(easterMonday.getDate() + 1);
+
+    const fixed = [
+      new Date(year, 0, 1), // Nový rok
+      new Date(year, 4, 1), // Svátek práce
+      new Date(year, 4, 8), // Den vítězství
+      new Date(year, 6, 5), // Cyril a Metoděj
+      new Date(year, 6, 6), // Jan Hus
+      new Date(year, 8, 28), // Den české státnosti
+      new Date(year, 9, 28), // Den vzniku ČSR
+      new Date(year, 10, 17), // Den boje za svobodu
+      new Date(year, 11, 24), // Štědrý den
+      new Date(year, 11, 25), // 1. svátek vánoční
+      new Date(year, 11, 26), // 2. svátek vánoční
+    ];
+    return [...fixed, easterFriday, easterMonday];
+  }, []);
+
+  // Get dates for the current week (Mon-Sun)
+  const weekDates = useMemo(() => {
+    const now = new Date();
+    const dayOfWeek = (now.getDay() + 6) % 7; // Monday = 0
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - dayOfWeek);
+    return DAY_NAMES.map((_, idx) => {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + idx);
+      return d;
+    });
+  }, []);
+
+  const isHoliday = (dayIdx: number) =>
+    holidays.some((h) => h.toDateString() === weekDates[dayIdx]?.toDateString());
+
+  const isWeekend = (dayIdx: number) => dayIdx >= 5; // Saturday=5, Sunday=6
+
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-mono font-bold tracking-wider">// TÝDENNÍ ROZVRH</h2>
@@ -63,13 +106,21 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
         {DAY_NAMES.map((dayName, dayIdx) => {
           const de = dayEntries(dayIdx);
           const allDone = de.length > 0 && de.every((e) => e.completed);
+          const weekend = isWeekend(dayIdx);
+          const holiday = isHoliday(dayIdx);
+          const dateStr = weekDates[dayIdx]
+            ? `${weekDates[dayIdx].getDate()}.${weekDates[dayIdx].getMonth() + 1}.`
+            : "";
+
+          let borderClass = "border-border bg-card";
+          if (allDone) borderClass = "border-success/50 bg-success/5";
+          else if (holiday) borderClass = "border-primary/50 bg-primary/5";
+          else if (weekend) borderClass = "border-accent/50 bg-accent/10";
 
           return (
             <div
               key={dayIdx}
-              className={`rounded border p-3 space-y-2 transition-colors ${
-                allDone ? "border-success/50 bg-success/5" : "border-border bg-card"
-              }`}
+              className={`rounded border p-3 space-y-2 transition-colors ${borderClass}`}
             >
               <div className="flex items-center justify-between">
                 <h3 className="font-mono text-sm font-bold tracking-wide">{dayName}</h3>
