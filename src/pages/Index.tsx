@@ -274,6 +274,14 @@ const Index = () => {
               onChange={(categories) => updateSchedule({ categories })}
             />
           </TabsContent>
+
+          <TabsContent value="stats">
+            <TrainingStats
+              entries={schedule.entries}
+              activities={schedule.activities}
+              categories={schedule.categories}
+            />
+          </TabsContent>
         </Tabs>
       </main>
     </div>
