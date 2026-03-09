@@ -39,11 +39,18 @@ const Index = () => {
   };
 
   const completingActivity = completingEntry ? getActivity(completingEntry) : null;
+  const completingEntryData = completingEntry
+    ? schedule.entries.find((e) => e.dayOfWeek === todayIdx && e.activityId === completingEntry)
+    : null;
   const isMapLearning = completingActivity?.activityType === "map-learning";
+  const hasAssignedMaps = (completingEntryData?.assignedMaps?.length ?? 0) > 0;
 
   const completeToday = () => {
     if (!completingEntry) return;
     const mins = parseInt(duration) || 0;
+    const mapsToSave = hasAssignedMaps
+      ? completingEntryData!.assignedMaps!
+      : (selectedMaps.length > 0 ? selectedMaps : undefined);
     updateSchedule({
       entries: schedule.entries.map((e) =>
         e.dayOfWeek === todayIdx && e.activityId === completingEntry
@@ -51,7 +58,7 @@ const Index = () => {
               ...e,
               completed: true,
               durationMinutes: mins > 0 ? mins : undefined,
-              completedMaps: isMapLearning && selectedMaps.length > 0 ? selectedMaps : undefined,
+              completedMaps: isMapLearning ? mapsToSave : undefined,
             }
           : e
       ),
@@ -157,7 +164,7 @@ const Index = () => {
               />
               <span className="text-sm text-muted-foreground">min</span>
             </div>
-            {isMapLearning && (
+            {isMapLearning && !hasAssignedMaps && (
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm text-muted-foreground">Které mapy jsi se učil/a?</p>
