@@ -301,7 +301,7 @@ const Account = () => {
           <BarChart3 className="h-4 w-4" />
           Statistiky
         </div>
-        <TrainingStats />
+        <TrainingStats completions={completions} activities={schedule.activities} categories={schedule.categories} />
       </section>
 
       <Separator />
