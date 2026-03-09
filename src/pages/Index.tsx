@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { DAY_NAMES } from "@/lib/types";
 import { useSchedule } from "@/hooks/use-schedule";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { CheckCircle2, Clock, Info, ExternalLink } from "lucide-react";
+import { CheckCircle2, Info, ExternalLink } from "lucide-react";
 
 const Index = () => {
   const { schedule, updateSchedule } = useSchedule();
@@ -45,7 +44,6 @@ const Index = () => {
 
   return (
     <main className="container max-w-6xl mx-auto px-4 py-6">
-      {/* Today's overview - hero section */}
       <div className="rounded-lg border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-5 space-y-4 shadow-lg shadow-primary/5">
         <div className="flex items-center justify-between">
           <h2 className="font-mono font-bold tracking-wider text-base text-primary">

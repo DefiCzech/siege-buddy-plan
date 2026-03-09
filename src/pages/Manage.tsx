@@ -1,4 +1,4 @@
-import { Schedule } from "@/lib/types";
+import { useSchedule } from "@/hooks/use-schedule";
 import { ActivityManager } from "@/components/ActivityManager";
 import { WeeklySchedule } from "@/components/WeeklySchedule";
 import { CategoryManager } from "@/components/CategoryManager";
@@ -6,12 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Calendar, Settings, Tags, AlertTriangle } from "lucide-react";
 
-interface Props {
-  schedule: Schedule;
-  updateSchedule: (partial: Partial<Schedule>) => void;
-}
+const Manage = () => {
+  const { schedule, updateSchedule } = useSchedule();
 
-const Manage = ({ schedule, updateSchedule }: Props) => {
   return (
     <main className="container max-w-6xl mx-auto px-4 py-6">
       <Tabs defaultValue="schedule" className="space-y-6">
@@ -32,13 +29,11 @@ const Manage = ({ schedule, updateSchedule }: Props) => {
 
         <TabsContent value="schedule">
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Input
-                value={schedule.name}
-                onChange={(e) => updateSchedule({ name: e.target.value })}
-                className="text-lg font-mono font-bold bg-transparent border-none p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
-            </div>
+            <Input
+              value={schedule.name}
+              onChange={(e) => updateSchedule({ name: e.target.value })}
+              className="text-lg font-mono font-bold bg-transparent border-none p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
             {schedule.activities.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground space-y-2">
                 <AlertTriangle className="h-8 w-8 mx-auto opacity-50" />

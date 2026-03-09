@@ -1,11 +1,9 @@
-import { Schedule } from "@/lib/types";
+import { useSchedule } from "@/hooks/use-schedule";
 import { TrainingStats } from "@/components/TrainingStats";
 
-interface Props {
-  schedule: Schedule;
-}
+const Stats = () => {
+  const { schedule } = useSchedule();
 
-const Stats = ({ schedule }: Props) => {
   return (
     <main className="container max-w-6xl mx-auto px-4 py-6">
       <TrainingStats
