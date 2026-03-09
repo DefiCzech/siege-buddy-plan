@@ -72,6 +72,8 @@ export function useFriends() {
       friendsData.push({
         userId: friendId,
         displayName: profileRes.data?.display_name || "Kamarád",
+        rankName: (profileRes.data as any)?.rank_name || null,
+        rankImageUrl: (profileRes.data as any)?.rank_image_url || null,
         shareCode: codeRes.data?.share_code || "",
         schedule: {
           name: schedRes.data?.name || "Plán",
