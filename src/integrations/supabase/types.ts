@@ -41,6 +41,129 @@ export type Database = {
         }
         Relationships: []
       }
+      schedule_entries: {
+        Row: {
+          activity_id: string
+          assigned_maps: string[] | null
+          completed: boolean
+          completed_maps: string[] | null
+          created_at: string
+          day_of_week: number
+          duration_minutes: number | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          activity_id: string
+          assigned_maps?: string[] | null
+          completed?: boolean
+          completed_maps?: string[] | null
+          created_at?: string
+          day_of_week: number
+          duration_minutes?: number | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          activity_id?: string
+          assigned_maps?: string[] | null
+          completed?: boolean
+          completed_maps?: string[] | null
+          created_at?: string
+          day_of_week?: number
+          duration_minutes?: number | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_activities: {
+        Row: {
+          activity_type: string
+          category_id: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          sort_order: number
+          user_id: string
+          video_url: string | null
+        }
+        Insert: {
+          activity_type?: string
+          category_id: string
+          created_at?: string
+          description?: string | null
+          id: string
+          name: string
+          sort_order?: number
+          user_id: string
+          video_url?: string | null
+        }
+        Update: {
+          activity_type?: string
+          category_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          sort_order?: number
+          user_id?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      user_categories: {
+        Row: {
+          color: string
+          created_at: string
+          icon: string
+          id: string
+          name: string
+          sort_order: number
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          icon?: string
+          id: string
+          name: string
+          sort_order?: number
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_schedules: {
+        Row: {
+          created_at: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          name?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
