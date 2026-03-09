@@ -57,6 +57,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
   };
 
   const removeActivity = (id: string) => {
+    if (!window.confirm("Opravdu chceš smazat tuto aktivitu?")) return;
     onChange(activities.filter((a) => a.id !== id));
   };
 

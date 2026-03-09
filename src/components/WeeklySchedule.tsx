@@ -39,6 +39,7 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
   };
 
   const removeEntry = (dayOfWeek: number, activityId: string) => {
+    if (!window.confirm("Opravdu chceš odebrat tuto aktivitu z rozvrhu?")) return;
     onChange(entries.filter((e) => !(e.dayOfWeek === dayOfWeek && e.activityId === activityId)));
   };
 
