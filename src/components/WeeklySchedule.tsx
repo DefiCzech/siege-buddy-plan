@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { ScheduleEntry, TrainingActivity, Category, DAY_NAMES } from "@/lib/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 import { Plus, CheckCircle2, Clock, X } from "lucide-react";
 
 interface Props {
@@ -30,6 +31,7 @@ function getEasterDate(year: number): Date {
 }
 
 export function WeeklySchedule({ activities, categories, entries, onChange }: Props) {
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const getCategory = (id: string) => categories.find((c) => c.id === id);
 
 
@@ -38,8 +40,9 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
     onChange([...entries, { dayOfWeek, activityId, completed: false }]);
   };
 
-  const removeEntry = (dayOfWeek: number, activityId: string) => {
-    if (!window.confirm("Opravdu chceš odebrat tuto aktivitu z rozvrhu?")) return;
+  const removeEntry = async (dayOfWeek: number, activityId: string) => {
+    const ok = await confirm({ message: "Opravdu chceš odebrat tuto aktivitu z rozvrhu?" });
+    if (!ok) return;
     onChange(entries.filter((e) => !(e.dayOfWeek === dayOfWeek && e.activityId === activityId)));
   };
 
@@ -183,7 +186,7 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
           );
         })}
       </div>
-
+      <ConfirmDialog />
     </div>
   );
 }

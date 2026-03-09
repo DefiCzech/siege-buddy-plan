@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 import { TrainingActivity, Category } from "@/lib/types";
 import { generateId } from "@/lib/schedule-store";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function ActivityManager({ activities, categories, onChange }: Props) {
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const [showForm, setShowForm] = useState(false);
   const [editingActivity, setEditingActivity] = useState<TrainingActivity | null>(null);
   const [form, setForm] = useState({ name: "", categoryId: categories[0]?.id || "", description: "", videoUrl: "" });
@@ -56,8 +58,9 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
     resetForm();
   };
 
-  const removeActivity = (id: string) => {
-    if (!window.confirm("Opravdu chceš smazat tuto aktivitu?")) return;
+  const removeActivity = async (id: string) => {
+    const ok = await confirm({ message: "Opravdu chceš smazat tuto aktivitu?" });
+    if (!ok) return;
     onChange(activities.filter((a) => a.id !== id));
   };
 
@@ -109,10 +112,10 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
             <div className="flex items-center gap-1">
               {a.videoUrl && <Video className="h-3.5 w-3.5 text-primary opacity-60" />}
               {a.description && <FileText className="h-3.5 w-3.5 text-muted-foreground opacity-60" />}
-              <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); openEdit(a); }} className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); openEdit(a); }} className="h-7 w-7">
                 <Edit2 className="h-3 w-3" />
               </Button>
-              <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); removeActivity(a.id); }} className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-destructive">
+              <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); removeActivity(a.id); }} className="h-7 w-7 text-destructive">
                 <Trash2 className="h-3 w-3" />
               </Button>
             </div>
@@ -240,6 +243,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
           )}
         </DialogContent>
       </Dialog>
+      <ConfirmDialog />
     </div>
   );
 }

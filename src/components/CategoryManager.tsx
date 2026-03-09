@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 import { Category, DEFAULT_CATEGORY_COLORS } from "@/lib/types";
 import { generateId } from "@/lib/schedule-store";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ interface Props {
 const COLOR_OPTIONS = DEFAULT_CATEGORY_COLORS;
 
 export function CategoryManager({ categories, onChange }: Props) {
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [form, setForm] = useState({ name: "", icon: "", color: COLOR_OPTIONS[0] });
@@ -53,8 +55,9 @@ export function CategoryManager({ categories, onChange }: Props) {
     resetForm();
   };
 
-  const removeCategory = (id: string) => {
-    if (!window.confirm("Opravdu chceš smazat tuto kategorii?")) return;
+  const removeCategory = async (id: string) => {
+    const ok = await confirm({ message: "Opravdu chceš smazat tuto kategorii?" });
+    if (!ok) return;
     onChange(categories.filter((c) => c.id !== id));
   };
 
@@ -79,10 +82,10 @@ export function CategoryManager({ categories, onChange }: Props) {
               {c.name}
             </span>
             <span className="flex-1" />
-            <Button size="icon" variant="ghost" onClick={() => openEdit(c)} className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button size="icon" variant="ghost" onClick={() => openEdit(c)} className="h-7 w-7">
               <Edit2 className="h-3 w-3" />
             </Button>
-            <Button size="icon" variant="ghost" onClick={() => removeCategory(c.id)} className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-destructive">
+            <Button size="icon" variant="ghost" onClick={() => removeCategory(c.id)} className="h-7 w-7 text-destructive">
               <Trash2 className="h-3 w-3" />
             </Button>
           </div>
@@ -140,6 +143,7 @@ export function CategoryManager({ categories, onChange }: Props) {
           </div>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog />
     </div>
   );
 }
