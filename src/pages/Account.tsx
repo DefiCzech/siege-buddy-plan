@@ -283,6 +283,50 @@ const Account = () => {
 
           <Separator />
 
+          {/* Ubisoft Username & Rank */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-mono text-primary">
+              <Gamepad2 className="h-4 w-4" />
+              Ubisoft Connect
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Nastav své Ubisoft jméno pro automatické zobrazení tvého ranku.
+            </p>
+            <form onSubmit={handleSaveUbisoft} className="flex gap-2">
+              <Input
+                value={ubisoftUsername}
+                onChange={(e) => setUbisoftUsername(e.target.value)}
+                placeholder="Ubisoft username"
+                className="bg-secondary border-border"
+              />
+              <Button type="submit" disabled={loadingUbisoft} size="sm">
+                {loadingUbisoft ? "..." : "Uložit"}
+              </Button>
+            </form>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 border-primary/30 hover:border-primary"
+                onClick={handleFetchRank}
+                disabled={fetchingRank || !ubisoftUsername.trim()}
+              >
+                {fetchingRank ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Gamepad2 className="h-3.5 w-3.5" />}
+                {fetchingRank ? "Načítám..." : "Aktualizovat rank"}
+              </Button>
+              {rankName && (
+                <div className="flex items-center gap-2">
+                  {rankImageUrl && (
+                    <img src={rankImageUrl} alt={rankName} className="h-8 w-8" />
+                  )}
+                  <span className="text-sm font-mono font-bold">{rankName}</span>
+                </div>
+              )}
+            </div>
+          </section>
+
+          <Separator />
+
           {/* Email */}
           <section className="space-y-3">
             <div className="flex items-center gap-2 text-sm font-mono text-primary">
