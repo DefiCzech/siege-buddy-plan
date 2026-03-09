@@ -186,33 +186,6 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
         })}
       </div>
 
-      <Dialog open={!!completingEntry} onOpenChange={(open) => !open && setCompletingEntry(null)}>
-        <DialogContent className="bg-card border-border">
-          <DialogHeader>
-            <DialogTitle className="font-mono">DOKONČIT TRÉNINK</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Jak dlouho jsi trénoval/a? (volitelné)
-            </p>
-            <div className="flex items-center gap-2">
-              <Input
-                type="number"
-                placeholder="Minuty"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && completeEntry()}
-                className="bg-secondary border-border"
-                autoFocus
-              />
-              <span className="text-sm text-muted-foreground">min</span>
-            </div>
-            <Button onClick={completeEntry} className="w-full">
-              Dokončit
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
