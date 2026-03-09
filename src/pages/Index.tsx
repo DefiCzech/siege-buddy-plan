@@ -143,18 +143,29 @@ const Index = () => {
             </div>
             {isMapLearning && (
               <div>
-                <p className="text-sm text-muted-foreground mb-2">Které mapy jsi se učil/a?</p>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-muted-foreground">Které mapy jsi se učil/a?</p>
+                </div>
+                <Tabs defaultValue="ranked" className="mb-2">
+                  <TabsList className="h-7">
+                    <TabsTrigger value="ranked" className="text-xs h-6" onClick={() => setMapFilter("ranked")}>Ranked</TabsTrigger>
+                    <TabsTrigger value="all" className="text-xs h-6" onClick={() => setMapFilter("all")}>Všechny</TabsTrigger>
+                    <TabsTrigger value="unranked" className="text-xs h-6" onClick={() => setMapFilter("unranked")}>Mimo ranked</TabsTrigger>
+                  </TabsList>
+                </Tabs>
                 <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto">
-                  {R6S_MAPS.map((map) => (
+                  {R6S_MAPS
+                    .filter((m) => mapFilter === "all" ? true : mapFilter === "ranked" ? m.ranked : !m.ranked)
+                    .map((map) => (
                     <label
-                      key={map}
+                      key={map.name}
                       className="flex items-center gap-2 text-sm p-1.5 rounded hover:bg-secondary/50 cursor-pointer"
                     >
                       <Checkbox
-                        checked={selectedMaps.includes(map)}
-                        onCheckedChange={() => toggleMap(map)}
+                        checked={selectedMaps.includes(map.name)}
+                        onCheckedChange={() => toggleMap(map.name)}
                       />
-                      {map}
+                      {map.name}
                     </label>
                   ))}
                 </div>
