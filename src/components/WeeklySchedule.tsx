@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
-import { Plus, CheckCircle2, Clock, X, Map } from "lucide-react";
+import { Plus, X, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Props {
