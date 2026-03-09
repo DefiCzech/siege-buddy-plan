@@ -97,8 +97,8 @@ const Index = () => {
         {/* Today's overview - hero section */}
         <div className="mb-8 rounded-lg border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-5 space-y-4 shadow-lg shadow-primary/5">
           <div className="flex items-center justify-between">
-            <h2 className="font-mono font-bold tracking-wider text-sm">
-              // DNES — {todayName.toUpperCase()}
+            <h2 className="font-mono font-bold tracking-wider text-base text-primary">
+              🎯 DNES — {todayName.toUpperCase()}
             </h2>
             {todayEntries.length > 0 && completedToday === todayEntries.length && (
               <span className="text-xs font-mono text-success">✓ VŠE HOTOVO</span>
