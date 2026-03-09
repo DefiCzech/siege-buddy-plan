@@ -1,10 +1,14 @@
+import { useState } from "react";
 import { useSchedule } from "@/hooks/use-schedule";
+import { useFriends } from "@/hooks/use-friends";
 import { ActivityManager } from "@/components/ActivityManager";
 import { WeeklySchedule } from "@/components/WeeklySchedule";
 import { CategoryManager } from "@/components/CategoryManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Settings, Tags, AlertTriangle, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Settings, Tags, AlertTriangle, Loader2, Copy, Check } from "lucide-react";
+import { toast } from "sonner";
 
 const Manage = () => {
   const { schedule, updateSchedule, loading } = useSchedule();
