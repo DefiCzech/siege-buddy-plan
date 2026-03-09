@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckCircle2, Info, ExternalLink, Loader2 } from "lucide-react";
-import { R6S_MAPS } from "@/lib/types";
+import { R6S_MAPS, R6S_OPERATORS } from "@/lib/types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FriendTracker } from "@/components/FriendTracker";
 
