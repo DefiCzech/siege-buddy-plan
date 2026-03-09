@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Crosshair, Calendar, Settings, BarChart3, LogOut, UserCog } from "lucide-react";
+import { Crosshair, Calendar, Settings, LogOut, UserCog } from "lucide-react";
 import { Schedule } from "@/lib/types";
 import { ShareButton } from "@/components/ShareButton";
 import { useAuth } from "@/hooks/use-auth";
