@@ -85,19 +85,15 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
                   return (
                     <div
                       key={entry.activityId}
-                      className={`text-xs p-1.5 rounded border flex items-start gap-1 group relative ${
-                        entry.completed
-                          ? "bg-success/10 border-success/30 text-success"
-                          : colorClass
-                      }`}
+                      className={`text-xs p-1.5 rounded border flex items-start gap-1 group relative ${colorClass}`}
                     >
                       <div className="flex-1">
-                        <div className={`inline-flex items-center gap-1 ${entry.completed ? "line-through opacity-70" : ""}`}>
+                        <div className="inline-flex items-center gap-1">
                           {cat && <span>{cat.icon}</span>}
                           {act.name}
                         </div>
                         {entry.completed && entry.durationMinutes && (
-                          <div className="flex items-center gap-0.5 mt-0.5 text-success/70">
+                          <div className="flex items-center gap-0.5 mt-0.5 opacity-70">
                             <Clock className="h-2.5 w-2.5" />
                             {entry.durationMinutes} min
                           </div>
