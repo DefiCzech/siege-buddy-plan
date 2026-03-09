@@ -103,7 +103,7 @@ const Account = () => {
 
   // Export all data as JSON
   const handleExport = () => {
-    const exportData = {
+    const exportData: any = {
       version: 1,
       exportedAt: new Date().toISOString(),
       schedule: {
@@ -112,8 +112,10 @@ const Account = () => {
         activities: schedule.activities,
         entries: schedule.entries,
       },
-      completions,
     };
+    if (includeStats) {
+      exportData.completions = completions;
+    }
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
