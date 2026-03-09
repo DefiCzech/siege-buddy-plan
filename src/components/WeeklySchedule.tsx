@@ -170,6 +170,11 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
                             {entry.durationMinutes} min
                           </div>
                         )}
+                        {entry.completed && entry.completedMaps && entry.completedMaps.length > 0 && (
+                          <div className="mt-0.5 opacity-70 text-[10px]">
+                            🗺️ {entry.completedMaps.join(", ")}
+                          </div>
+                        )}
                       </div>
                       <button
                         onClick={() => removeEntry(dayIdx, entry.activityId)}
