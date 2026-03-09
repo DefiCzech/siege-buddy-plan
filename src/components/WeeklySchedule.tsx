@@ -195,35 +195,13 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
                           </div>
                         )}
                       </div>
-                      <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {!entry.completed ? (
-                          <button
-                            onClick={() => {
-                              setCompletingEntry({ day: dayIdx, actId: entry.activityId });
-                              setDuration("");
-                            }}
-                            className="hover:text-success"
-                            title="Označit jako hotové"
-                          >
-                            <CheckCircle2 className="h-3 w-3" />
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => uncompleteEntry(dayIdx, entry.activityId)}
-                            className="hover:text-foreground"
-                            title="Zrušit dokončení"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => removeEntry(dayIdx, entry.activityId)}
-                          className="hover:text-destructive"
-                          title="Odebrat"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => removeEntry(dayIdx, entry.activityId)}
+                        className="hover:text-destructive shrink-0"
+                        title="Odebrat"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
                     </div>
                   );
                 })}
