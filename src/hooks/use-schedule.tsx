@@ -115,6 +115,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
             dayOfWeek: e.day_of_week,
             activityId: e.activity_id,
             assignedMaps: e.assigned_maps ?? undefined,
+            assignedOperators: e.assigned_operators ?? undefined,
           })),
         };
         setSchedule(loaded);
