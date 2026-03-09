@@ -36,24 +36,25 @@ const Manage = () => {
     <main className="container max-w-6xl mx-auto px-4 py-6 space-y-8">
       {/* Weekly schedule — always visible */}
       <div className="space-y-4">
-        <Input
-          value={schedule.name}
-          onChange={(e) => updateSchedule({ name: e.target.value })}
-          className="text-lg font-mono font-bold bg-transparent border-none p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 flex-1"
-        />
-        {myShareCode && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 border-primary/30 hover:border-primary font-mono text-xs shrink-0"
-            onClick={copyShareCode}
-            title="Zkopíruj a pošli kamarádovi, aby viděl tvůj pokrok"
-          >
-            {codeCopied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-            {codeCopied ? "ZKOPÍROVÁNO" : myShareCode}
-          </Button>
-        )}
-        />
+        <div className="flex items-center gap-3">
+          <Input
+            value={schedule.name}
+            onChange={(e) => updateSchedule({ name: e.target.value })}
+            className="text-lg font-mono font-bold bg-transparent border-none p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 flex-1"
+          />
+          {myShareCode && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 border-primary/30 hover:border-primary font-mono text-xs shrink-0"
+              onClick={copyShareCode}
+              title="Zkopíruj a pošli kamarádovi, aby viděl tvůj pokrok"
+            >
+              {codeCopied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              {codeCopied ? "ZKOPÍROVÁNO" : myShareCode}
+            </Button>
+          )}
+        </div>
         {schedule.activities.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground space-y-2">
             <AlertTriangle className="h-8 w-8 mx-auto opacity-50" />
