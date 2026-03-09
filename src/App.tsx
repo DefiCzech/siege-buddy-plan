@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ScheduleProvider } from "@/hooks/use-schedule";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { MfaVerify } from "@/components/MfaVerify";
 import { AppLayout } from "@/components/AppLayout";
 import Index from "./pages/Index";
 import Manage from "./pages/Manage";
@@ -16,7 +17,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, needsMfa, mfaVerified } = useAuth();
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -25,6 +26,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
   if (!user) return <Navigate to="/auth" replace />;
+  if (needsMfa) return <MfaVerify onVerified={mfaVerified} />;
   return <>{children}</>;
 }
 
