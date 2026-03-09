@@ -87,7 +87,10 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
               onClick={() => setExpandedFriend(isExpanded ? null : friend.userId)}
               className="w-full flex items-center justify-between p-3 hover:bg-secondary/50 transition-colors text-left"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                {friend.rankImageUrl && (
+                  <img src={friend.rankImageUrl} alt={friend.rankName || ""} className="h-5 w-5" title={friend.rankName || undefined} />
+                )}
                 <span className="text-sm font-mono font-bold">{friend.displayName}</span>
                 {totalCount === 0 ? (
                   <span className="text-xs text-muted-foreground font-mono">volno</span>
