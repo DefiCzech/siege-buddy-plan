@@ -22,6 +22,7 @@ export interface ScheduleEntry {
   completed: boolean;
   durationMinutes?: number;
   completedMaps?: string[];
+  assignedMaps?: string[]; // maps assigned to practice for this entry
 }
 
 export interface R6SMap {
