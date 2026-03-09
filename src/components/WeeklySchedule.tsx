@@ -73,10 +73,32 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
             >
               <div className="flex items-center justify-between">
                 <h3 className="font-mono text-sm font-bold tracking-wide">{dayName}</h3>
-                {allDone && <CheckCircle2 className="h-4 w-4 text-success" />}
+                <div className="flex items-center gap-1">
+                  {allDone && <CheckCircle2 className="h-4 w-4 text-success" />}
+                  <Select onValueChange={(v) => addEntry(dayIdx, v)}>
+                    <SelectTrigger className="h-6 w-6 p-0 border-none bg-transparent text-muted-foreground hover:text-foreground">
+                      <Plus className="h-3.5 w-3.5" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {activities
+                        .filter((a) => !de.some((e) => e.activityId === a.id))
+                        .map((a) => {
+                          const cat = getCategory(a.categoryId);
+                          return (
+                            <SelectItem key={a.id} value={a.id}>
+                              <span className="inline-flex items-center gap-1">
+                                {cat && <span>{cat.icon}</span>}
+                                {a.name}
+                              </span>
+                            </SelectItem>
+                          );
+                        })}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              <div className="space-y-1 min-h-[60px]">
+              <div className="space-y-1">
                 {de.map((entry) => {
                   const act = getActivity(entry.activityId);
                   if (!act) return null;
@@ -132,28 +154,6 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
                   );
                 })}
               </div>
-
-              <Select onValueChange={(v) => addEntry(dayIdx, v)}>
-                <SelectTrigger className="h-7 text-xs bg-secondary/50 border-border">
-                  <Plus className="h-3 w-3 mr-1" />
-                  <span className="text-muted-foreground">Přidat</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {activities
-                    .filter((a) => !de.some((e) => e.activityId === a.id))
-                    .map((a) => {
-                      const cat = getCategory(a.categoryId);
-                      return (
-                        <SelectItem key={a.id} value={a.id}>
-                          <span className="inline-flex items-center gap-1">
-                            {cat && <span>{cat.icon}</span>}
-                            {a.name}
-                          </span>
-                        </SelectItem>
-                      );
-                    })}
-                </SelectContent>
-              </Select>
             </div>
           );
         })}
