@@ -48,6 +48,9 @@ const Index = () => {
   const completeToday = () => {
     if (!completingEntry) return;
     const mins = parseInt(duration) || 0;
+    const mapsToSave = hasAssignedMaps
+      ? completingEntryData!.assignedMaps!
+      : (selectedMaps.length > 0 ? selectedMaps : undefined);
     updateSchedule({
       entries: schedule.entries.map((e) =>
         e.dayOfWeek === todayIdx && e.activityId === completingEntry
@@ -55,7 +58,7 @@ const Index = () => {
               ...e,
               completed: true,
               durationMinutes: mins > 0 ? mins : undefined,
-              completedMaps: isMapLearning && selectedMaps.length > 0 ? selectedMaps : undefined,
+              completedMaps: isMapLearning ? mapsToSave : undefined,
             }
           : e
       ),
