@@ -109,7 +109,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
             categoryId: a.category_id,
             description: a.description ?? undefined,
             videoUrl: a.video_url ?? undefined,
-            activityType: a.activity_type === "map-learning" ? "map-learning" : "default",
+            activityType: (a.activity_type === "map-learning" || a.activity_type === "operator-training") ? a.activity_type : "default",
           })),
           entries: (entriesRes.data || []).map((e: any) => ({
             dayOfWeek: e.day_of_week,
