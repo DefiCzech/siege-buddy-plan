@@ -152,6 +152,7 @@ const Index = () => {
                         setCompletingEntry(entry.activityId);
                         setDuration("");
                         setSelectedMaps([]);
+                        setSelectedOperators([]);
                       }}
                     >
                       <CheckCircle2 className="h-4 w-4" />
