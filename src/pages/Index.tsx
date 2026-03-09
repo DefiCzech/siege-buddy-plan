@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Schedule } from "@/lib/types";
+import { Schedule, DAY_NAMES } from "@/lib/types";
 import { loadSchedule, saveSchedule, decodeScheduleFromShare } from "@/lib/schedule-store";
 import { ActivityManager } from "@/components/ActivityManager";
 import { WeeklySchedule } from "@/components/WeeklySchedule";
