@@ -2,9 +2,10 @@ import { useSchedule } from "@/hooks/use-schedule";
 import { ActivityManager } from "@/components/ActivityManager";
 import { WeeklySchedule } from "@/components/WeeklySchedule";
 import { CategoryManager } from "@/components/CategoryManager";
+import { MfaSettings } from "@/components/MfaSettings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Calendar, Settings, Tags, AlertTriangle } from "lucide-react";
+import { Calendar, Settings, Tags, AlertTriangle, ShieldCheck } from "lucide-react";
 
 const Manage = () => {
   const { schedule, updateSchedule } = useSchedule();
