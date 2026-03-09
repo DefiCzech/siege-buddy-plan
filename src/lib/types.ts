@@ -61,7 +61,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
 ];
 
 export const DEFAULT_ACTIVITIES: TrainingActivity[] = [
-  { id: "1", name: "Názvy místností", categoryId: "knowledge", description: "Naučit se calloutovat místnosti na mapách" },
+  { id: "1", name: "Názvy místností", categoryId: "knowledge", description: "Naučit se calloutovat místnosti na mapách", activityType: "map-learning" },
   { id: "2", name: "Míření (Aim Lab)", categoryId: "aim", description: "Trénink přesnosti v Aim Labu nebo T-Hunt" },
   { id: "3", name: "Pohyb", categoryId: "movement", description: "Quick peek, strafing, crouch spam" },
   { id: "4", name: "Recoil control", categoryId: "aim", description: "Ovládání zpětného rázu zbraní" },
