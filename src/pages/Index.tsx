@@ -46,7 +46,28 @@ const Index = () => {
   const remainingToday = todayEntries.filter((e) => !e.completed);
 
   const getActivity = (id: string) => schedule.activities.find((a) => a.id === id);
-  const getCategory = (id: string) => schedule.categories.find((c) => c.id === id);
+  const getVideoEmbedUrl = (url: string) => {
+    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+    if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+    return url;
+  };
+
+  const completeToday = () => {
+    if (!completingEntry) return;
+    const mins = parseInt(duration) || 0;
+    updateSchedule({
+      entries: schedule.entries.map((e) =>
+        e.dayOfWeek === todayIdx && e.activityId === completingEntry
+          ? { ...e, completed: true, durationMinutes: mins > 0 ? mins : undefined }
+          : e
+      ),
+    });
+    setCompletingEntry(null);
+    setDuration("");
+  };
+
+  const detailActivity = detailActivityId ? getActivity(detailActivityId) : null;
+  const detailCategory = detailActivity ? getCategory(detailActivity.categoryId) : null;
 
   return (
     <div className="min-h-screen bg-background">
