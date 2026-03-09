@@ -12,6 +12,17 @@ import { toast } from "sonner";
 
 const Manage = () => {
   const { schedule, updateSchedule, loading } = useSchedule();
+  const { myShareCode } = useFriends();
+  const [codeCopied, setCodeCopied] = useState(false);
+
+  const copyShareCode = () => {
+    if (!myShareCode) return;
+    navigator.clipboard.writeText(myShareCode).then(() => {
+      setCodeCopied(true);
+      toast.success("Kód zkopírován!");
+      setTimeout(() => setCodeCopied(false), 2000);
+    });
+  };
 
   if (loading) {
     return (
