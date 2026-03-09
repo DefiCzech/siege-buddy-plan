@@ -326,6 +326,13 @@ const Account = () => {
           Exportuj všechna svá data (plán, aktivity, kategorie, splněné tréninky) jako JSON soubor.
           Tento soubor můžeš později importovat pod novým účtem.
         </p>
+        <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+          <Checkbox
+            checked={includeStats}
+            onCheckedChange={(v) => setIncludeStats(v === true)}
+          />
+          Zahrnout statistiky (historie splněných tréninků)
+        </label>
         <div className="flex flex-wrap gap-2">
           <Button onClick={handleExport} variant="outline" className="gap-2 border-primary/30 hover:border-primary">
             <Download className="h-4 w-4" />
