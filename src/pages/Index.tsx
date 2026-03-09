@@ -215,8 +215,8 @@ const Index = () => {
           </DialogContent>
         </Dialog>
 
-        <Tabs defaultValue="schedule" className="space-y-6">
-          <TabsList className="bg-secondary border border-border">
+        <Tabs defaultValue="schedule" className="space-y-4 opacity-80 hover:opacity-100 transition-opacity">
+          <TabsList className="bg-secondary/50 border border-border/50">
             <TabsTrigger value="schedule" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Calendar className="h-3.5 w-3.5" />
               Rozvrh
