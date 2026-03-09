@@ -8,10 +8,11 @@ import { toast } from "sonner";
 import { useSchedule } from "@/hooks/use-schedule";
 import { encodeScheduleForShare } from "@/lib/schedule-store";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Copy, Check, User, Lock, Mail, Share2, Download, Upload, Trash2, BarChart3 } from "lucide-react";
+import { Copy, Check, User, Lock, Mail, Share2, Download, Upload, Trash2, BarChart3, Settings, Database } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MfaSettings } from "@/components/MfaSettings";
 import { TrainingStats } from "@/components/TrainingStats";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Account = () => {
   const { user, signOut } = useAuth();
@@ -102,7 +103,6 @@ const Account = () => {
     });
   };
 
-  // Export all data as JSON
   const handleExport = () => {
     const exportData: any = {
       version: 1,
@@ -127,7 +127,6 @@ const Account = () => {
     toast.success("Data exportována!");
   };
 
-  // Import data from JSON file
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -139,16 +138,12 @@ const Account = () => {
           toast.error("Neplatný formát souboru");
           return;
         }
-
-        // Import schedule
         updateSchedule({
           name: data.schedule.name,
           categories: data.schedule.categories || [],
           activities: data.schedule.activities || [],
           entries: data.schedule.entries || [],
         });
-
-        // Import completions only if user wants stats
         if (includeStats && data.completions?.length) {
           data.completions.forEach((c: any) => {
             addCompletion({
@@ -159,7 +154,6 @@ const Account = () => {
             });
           });
         }
-
         const statsMsg = includeStats && data.completions?.length
           ? `, ${data.completions.length} splnění`
           : "";
@@ -169,18 +163,15 @@ const Account = () => {
       }
     };
     reader.readAsText(file);
-    // Reset input
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Delete account
   const handleDeleteAccount = async () => {
     if (deleteText !== "SMAZAT") return;
     setDeleting(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("No session");
-
       const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
       const res = await fetch(
         `https://${projectId}.supabase.co/functions/v1/delete-account`,
@@ -192,12 +183,10 @@ const Account = () => {
           },
         }
       );
-
       if (!res.ok) {
         const body = await res.json();
         throw new Error(body.error || "Chyba při mazání účtu");
       }
-
       toast.success("Účet byl smazán");
       await signOut();
     } catch (err: any) {
@@ -209,186 +198,217 @@ const Account = () => {
   };
 
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-8 space-y-8">
-      <h2 className="text-xl font-mono font-bold text-foreground">Nastavení účtu</h2>
+    <div className="container max-w-2xl mx-auto px-4 py-8 space-y-6">
+      <h2 className="text-xl font-mono font-bold text-foreground">Účet</h2>
 
-      {/* Display Name */}
-      <section className="space-y-3">
-        <div className="flex items-center gap-2 text-sm font-mono text-primary">
-          <User className="h-4 w-4" />
-          Přezdívka
-        </div>
-        <form onSubmit={handleUpdateName} className="flex gap-2">
-          <Input
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="Tvoje přezdívka"
-            className="bg-secondary border-border"
-          />
-          <Button type="submit" disabled={loadingName} size="sm">
-            {loadingName ? "..." : "Uložit"}
-          </Button>
-        </form>
-      </section>
+      <Tabs defaultValue="settings" className="space-y-6">
+        <TabsList className="bg-secondary border border-border">
+          <TabsTrigger value="settings" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <Settings className="h-3.5 w-3.5" />
+            Nastavení
+          </TabsTrigger>
+          <TabsTrigger value="stats" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <BarChart3 className="h-3.5 w-3.5" />
+            Statistiky
+          </TabsTrigger>
+          <TabsTrigger value="data" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <Database className="h-3.5 w-3.5" />
+            Data
+          </TabsTrigger>
+        </TabsList>
 
-      <Separator />
+        {/* === NASTAVENÍ === */}
+        <TabsContent value="settings" className="space-y-8">
+          {/* Display Name */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-mono text-primary">
+              <User className="h-4 w-4" />
+              Přezdívka
+            </div>
+            <form onSubmit={handleUpdateName} className="flex gap-2">
+              <Input
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="Tvoje přezdívka"
+                className="bg-secondary border-border"
+              />
+              <Button type="submit" disabled={loadingName} size="sm">
+                {loadingName ? "..." : "Uložit"}
+              </Button>
+            </form>
+          </section>
 
-      {/* Email */}
-      <section className="space-y-3">
-        <div className="flex items-center gap-2 text-sm font-mono text-primary">
-          <Mail className="h-4 w-4" />
-          Email
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Aktuální: <span className="text-foreground">{user?.email}</span>
-        </p>
-        <form onSubmit={handleUpdateEmail} className="flex gap-2">
-          <Input
-            type="email"
-            value={newEmail}
-            onChange={(e) => setNewEmail(e.target.value)}
-            placeholder="Nový email"
-            className="bg-secondary border-border"
-            required
-            autoComplete="email"
-          />
-          <Button type="submit" disabled={loadingEmail} size="sm">
-            {loadingEmail ? "..." : "Změnit"}
-          </Button>
-        </form>
-      </section>
+          <Separator />
 
-      <Separator />
+          {/* Email */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-mono text-primary">
+              <Mail className="h-4 w-4" />
+              Email
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Aktuální: <span className="text-foreground">{user?.email}</span>
+            </p>
+            <form onSubmit={handleUpdateEmail} className="flex gap-2">
+              <Input
+                type="email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="Nový email"
+                className="bg-secondary border-border"
+                required
+                autoComplete="email"
+              />
+              <Button type="submit" disabled={loadingEmail} size="sm">
+                {loadingEmail ? "..." : "Změnit"}
+              </Button>
+            </form>
+          </section>
 
-      {/* Password */}
-      <section className="space-y-3">
-        <div className="flex items-center gap-2 text-sm font-mono text-primary">
-          <Lock className="h-4 w-4" />
-          Změna hesla
-        </div>
-        <form onSubmit={handleUpdatePassword} className="space-y-2 max-w-sm">
-          <Input
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Nové heslo"
-            className="bg-secondary border-border"
-            required
-            minLength={6}
-            autoComplete="new-password"
-          />
-          <Input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Potvrdit nové heslo"
-            className="bg-secondary border-border"
-            required
-            minLength={6}
-            autoComplete="new-password"
-          />
-          <Button type="submit" disabled={loadingPassword} size="sm">
-            {loadingPassword ? "..." : "Změnit heslo"}
-          </Button>
-        </form>
-      </section>
+          <Separator />
 
-      <Separator />
+          {/* Password */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-mono text-primary">
+              <Lock className="h-4 w-4" />
+              Změna hesla
+            </div>
+            <form onSubmit={handleUpdatePassword} className="space-y-2 max-w-sm">
+              <Input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Nové heslo"
+                className="bg-secondary border-border"
+                required
+                minLength={6}
+                autoComplete="new-password"
+              />
+              <Input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Potvrdit nové heslo"
+                className="bg-secondary border-border"
+                required
+                minLength={6}
+                autoComplete="new-password"
+              />
+              <Button type="submit" disabled={loadingPassword} size="sm">
+                {loadingPassword ? "..." : "Změnit heslo"}
+              </Button>
+            </form>
+          </section>
 
-      {/* Stats */}
-      <section className="space-y-3">
-        <div className="flex items-center gap-2 text-sm font-mono text-primary">
-          <BarChart3 className="h-4 w-4" />
-          Statistiky
-        </div>
-        <TrainingStats completions={completions} activities={schedule.activities} categories={schedule.categories} />
-      </section>
+          <Separator />
 
-      <Separator />
+          {/* 2FA */}
+          <MfaSettings />
 
-      {/* 2FA */}
-      <MfaSettings />
+          <Separator />
 
-      <Separator />
+          {/* Share plan */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-mono text-primary">
+              <Share2 className="h-4 w-4" />
+              Sdílení plánu
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Vygeneruj odkaz s hash kódem tvého tréninkového plánu a sdílej ho s kýmkoliv.
+            </p>
+            <Button onClick={handleShare} variant="outline" className="gap-2 border-primary/30 hover:border-primary">
+              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copied ? "Zkopírováno!" : "Zkopírovat odkaz na plán"}
+            </Button>
+          </section>
 
-      {/* Share plan */}
-      <section className="space-y-3">
-        <div className="flex items-center gap-2 text-sm font-mono text-primary">
-          <Share2 className="h-4 w-4" />
-          Sdílení plánu
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Vygeneruj odkaz s hash kódem tvého tréninkového plánu a sdílej ho s kýmkoliv.
-        </p>
-        <Button onClick={handleShare} variant="outline" className="gap-2 border-primary/30 hover:border-primary">
-          {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-          {copied ? "Zkopírováno!" : "Zkopírovat odkaz na plán"}
-        </Button>
-      </section>
+          <Separator />
 
-      <Separator />
+          {/* Delete account */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-mono text-destructive">
+              <Trash2 className="h-4 w-4" />
+              Smazat účet
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Trvale smaže tvůj účet a všechna data. Tuto akci nelze vrátit zpět.
+            </p>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="gap-2"
+              onClick={() => setDeleteConfirmOpen(true)}
+            >
+              <Trash2 className="h-4 w-4" />
+              Smazat účet
+            </Button>
+          </section>
+        </TabsContent>
 
-      {/* Export / Import */}
-      <section className="space-y-3">
-        <div className="flex items-center gap-2 text-sm font-mono text-primary">
-          <Download className="h-4 w-4" />
-          Export & Import dat
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Exportuj všechna svá data (plán, aktivity, kategorie, splněné tréninky) jako JSON soubor.
-          Tento soubor můžeš později importovat pod novým účtem.
-        </p>
-        <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
-          <Checkbox
-            checked={includeStats}
-            onCheckedChange={(v) => setIncludeStats(v === true)}
-          />
-          Zahrnout statistiky (historie splněných tréninků)
-        </label>
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={handleExport} variant="outline" className="gap-2 border-primary/30 hover:border-primary">
-            <Download className="h-4 w-4" />
-            Exportovat data
-          </Button>
-          <Button
-            variant="outline"
-            className="gap-2 border-primary/30 hover:border-primary"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Upload className="h-4 w-4" />
-            Importovat data
-          </Button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            className="hidden"
-            onChange={handleImport}
-          />
-        </div>
-      </section>
+        {/* === STATISTIKY === */}
+        <TabsContent value="stats">
+          <TrainingStats completions={completions} activities={schedule.activities} categories={schedule.categories} />
+        </TabsContent>
 
-      <Separator />
+        {/* === DATA === */}
+        <TabsContent value="data" className="space-y-8">
+          {/* Export / Import */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-mono text-primary">
+              <Download className="h-4 w-4" />
+              Export dat
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Exportuj všechna svá data (plán, aktivity, kategorie) jako JSON soubor.
+            </p>
+            <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+              <Checkbox
+                checked={includeStats}
+                onCheckedChange={(v) => setIncludeStats(v === true)}
+              />
+              Zahrnout statistiky (historie splněných tréninků)
+            </label>
+            <Button onClick={handleExport} variant="outline" className="gap-2 border-primary/30 hover:border-primary">
+              <Download className="h-4 w-4" />
+              Exportovat data
+            </Button>
+          </section>
 
-      {/* Delete account */}
-      <section className="space-y-3">
-        <div className="flex items-center gap-2 text-sm font-mono text-destructive">
-          <Trash2 className="h-4 w-4" />
-          Smazat účet
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Trvale smaže tvůj účet a všechna data. Tuto akci nelze vrátit zpět.
-        </p>
-        <Button
-          variant="destructive"
-          size="sm"
-          className="gap-2"
-          onClick={() => setDeleteConfirmOpen(true)}
-        >
-          <Trash2 className="h-4 w-4" />
-          Smazat účet
-        </Button>
-      </section>
+          <Separator />
+
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-mono text-primary">
+              <Upload className="h-4 w-4" />
+              Import dat
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Nahraj dříve exportovaný JSON soubor a obnov svá data pod tímto účtem.
+            </p>
+            <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+              <Checkbox
+                checked={includeStats}
+                onCheckedChange={(v) => setIncludeStats(v === true)}
+              />
+              Importovat i statistiky (pokud soubor obsahuje)
+            </label>
+            <Button
+              variant="outline"
+              className="gap-2 border-primary/30 hover:border-primary"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="h-4 w-4" />
+              Importovat data
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              className="hidden"
+              onChange={handleImport}
+            />
+          </section>
+        </TabsContent>
+      </Tabs>
 
       {/* Delete confirmation dialog */}
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
