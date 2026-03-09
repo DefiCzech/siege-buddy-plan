@@ -186,7 +186,7 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
           );
         })}
       </div>
-
+      <ConfirmDialog />
     </div>
   );
 }

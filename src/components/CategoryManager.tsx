@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 import { Category, DEFAULT_CATEGORY_COLORS } from "@/lib/types";
 import { generateId } from "@/lib/schedule-store";
 import { Button } from "@/components/ui/button";
