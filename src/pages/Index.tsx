@@ -149,8 +149,8 @@ const Index = () => {
         )}
       </div>
 
-      {/* Friend tracker */}
-      <div className="mt-6 rounded-lg border border-border bg-card p-5">
+      {/* Friend tracker — subtle section below main content */}
+      <div className="mt-4 px-1">
         <FriendTracker
           friends={friends}
           loading={loadingFriends}
