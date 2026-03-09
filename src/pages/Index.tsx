@@ -10,6 +10,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
   const { schedule, updateSchedule, loading } = useSchedule();
+  const [completingEntry, setCompletingEntry] = useState<string | null>(null);
+  const [duration, setDuration] = useState("");
+  const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
+  const [detailActivityId, setDetailActivityId] = useState<string | null>(null);
+  const [mapFilter, setMapFilter] = useState<"all" | "ranked" | "unranked">("ranked");
 
   if (loading) {
     return (
@@ -18,11 +23,6 @@ const Index = () => {
       </main>
     );
   }
-  const [completingEntry, setCompletingEntry] = useState<string | null>(null);
-  const [duration, setDuration] = useState("");
-  const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
-  const [detailActivityId, setDetailActivityId] = useState<string | null>(null);
-  const [mapFilter, setMapFilter] = useState<"all" | "ranked" | "unranked">("ranked");
 
   const todayIdx = (new Date().getDay() + 6) % 7;
   const todayEntries = schedule.entries.filter((e) => e.dayOfWeek === todayIdx);
