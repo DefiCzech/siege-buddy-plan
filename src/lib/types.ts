@@ -24,11 +24,30 @@ export interface ScheduleEntry {
   completedMaps?: string[];
 }
 
-export const R6S_MAPS = [
-  "Bank", "Border", "Chalet", "Clubhouse", "Coastline",
-  "Consulate", "Emerald Plains", "Kafe Dostoyevsky", "Kanal",
-  "Lair", "Nighthaven Labs", "Oregon", "Outback",
-  "Skyscraper", "Theme Park", "Villa",
+export interface R6SMap {
+  name: string;
+  ranked: boolean;
+}
+
+export const R6S_MAPS: R6SMap[] = [
+  { name: "Bank", ranked: true },
+  { name: "Border", ranked: true },
+  { name: "Chalet", ranked: true },
+  { name: "Clubhouse", ranked: true },
+  { name: "Coastline", ranked: false },
+  { name: "Consulate", ranked: true },
+  { name: "Emerald Plains", ranked: false },
+  { name: "Favela", ranked: true },
+  { name: "Fortress", ranked: true },
+  { name: "Kafe Dostoyevsky", ranked: true },
+  { name: "Kanal", ranked: true },
+  { name: "Lair", ranked: true },
+  { name: "Nighthaven Labs", ranked: true },
+  { name: "Oregon", ranked: false },
+  { name: "Outback", ranked: false },
+  { name: "Skyscraper", ranked: true },
+  { name: "Theme Park", ranked: true },
+  { name: "Villa", ranked: false },
 ];
 
 export interface Schedule {
