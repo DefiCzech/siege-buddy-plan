@@ -184,20 +184,9 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
                             {cat && <span>{cat.icon}</span>}
                             {act.name}
                           </div>
-                          {entry.completed && entry.durationMinutes && (
-                            <div className="flex items-center gap-0.5 mt-0.5 opacity-70">
-                              <Clock className="h-2.5 w-2.5" />
-                              {entry.durationMinutes} min
-                            </div>
-                          )}
-                          {entry.completed && entry.completedMaps && entry.completedMaps.length > 0 && (
-                            <div className="mt-0.5 opacity-70 text-[10px]">
-                              🗺️ {entry.completedMaps.join(", ")}
-                            </div>
-                          )}
                         </div>
                         <div className="flex items-center gap-0.5 shrink-0">
-                          {isMapActivity && !entry.completed && (
+                          {isMapActivity && (
                             <MapAssignPopover
                               assignedMaps={entry.assignedMaps || []}
                               onToggle={(map) => toggleAssignedMap(dayIdx, entry.activityId, map)}
