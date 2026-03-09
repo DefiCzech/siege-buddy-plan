@@ -18,7 +18,6 @@ export function AppHeader({ schedule, completedToday, totalToday }: Props) {
   const navItems = [
     { to: "/", icon: Calendar, label: "Přehled" },
     { to: "/manage", icon: Settings, label: "Plánování" },
-    { to: "/stats", icon: BarChart3, label: "Statistiky" },
     { to: "/account", icon: UserCog, label: "Účet" },
   ];
 

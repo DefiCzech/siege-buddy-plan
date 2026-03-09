@@ -295,6 +295,17 @@ const Account = () => {
 
       <Separator />
 
+      {/* Stats */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2 text-sm font-mono text-primary">
+          <BarChart3 className="h-4 w-4" />
+          Statistiky
+        </div>
+        <TrainingStats />
+      </section>
+
+      <Separator />
+
       {/* 2FA */}
       <MfaSettings />
 
