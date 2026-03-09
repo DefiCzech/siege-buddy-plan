@@ -52,7 +52,9 @@ const Index = () => {
     ? schedule.entries.find((e) => e.dayOfWeek === todayIdx && e.activityId === completingEntry)
     : null;
   const isMapLearning = completingActivity?.activityType === "map-learning";
+  const isOperatorTraining = completingActivity?.activityType === "operator-training";
   const hasAssignedMaps = (completingEntryData?.assignedMaps?.length ?? 0) > 0;
+  const hasAssignedOperators = (completingEntryData?.assignedOperators?.length ?? 0) > 0;
 
   const completeToday = () => {
     if (!completingEntry) return;

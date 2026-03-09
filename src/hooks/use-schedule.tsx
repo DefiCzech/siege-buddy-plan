@@ -246,6 +246,7 @@ async function saveScheduleToDb(userId: string, schedule: Schedule) {
         day_of_week: e.dayOfWeek,
         activity_id: e.activityId,
         assigned_maps: e.assignedMaps ?? null,
+        assigned_operators: e.assignedOperators ?? null,
       }))
     );
   }
