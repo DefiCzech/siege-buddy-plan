@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ScheduleEntry, TrainingActivity, Category, DAY_NAMES, R6S_MAPS } from "@/lib/types";
+import { ScheduleEntry, TrainingActivity, Category, DAY_NAMES, R6S_MAPS, R6S_OPERATORS } from "@/lib/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
