@@ -3,12 +3,15 @@ import { useSchedule } from "@/hooks/use-schedule";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { CheckCircle2, Info, ExternalLink } from "lucide-react";
+import { R6S_MAPS } from "@/lib/types";
 
 const Index = () => {
   const { schedule, updateSchedule } = useSchedule();
   const [completingEntry, setCompletingEntry] = useState<string | null>(null);
   const [duration, setDuration] = useState("");
+  const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
   const [detailActivityId, setDetailActivityId] = useState<string | null>(null);
 
   const todayIdx = (new Date().getDay() + 6) % 7;
