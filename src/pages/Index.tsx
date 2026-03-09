@@ -105,26 +105,123 @@ const Index = () => {
           </div>
           {todayEntries.length === 0 ? (
             <p className="text-sm text-muted-foreground">Na dnes nemáš naplánovaný žádný trénink.</p>
-          ) : remainingToday.length === 0 ? (
-            <p className="text-sm text-success">Všechny dnešní tréninky jsou splněné! 💪</p>
           ) : (
-            <div className="space-y-1.5">
-              <p className="text-xs text-muted-foreground">Zbývá natrénovat:</p>
-              {remainingToday.map((entry) => {
+            <div className="space-y-2">
+              {todayEntries.map((entry) => {
                 const act = getActivity(entry.activityId);
                 if (!act) return null;
                 const cat = getCategory(act.categoryId);
                 const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
                 return (
-                  <div key={entry.activityId} className={`text-sm p-2 rounded border ${colorClass} inline-flex items-center gap-1.5 mr-2`}>
-                    {cat && <span>{cat.icon}</span>}
-                    {act.name}
+                  <div
+                    key={entry.activityId}
+                    className={`rounded border p-3 ${entry.completed ? "bg-success/10 border-success/30" : colorClass}`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className={`flex items-center gap-2 text-sm font-medium ${entry.completed ? "text-success line-through opacity-70" : ""}`}>
+                        {cat && <span>{cat.icon}</span>}
+                        {act.name}
+                        {entry.completed && entry.durationMinutes && (
+                          <span className="flex items-center gap-0.5 text-xs text-success/70 no-underline">
+                            <Clock className="h-3 w-3" /> {entry.durationMinutes} min
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {(act.description || act.videoUrl) && (
+                          <button
+                            onClick={() => setDetailActivityId(act.id)}
+                            className="text-muted-foreground hover:text-foreground transition-colors"
+                            title="Zobrazit detail"
+                          >
+                            <Info className="h-4 w-4" />
+                          </button>
+                        )}
+                        {!entry.completed && (
+                          <button
+                            onClick={() => { setCompletingEntry(entry.activityId); setDuration(""); }}
+                            className="text-muted-foreground hover:text-success transition-colors"
+                            title="Označit jako hotové"
+                          >
+                            <CheckCircle2 className="h-4 w-4" />
+                          </button>
+                        )}
+                        {entry.completed && (
+                          <CheckCircle2 className="h-4 w-4 text-success" />
+                        )}
+                      </div>
+                    </div>
+                    {act.description && !entry.completed && (
+                      <p className="text-xs mt-1 opacity-70">{act.description}</p>
+                    )}
                   </div>
                 );
               })}
             </div>
           )}
         </div>
+
+        {/* Complete dialog */}
+        <Dialog open={!!completingEntry} onOpenChange={(open) => !open && setCompletingEntry(null)}>
+          <DialogContent className="bg-card border-border">
+            <DialogHeader>
+              <DialogTitle className="font-mono">DOKONČIT TRÉNINK</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">Jak dlouho jsi trénoval/a? (volitelné)</p>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  placeholder="Minuty"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && completeToday()}
+                  className="bg-secondary border-border"
+                  autoFocus
+                />
+                <span className="text-sm text-muted-foreground">min</span>
+              </div>
+              <Button onClick={completeToday} className="w-full">Dokončit</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Detail dialog */}
+        <Dialog open={!!detailActivityId} onOpenChange={(open) => !open && setDetailActivityId(null)}>
+          <DialogContent className="bg-card border-border max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="font-mono flex items-center gap-2">
+                {detailCategory && <span>{detailCategory.icon}</span>}
+                {detailActivity?.name}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {detailActivity?.description && (
+                <p className="text-sm text-muted-foreground">{detailActivity.description}</p>
+              )}
+              {detailActivity?.videoUrl && (
+                <div className="space-y-2">
+                  <div className="aspect-video rounded overflow-hidden border border-border">
+                    <iframe
+                      src={getVideoEmbedUrl(detailActivity.videoUrl)}
+                      className="w-full h-full"
+                      allowFullScreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    />
+                  </div>
+                  <a
+                    href={detailActivity.videoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                  >
+                    <ExternalLink className="h-3 w-3" /> Otevřít video
+                  </a>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
 
         <Tabs defaultValue="schedule" className="space-y-6">
           <TabsList className="bg-secondary border border-border">
