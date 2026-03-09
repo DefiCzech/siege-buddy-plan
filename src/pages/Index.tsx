@@ -164,7 +164,7 @@ const Index = () => {
               />
               <span className="text-sm text-muted-foreground">min</span>
             </div>
-            {isMapLearning && (
+            {isMapLearning && !hasAssignedMaps && (
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm text-muted-foreground">Které mapy jsi se učil/a?</p>
