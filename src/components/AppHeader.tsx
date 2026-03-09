@@ -1,7 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
-import { Crosshair, Calendar, Settings, BarChart3 } from "lucide-react";
+import { Crosshair, Calendar, Settings, BarChart3, LogOut } from "lucide-react";
 import { Schedule } from "@/lib/types";
 import { ShareButton } from "@/components/ShareButton";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   schedule: Schedule;
@@ -11,6 +13,7 @@ interface Props {
 
 export function AppHeader({ schedule, completedToday, totalToday }: Props) {
   const location = useLocation();
+  const { signOut } = useAuth();
 
   const navItems = [
     { to: "/", icon: Calendar, label: "Přehled" },
@@ -54,6 +57,9 @@ export function AppHeader({ schedule, completedToday, totalToday }: Props) {
             </div>
           )}
           <ShareButton schedule={schedule} />
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={signOut} title="Odhlásit se">
+            <LogOut className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </header>
