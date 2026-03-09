@@ -153,7 +153,7 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
                   return (
                     <div
                       key={entry.activityId}
-                      className={`text-xs p-1.5 rounded border flex items-start gap-1 group relative ${colorClass}`}
+                      className={`text-xs p-1.5 rounded border flex items-start gap-1 ${colorClass}`}
                     >
                       <div className="flex-1">
                         <div className="inline-flex items-center gap-1">
