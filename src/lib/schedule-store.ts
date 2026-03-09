@@ -1,4 +1,4 @@
-import { Schedule, DEFAULT_ACTIVITIES } from "./types";
+import { Schedule, DEFAULT_ACTIVITIES, DEFAULT_CATEGORIES } from "./types";
 
 const STORAGE_KEY = "r6s-schedule";
 
@@ -9,7 +9,22 @@ function generateId(): string {
 export function loadSchedule(): Schedule {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return JSON.parse(stored);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Migration: add categories if missing
+      if (!parsed.categories) {
+        parsed.categories = [...DEFAULT_CATEGORIES];
+      }
+      // Migration: rename category -> categoryId
+      if (parsed.activities?.length && parsed.activities[0].category && !parsed.activities[0].categoryId) {
+        parsed.activities = parsed.activities.map((a: any) => ({
+          ...a,
+          categoryId: a.category,
+          category: undefined,
+        }));
+      }
+      return parsed;
+    }
   } catch {}
   return createDefaultSchedule();
 }
@@ -22,6 +37,7 @@ function createDefaultSchedule(): Schedule {
   return {
     id: generateId(),
     name: "Můj R6S Tréninkový Plán",
+    categories: [...DEFAULT_CATEGORIES],
     activities: [...DEFAULT_ACTIVITIES],
     entries: [],
   };

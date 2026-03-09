@@ -1,20 +1,23 @@
 import { useState } from "react";
-import { ScheduleEntry, TrainingActivity, DAY_NAMES, CATEGORY_COLORS, CATEGORY_LABELS } from "@/lib/types";
+import { ScheduleEntry, TrainingActivity, Category, DAY_NAMES } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, CheckCircle2, Clock, X } from "lucide-react";
 
 interface Props {
   activities: TrainingActivity[];
+  categories: Category[];
   entries: ScheduleEntry[];
   onChange: (entries: ScheduleEntry[]) => void;
 }
 
-export function WeeklySchedule({ activities, entries, onChange }: Props) {
+export function WeeklySchedule({ activities, categories, entries, onChange }: Props) {
   const [completingEntry, setCompletingEntry] = useState<{ day: number; actId: string } | null>(null);
   const [duration, setDuration] = useState("");
+
+  const getCategory = (id: string) => categories.find((c) => c.id === id);
 
   const addEntry = (dayOfWeek: number, activityId: string) => {
     if (entries.some((e) => e.dayOfWeek === dayOfWeek && e.activityId === activityId)) return;
@@ -69,9 +72,7 @@ export function WeeklySchedule({ activities, entries, onChange }: Props) {
               }`}
             >
               <div className="flex items-center justify-between">
-                <h3 className="font-mono text-sm font-bold tracking-wide">
-                  {dayName}
-                </h3>
+                <h3 className="font-mono text-sm font-bold tracking-wide">{dayName}</h3>
                 {allDone && <CheckCircle2 className="h-4 w-4 text-success" />}
               </div>
 
@@ -79,17 +80,22 @@ export function WeeklySchedule({ activities, entries, onChange }: Props) {
                 {de.map((entry) => {
                   const act = getActivity(entry.activityId);
                   if (!act) return null;
+                  const cat = getCategory(act.categoryId);
+                  const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
                   return (
                     <div
                       key={entry.activityId}
                       className={`text-xs p-1.5 rounded border flex items-start gap-1 group relative ${
                         entry.completed
                           ? "bg-success/10 border-success/30 text-success"
-                          : CATEGORY_COLORS[act.category]
+                          : colorClass
                       }`}
                     >
                       <div className="flex-1">
-                        <div className={entry.completed ? "line-through opacity-70" : ""}>{act.name}</div>
+                        <div className={`inline-flex items-center gap-1 ${entry.completed ? "line-through opacity-70" : ""}`}>
+                          {cat && <span>{cat.icon}</span>}
+                          {act.name}
+                        </div>
                         {entry.completed && entry.durationMinutes && (
                           <div className="flex items-center gap-0.5 mt-0.5 text-success/70">
                             <Clock className="h-2.5 w-2.5" />
@@ -139,14 +145,17 @@ export function WeeklySchedule({ activities, entries, onChange }: Props) {
                 <SelectContent>
                   {activities
                     .filter((a) => !de.some((e) => e.activityId === a.id))
-                    .map((a) => (
-                      <SelectItem key={a.id} value={a.id}>
-                        <span className={`text-xs px-1 py-0.5 rounded mr-1 ${CATEGORY_COLORS[a.category]}`}>
-                          {CATEGORY_LABELS[a.category]}
-                        </span>
-                        {a.name}
-                      </SelectItem>
-                    ))}
+                    .map((a) => {
+                      const cat = getCategory(a.categoryId);
+                      return (
+                        <SelectItem key={a.id} value={a.id}>
+                          <span className="inline-flex items-center gap-1">
+                            {cat && <span>{cat.icon}</span>}
+                            {a.name}
+                          </span>
+                        </SelectItem>
+                      );
+                    })}
                 </SelectContent>
               </Select>
             </div>
@@ -154,7 +163,6 @@ export function WeeklySchedule({ activities, entries, onChange }: Props) {
         })}
       </div>
 
-      {/* Completion dialog */}
       <Dialog open={!!completingEntry} onOpenChange={(open) => !open && setCompletingEntry(null)}>
         <DialogContent className="bg-card border-border">
           <DialogHeader>
