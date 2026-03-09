@@ -149,6 +149,16 @@ const Index = () => {
         )}
       </div>
 
+      {/* Friend tracker */}
+      <div className="mt-6 rounded-lg border border-border bg-card p-5">
+        <FriendTracker
+          friends={friends}
+          loading={loadingFriends}
+          onAddFriend={addFriend}
+          onRemoveFriend={removeFriend}
+        />
+      </div>
+
       {/* Complete dialog */}
       <Dialog open={!!completingEntry} onOpenChange={(open) => !open && setCompletingEntry(null)}>
         <DialogContent className="bg-card border-border max-w-md">
