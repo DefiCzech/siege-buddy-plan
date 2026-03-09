@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FriendData } from "@/hooks/use-friends";
-import { DAY_NAMES } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { UserPlus, X, CheckCircle2, Circle, Users, ChevronDown, ChevronUp } from "lucide-react";
+import { UserPlus, X, CheckCircle2, Circle, Users } from "lucide-react";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 
 interface Props {
@@ -22,6 +21,16 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayIdx = (new Date().getDay() + 6) % 7;
 
+  // Close on Escape
+  useEffect(() => {
+    if (!expandedFriend) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setExpandedFriend(null);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [expandedFriend]);
+
   const handleAdd = () => {
     if (!friendCode.trim()) return;
     onAddFriend(friendCode);
@@ -37,6 +46,11 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
 
   return (
     <div className="space-y-2">
+      {/* Backdrop to close on outside click */}
+      {expandedFriend && (
+        <div className="fixed inset-0 z-10" onClick={() => setExpandedFriend(null)} />
+      )}
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground">
           <Users className="h-3 w-3" />
@@ -78,7 +92,6 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
         </p>
       )}
 
-      {/* Compact friend chips in a flex-wrap layout */}
       <div className="flex flex-wrap gap-1.5">
         {friends.map((friend) => {
           const todayEntries = friend.schedule.entries.filter((e) => e.dayOfWeek === todayIdx);
@@ -91,7 +104,7 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
           const isExpanded = expandedFriend === friend.userId;
 
           return (
-            <div key={friend.userId} className="relative">
+            <div key={friend.userId} className="relative z-20">
               <button
                 onClick={() => setExpandedFriend(isExpanded ? null : friend.userId)}
                 className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-colors ${
@@ -113,14 +126,12 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
                 )}
               </button>
 
-              {/* Expanded popover-like detail */}
               {isExpanded && (
                 <FriendDetail
                   friend={friend}
                   todayIdx={todayIdx}
                   todayStr={todayStr}
                   onRemove={(e) => handleRemove(e, friend)}
-                  onClose={() => setExpandedFriend(null)}
                 />
               )}
             </div>
@@ -138,13 +149,11 @@ function FriendDetail({
   todayIdx,
   todayStr,
   onRemove,
-  onClose,
 }: {
   friend: FriendData;
   todayIdx: number;
   todayStr: string;
   onRemove: (e: React.MouseEvent) => void;
-  onClose: () => void;
 }) {
   const todayEntries = friend.schedule.entries.filter((e) => e.dayOfWeek === todayIdx);
   const todayCompletions = friend.completions.filter((c) => c.completedDate === todayStr);
@@ -155,7 +164,15 @@ function FriendDetail({
   const getCategory = (id: string) => friend.schedule.categories.find((c) => c.id === id);
 
   return (
-    <div className="absolute top-full left-0 mt-1 z-20 w-56 rounded-lg border border-border bg-card shadow-lg p-2.5 space-y-2">
+    <div className="absolute top-full left-0 mt-1 w-56 rounded-lg border border-border bg-card shadow-lg p-2.5 space-y-2">
+      {/* Rank display */}
+      {friend.rankName && (
+        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          {friend.rankImageUrl && <img src={friend.rankImageUrl} alt="" className="h-4 w-4" />}
+          <span className="font-mono">{friend.rankName}</span>
+        </div>
+      )}
+
       {todayEntries.length === 0 ? (
         <p className="text-[11px] text-muted-foreground">Dnes nemá nic naplánováno</p>
       ) : (
@@ -187,27 +204,6 @@ function FriendDetail({
           })}
         </div>
       )}
-
-      <div className="flex gap-0.5 pt-1">
-        {DAY_NAMES.map((name, idx) => {
-          const dayEntries = friend.schedule.entries.filter((e) => e.dayOfWeek === idx);
-          const isToday = idx === todayIdx;
-          return (
-            <div
-              key={idx}
-              className={`flex-1 text-center text-[9px] font-mono py-0.5 rounded ${
-                isToday
-                  ? "bg-primary/20 text-primary font-bold"
-                  : dayEntries.length > 0
-                  ? "bg-secondary text-muted-foreground"
-                  : "text-muted-foreground/20"
-              }`}
-            >
-              {name.slice(0, 2)}
-            </div>
-          );
-        })}
-      </div>
 
       <button
         onClick={onRemove}
