@@ -92,15 +92,6 @@ const Account = () => {
     }
   };
 
-  const handleShare = () => {
-    const encoded = encodeScheduleForShare(schedule);
-    const url = `${window.location.origin}?plan=${encoded}`;
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true);
-      toast.success("Odkaz zkopírován do schránky!");
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
 
   const handleExport = () => {
     const exportData: any = {
