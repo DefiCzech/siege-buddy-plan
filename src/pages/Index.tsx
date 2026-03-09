@@ -102,7 +102,7 @@ const Index = () => {
                         </button>
                       )}
                       <button
-                        onClick={() => { setCompletingEntry(entry.activityId); setDuration(""); }}
+                        onClick={() => { setCompletingEntry(entry.activityId); setDuration(""); setSelectedMaps([]); }}
                         className="text-muted-foreground hover:text-success transition-colors"
                         title="Označit jako hotové"
                       >
