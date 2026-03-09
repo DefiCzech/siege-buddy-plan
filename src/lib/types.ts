@@ -5,12 +5,15 @@ export interface Category {
   color: string; // tailwind color classes
 }
 
+export type ActivityType = "default" | "map-learning";
+
 export interface TrainingActivity {
   id: string;
   name: string;
   categoryId: string;
   description?: string;
   videoUrl?: string;
+  activityType?: ActivityType;
 }
 
 export interface ScheduleEntry {
@@ -18,7 +21,15 @@ export interface ScheduleEntry {
   activityId: string;
   completed: boolean;
   durationMinutes?: number;
+  completedMaps?: string[];
 }
+
+export const R6S_MAPS = [
+  "Bank", "Border", "Chalet", "Clubhouse", "Coastline",
+  "Consulate", "Emerald Plains", "Kafe Dostoyevsky", "Kanal",
+  "Lair", "Nighthaven Labs", "Oregon", "Outback",
+  "Skyscraper", "Theme Park", "Villa",
+];
 
 export interface Schedule {
   id: string;
@@ -50,7 +61,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
 ];
 
 export const DEFAULT_ACTIVITIES: TrainingActivity[] = [
-  { id: "1", name: "Názvy místností", categoryId: "knowledge", description: "Naučit se calloutovat místnosti na mapách" },
+  { id: "1", name: "Názvy místností", categoryId: "knowledge", description: "Naučit se calloutovat místnosti na mapách", activityType: "map-learning" },
   { id: "2", name: "Míření (Aim Lab)", categoryId: "aim", description: "Trénink přesnosti v Aim Labu nebo T-Hunt" },
   { id: "3", name: "Pohyb", categoryId: "movement", description: "Quick peek, strafing, crouch spam" },
   { id: "4", name: "Recoil control", categoryId: "aim", description: "Ovládání zpětného rázu zbraní" },

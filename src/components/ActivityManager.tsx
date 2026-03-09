@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
-import { TrainingActivity, Category } from "@/lib/types";
+import { TrainingActivity, Category, ActivityType } from "@/lib/types";
 import { generateId } from "@/lib/schedule-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,13 +19,13 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
   const { confirm, ConfirmDialog } = useConfirmDialog();
   const [showForm, setShowForm] = useState(false);
   const [editingActivity, setEditingActivity] = useState<TrainingActivity | null>(null);
-  const [form, setForm] = useState({ name: "", categoryId: categories[0]?.id || "", description: "", videoUrl: "" });
+  const [form, setForm] = useState({ name: "", categoryId: categories[0]?.id || "", description: "", videoUrl: "", activityType: "default" as ActivityType });
   const [detailActivity, setDetailActivity] = useState<TrainingActivity | null>(null);
 
   const getCategory = (id: string) => categories.find((c) => c.id === id);
 
   const resetForm = () => {
-    setForm({ name: "", categoryId: categories[0]?.id || "", description: "", videoUrl: "" });
+    setForm({ name: "", categoryId: categories[0]?.id || "", description: "", videoUrl: "", activityType: "default" });
     setEditingActivity(null);
     setShowForm(false);
   };
@@ -36,7 +36,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
   };
 
   const openEdit = (a: TrainingActivity) => {
-    setForm({ name: a.name, categoryId: a.categoryId, description: a.description || "", videoUrl: a.videoUrl || "" });
+    setForm({ name: a.name, categoryId: a.categoryId, description: a.description || "", videoUrl: a.videoUrl || "", activityType: a.activityType || "default" });
     setEditingActivity(a);
     setShowForm(true);
   };
@@ -49,6 +49,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
       categoryId: form.categoryId,
       description: form.description.trim() || undefined,
       videoUrl: form.videoUrl.trim() || undefined,
+      activityType: form.activityType !== "default" ? form.activityType : undefined,
     };
     if (editingActivity) {
       onChange(activities.map((a) => (a.id === data.id ? data : a)));
@@ -178,6 +179,18 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
                 placeholder="https://youtube.com/watch?v=..."
                 className="bg-secondary border-border"
               />
+            </div>
+            <div>
+              <label className="text-xs font-mono text-muted-foreground mb-1 block">Typ aktivity</label>
+              <Select value={form.activityType} onValueChange={(v) => setForm({ ...form, activityType: v as ActivityType })}>
+                <SelectTrigger className="bg-secondary border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Standardní</SelectItem>
+                  <SelectItem value="map-learning">Učení map (výběr map při dokončení)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <Button onClick={saveActivity} className="w-full">
               {editingActivity ? "Uložit" : "Přidat"}

@@ -3,12 +3,15 @@ import { useSchedule } from "@/hooks/use-schedule";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { CheckCircle2, Info, ExternalLink } from "lucide-react";
+import { R6S_MAPS } from "@/lib/types";
 
 const Index = () => {
   const { schedule, updateSchedule } = useSchedule();
   const [completingEntry, setCompletingEntry] = useState<string | null>(null);
   const [duration, setDuration] = useState("");
+  const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
   const [detailActivityId, setDetailActivityId] = useState<string | null>(null);
 
   const todayIdx = (new Date().getDay() + 6) % 7;
@@ -25,18 +28,33 @@ const Index = () => {
     return url;
   };
 
+  const completingActivity = completingEntry ? getActivity(completingEntry) : null;
+  const isMapLearning = completingActivity?.activityType === "map-learning";
+
   const completeToday = () => {
     if (!completingEntry) return;
     const mins = parseInt(duration) || 0;
     updateSchedule({
       entries: schedule.entries.map((e) =>
         e.dayOfWeek === todayIdx && e.activityId === completingEntry
-          ? { ...e, completed: true, durationMinutes: mins > 0 ? mins : undefined }
+          ? {
+              ...e,
+              completed: true,
+              durationMinutes: mins > 0 ? mins : undefined,
+              completedMaps: isMapLearning && selectedMaps.length > 0 ? selectedMaps : undefined,
+            }
           : e
       ),
     });
     setCompletingEntry(null);
     setDuration("");
+    setSelectedMaps([]);
+  };
+
+  const toggleMap = (map: string) => {
+    setSelectedMaps((prev) =>
+      prev.includes(map) ? prev.filter((m) => m !== map) : [...prev, map]
+    );
   };
 
   const detailActivity = detailActivityId ? getActivity(detailActivityId) : null;
@@ -84,7 +102,7 @@ const Index = () => {
                         </button>
                       )}
                       <button
-                        onClick={() => { setCompletingEntry(entry.activityId); setDuration(""); }}
+                        onClick={() => { setCompletingEntry(entry.activityId); setDuration(""); setSelectedMaps([]); }}
                         className="text-muted-foreground hover:text-success transition-colors"
                         title="Označit jako hotové"
                       >
@@ -104,7 +122,7 @@ const Index = () => {
 
       {/* Complete dialog */}
       <Dialog open={!!completingEntry} onOpenChange={(open) => !open && setCompletingEntry(null)}>
-        <DialogContent className="bg-card border-border">
+        <DialogContent className="bg-card border-border max-w-md">
           <DialogHeader>
             <DialogTitle className="font-mono">DOKONČIT TRÉNINK</DialogTitle>
           </DialogHeader>
@@ -116,12 +134,31 @@ const Index = () => {
                 placeholder="Minuty"
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && completeToday()}
+                onKeyDown={(e) => e.key === "Enter" && !isMapLearning && completeToday()}
                 className="bg-secondary border-border"
                 autoFocus
               />
               <span className="text-sm text-muted-foreground">min</span>
             </div>
+            {isMapLearning && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">Které mapy jsi se učil/a?</p>
+                <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto">
+                  {R6S_MAPS.map((map) => (
+                    <label
+                      key={map}
+                      className="flex items-center gap-2 text-sm p-1.5 rounded hover:bg-secondary/50 cursor-pointer"
+                    >
+                      <Checkbox
+                        checked={selectedMaps.includes(map)}
+                        onCheckedChange={() => toggleMap(map)}
+                      />
+                      {map}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
             <Button onClick={completeToday} className="w-full">Dokončit</Button>
           </div>
         </DialogContent>
