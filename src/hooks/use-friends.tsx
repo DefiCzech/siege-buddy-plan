@@ -8,6 +8,8 @@ export interface FriendData {
   userId: string;
   displayName: string;
   shareCode: string;
+  rankName: string | null;
+  rankImageUrl: string | null;
   schedule: {
     name: string;
     categories: Category[];
