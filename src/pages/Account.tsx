@@ -100,6 +100,51 @@ const Account = () => {
     }
   };
 
+  const handleSaveUbisoft = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setLoadingUbisoft(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ ubisoft_username: ubisoftUsername.trim() || null })
+      .eq("user_id", user.id);
+    setLoadingUbisoft(false);
+    if (error) toast.error("Nepodařilo se uložit");
+    else toast.success("Ubisoft jméno uloženo");
+  };
+
+  const handleFetchRank = async () => {
+    if (!ubisoftUsername.trim()) {
+      toast.error("Nejdříve nastav Ubisoft jméno");
+      return;
+    }
+    setFetchingRank(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("No session");
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const res = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/fetch-rank`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Chyba");
+      setRankName(data.rankName);
+      setRankImageUrl(data.rankImageUrl);
+      toast.success(data.rankName ? `Rank: ${data.rankName}` : "Rank nenalezen");
+    } catch (err: any) {
+      toast.error(err.message || "Nepodařilo se načíst rank");
+    } finally {
+      setFetchingRank(false);
+    }
+  };
+
 
   const handleExport = () => {
     const exportData: any = {
