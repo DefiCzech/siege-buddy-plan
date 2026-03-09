@@ -134,35 +134,33 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
               key={dayIdx}
               className={`rounded border p-3 space-y-2 transition-colors ${borderClass}`}
             >
-              <div className="flex items-center justify-between">
-                <h3 className="font-mono text-sm font-bold tracking-wide">
-                  {dayName}
-                  <span className="text-[10px] font-normal text-muted-foreground ml-1">{dateStr}</span>
-                  {holiday && <span className="ml-1 text-[10px]">🎌</span>}
-                </h3>
-                <div className="flex items-center gap-1">
-                  <Select onValueChange={(v) => addEntry(dayIdx, v)}>
-                    <SelectTrigger className="h-6 w-6 p-0 border-none bg-transparent text-muted-foreground hover:text-foreground">
-                      <Plus className="h-3.5 w-3.5" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {activities
-                        .filter((a) => !de.some((e) => e.activityId === a.id))
-                        .map((a) => {
-                          const cat = getCategory(a.categoryId);
-                          return (
-                            <SelectItem key={a.id} value={a.id}>
-                              <span className="inline-flex items-center gap-1">
-                                {cat && <span>{cat.icon}</span>}
-                                {a.name}
-                              </span>
-                            </SelectItem>
-                          );
-                        })}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              <Select onValueChange={(v) => addEntry(dayIdx, v)}>
+                <SelectTrigger className="h-auto p-0 border-none bg-transparent shadow-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 w-full [&>svg]:hidden">
+                  <div className="flex items-center justify-between w-full group cursor-pointer">
+                    <h3 className="font-mono text-sm font-bold tracking-wide group-hover:text-primary transition-colors">
+                      {dayName}
+                      <span className="text-[10px] font-normal text-muted-foreground ml-1">{dateStr}</span>
+                      {holiday && <span className="ml-1 text-[10px]">🎌</span>}
+                    </h3>
+                    <Plus className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  {activities
+                    .filter((a) => !de.some((e) => e.activityId === a.id))
+                    .map((a) => {
+                      const cat = getCategory(a.categoryId);
+                      return (
+                        <SelectItem key={a.id} value={a.id}>
+                          <span className="inline-flex items-center gap-1">
+                            {cat && <span>{cat.icon}</span>}
+                            {a.name}
+                          </span>
+                        </SelectItem>
+                      );
+                    })}
+                </SelectContent>
+              </Select>
 
               <div className="space-y-1">
                 {de.map((entry) => {
