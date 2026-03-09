@@ -44,11 +44,14 @@ const Account = () => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("display_name")
+      .select("display_name, ubisoft_username, rank_name, rank_image_url")
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
         if (data?.display_name) setDisplayName(data.display_name);
+        if (data?.ubisoft_username) setUbisoftUsername(data.ubisoft_username);
+        if (data?.rank_name) setRankName(data.rank_name);
+        if (data?.rank_image_url) setRankImageUrl(data.rank_image_url);
       });
   }, [user]);
 
