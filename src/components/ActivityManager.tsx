@@ -180,6 +180,18 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
                 className="bg-secondary border-border"
               />
             </div>
+            <div>
+              <label className="text-xs font-mono text-muted-foreground mb-1 block">Typ aktivity</label>
+              <Select value={form.activityType} onValueChange={(v) => setForm({ ...form, activityType: v as ActivityType })}>
+                <SelectTrigger className="bg-secondary border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Standardní</SelectItem>
+                  <SelectItem value="map-learning">Učení map (výběr map při dokončení)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Button onClick={saveActivity} className="w-full">
               {editingActivity ? "Uložit" : "Přidat"}
             </Button>
