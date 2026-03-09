@@ -25,13 +25,13 @@ export function AppHeader({ schedule, completedToday, totalToday }: Props) {
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
       <div className="container max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <Crosshair className="h-6 w-6 text-primary" />
           <div>
             <h1 className="text-sm font-mono font-bold tracking-widest text-primary">R6S TRAINER</h1>
             <p className="text-xs text-muted-foreground">Tréninkový plán</p>
           </div>
-        </div>
+        </Link>
         <div className="flex items-center gap-3">
           <nav className="flex items-center gap-1">
             {navItems.map((item) => {
