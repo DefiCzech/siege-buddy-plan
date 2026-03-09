@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Schedule } from "@/lib/types";
+import { Schedule, DAY_NAMES } from "@/lib/types";
 import { loadSchedule, saveSchedule, decodeScheduleFromShare } from "@/lib/schedule-store";
 import { ActivityManager } from "@/components/ActivityManager";
 import { WeeklySchedule } from "@/components/WeeklySchedule";
@@ -33,8 +33,14 @@ const Index = () => {
     setSchedule((prev) => ({ ...prev, ...partial }));
   };
 
-  const completedToday = schedule.entries.filter((e) => e.completed).length;
-  const totalEntries = schedule.entries.length;
+  const todayIdx = (new Date().getDay() + 6) % 7; // JS Sunday=0 → our Monday=0
+  const todayName = DAY_NAMES[todayIdx];
+  const todayEntries = schedule.entries.filter((e) => e.dayOfWeek === todayIdx);
+  const completedToday = todayEntries.filter((e) => e.completed).length;
+  const remainingToday = todayEntries.filter((e) => !e.completed);
+
+  const getActivity = (id: string) => schedule.activities.find((a) => a.id === id);
+  const getCategory = (id: string) => schedule.categories.find((c) => c.id === id);
 
   return (
     <div className="min-h-screen bg-background">
@@ -48,9 +54,9 @@ const Index = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {totalEntries > 0 && (
+            {todayEntries.length > 0 && (
               <div className="text-xs font-mono text-muted-foreground">
-                <span className="text-success">{completedToday}</span>/{totalEntries} hotovo
+                <span className="text-success">{completedToday}</span>/{todayEntries.length} hotovo
               </div>
             )}
             <ShareButton schedule={schedule} />
@@ -59,6 +65,39 @@ const Index = () => {
       </header>
 
       <main className="container max-w-6xl mx-auto px-4 py-6">
+        {/* Today's overview */}
+        <div className="mb-6 rounded border border-border bg-card p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="font-mono font-bold tracking-wider text-sm">
+              // DNES — {todayName.toUpperCase()}
+            </h2>
+            {todayEntries.length > 0 && completedToday === todayEntries.length && (
+              <span className="text-xs font-mono text-success">✓ VŠE HOTOVO</span>
+            )}
+          </div>
+          {todayEntries.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Na dnes nemáš naplánovaný žádný trénink.</p>
+          ) : remainingToday.length === 0 ? (
+            <p className="text-sm text-success">Všechny dnešní tréninky jsou splněné! 💪</p>
+          ) : (
+            <div className="space-y-1.5">
+              <p className="text-xs text-muted-foreground">Zbývá natrénovat:</p>
+              {remainingToday.map((entry) => {
+                const act = getActivity(entry.activityId);
+                if (!act) return null;
+                const cat = getCategory(act.categoryId);
+                const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
+                return (
+                  <div key={entry.activityId} className={`text-sm p-2 rounded border ${colorClass} inline-flex items-center gap-1.5 mr-2`}>
+                    {cat && <span>{cat.icon}</span>}
+                    {act.name}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         <Tabs defaultValue="schedule" className="space-y-6">
           <TabsList className="bg-secondary border border-border">
             <TabsTrigger value="schedule" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
