@@ -229,6 +229,10 @@ const Index = () => {
               <Tags className="h-3.5 w-3.5" />
               Kategorie
             </TabsTrigger>
+            <TabsTrigger value="stats" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <BarChart3 className="h-3.5 w-3.5" />
+              Statistiky
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="schedule">
