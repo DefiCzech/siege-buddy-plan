@@ -72,7 +72,7 @@ const Auth = () => {
           </p>
         </div>
 
-        <form onSubmit={handleEmailAuth} className="space-y-4">
+        <form onSubmit={handleEmailAuth} className="space-y-4" name={mode === "signup" ? "registration" : "login"} autoComplete="on">
           <div>
             <Input
               type="email"
