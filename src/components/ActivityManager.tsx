@@ -3,8 +3,10 @@ import { TrainingActivity, CATEGORY_LABELS, CATEGORY_COLORS } from "@/lib/types"
 import { generateId } from "@/lib/schedule-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Edit2, Check, X } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Plus, Trash2, Edit2, Video, FileText, ExternalLink } from "lucide-react";
 
 interface Props {
   activities: TrainingActivity[];
@@ -12,101 +14,217 @@ interface Props {
 }
 
 export function ActivityManager({ activities, onChange }: Props) {
-  const [newName, setNewName] = useState("");
-  const [newCategory, setNewCategory] = useState<TrainingActivity["category"]>("aim");
-  const [newDesc, setNewDesc] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editName, setEditName] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [editingActivity, setEditingActivity] = useState<TrainingActivity | null>(null);
+  const [form, setForm] = useState({ name: "", category: "aim" as TrainingActivity["category"], description: "", videoUrl: "" });
+  const [detailActivity, setDetailActivity] = useState<TrainingActivity | null>(null);
 
-  const addActivity = () => {
-    if (!newName.trim()) return;
-    onChange([
-      ...activities,
-      { id: generateId(), name: newName.trim(), category: newCategory, description: newDesc.trim() || undefined },
-    ]);
-    setNewName("");
-    setNewDesc("");
+  const resetForm = () => {
+    setForm({ name: "", category: "aim", description: "", videoUrl: "" });
+    setEditingActivity(null);
+    setShowForm(false);
+  };
+
+  const openAdd = () => {
+    resetForm();
+    setShowForm(true);
+  };
+
+  const openEdit = (a: TrainingActivity) => {
+    setForm({ name: a.name, category: a.category, description: a.description || "", videoUrl: a.videoUrl || "" });
+    setEditingActivity(a);
+    setShowForm(true);
+  };
+
+  const saveActivity = () => {
+    if (!form.name.trim()) return;
+    const data: TrainingActivity = {
+      id: editingActivity?.id || generateId(),
+      name: form.name.trim(),
+      category: form.category,
+      description: form.description.trim() || undefined,
+      videoUrl: form.videoUrl.trim() || undefined,
+    };
+    if (editingActivity) {
+      onChange(activities.map((a) => (a.id === data.id ? data : a)));
+    } else {
+      onChange([...activities, data]);
+    }
+    resetForm();
   };
 
   const removeActivity = (id: string) => {
     onChange(activities.filter((a) => a.id !== id));
   };
 
-  const startEdit = (a: TrainingActivity) => {
-    setEditingId(a.id);
-    setEditName(a.name);
-  };
-
-  const saveEdit = (id: string) => {
-    if (!editName.trim()) return;
-    onChange(activities.map((a) => (a.id === id ? { ...a, name: editName.trim() } : a)));
-    setEditingId(null);
+  const getVideoEmbedUrl = (url: string): string | null => {
+    try {
+      const u = new URL(url);
+      // YouTube
+      if (u.hostname.includes("youtube.com") || u.hostname.includes("youtu.be")) {
+        const videoId = u.hostname.includes("youtu.be")
+          ? u.pathname.slice(1)
+          : u.searchParams.get("v");
+        if (videoId) return `https://www.youtube-nocookie.com/embed/${videoId}`;
+      }
+      return null;
+    } catch {
+      return null;
+    }
   };
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-mono font-bold tracking-wider">// TRÉNINKY</h2>
-
-      <div className="flex flex-col sm:flex-row gap-2">
-        <Input
-          placeholder="Název aktivity..."
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && addActivity()}
-          className="flex-1 bg-secondary border-border"
-        />
-        <Select value={newCategory} onValueChange={(v) => setNewCategory(v as TrainingActivity["category"])}>
-          <SelectTrigger className="w-full sm:w-[140px] bg-secondary border-border">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-              <SelectItem key={key} value={key}>{label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Button onClick={addActivity} size="icon" className="shrink-0">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-mono font-bold tracking-wider">// TRÉNINKY</h2>
+        <Button onClick={openAdd} size="sm" className="gap-1.5">
           <Plus className="h-4 w-4" />
+          Přidat
         </Button>
       </div>
 
       <div className="space-y-1">
         {activities.map((a) => (
-          <div key={a.id} className="flex items-center gap-2 p-2 rounded bg-secondary/50 hover:bg-secondary transition-colors group">
-            <span className={`text-xs px-2 py-0.5 rounded border font-mono ${CATEGORY_COLORS[a.category]}`}>
+          <div
+            key={a.id}
+            className="flex items-center gap-2 p-2.5 rounded bg-secondary/50 hover:bg-secondary transition-colors group cursor-pointer"
+            onClick={() => setDetailActivity(a)}
+          >
+            <span className={`text-xs px-2 py-0.5 rounded border font-mono shrink-0 ${CATEGORY_COLORS[a.category]}`}>
               {CATEGORY_LABELS[a.category]}
             </span>
-            {editingId === a.id ? (
-              <>
-                <Input
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && saveEdit(a.id)}
-                  className="flex-1 h-7 bg-muted border-border text-sm"
-                  autoFocus
-                />
-                <Button size="icon" variant="ghost" onClick={() => saveEdit(a.id)} className="h-7 w-7">
-                  <Check className="h-3 w-3" />
-                </Button>
-                <Button size="icon" variant="ghost" onClick={() => setEditingId(null)} className="h-7 w-7">
-                  <X className="h-3 w-3" />
-                </Button>
-              </>
-            ) : (
-              <>
-                <span className="flex-1 text-sm">{a.name}</span>
-                {a.description && <span className="text-xs text-muted-foreground hidden sm:inline">{a.description}</span>}
-                <Button size="icon" variant="ghost" onClick={() => startEdit(a)} className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Edit2 className="h-3 w-3" />
-                </Button>
-                <Button size="icon" variant="ghost" onClick={() => removeActivity(a.id)} className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-destructive">
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              </>
-            )}
+            <span className="flex-1 text-sm font-medium">{a.name}</span>
+            <div className="flex items-center gap-1">
+              {a.videoUrl && <Video className="h-3.5 w-3.5 text-primary opacity-60" />}
+              {a.description && <FileText className="h-3.5 w-3.5 text-muted-foreground opacity-60" />}
+              <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); openEdit(a); }} className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Edit2 className="h-3 w-3" />
+              </Button>
+              <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); removeActivity(a.id); }} className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-destructive">
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
           </div>
         ))}
+        {activities.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center py-8">Zatím žádné aktivity. Přidej první!</p>
+        )}
       </div>
+
+      {/* Add/Edit Dialog */}
+      <Dialog open={showForm} onOpenChange={(open) => !open && resetForm()}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="font-mono">{editingActivity ? "UPRAVIT AKTIVITU" : "NOVÁ AKTIVITA"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-xs font-mono text-muted-foreground mb-1 block">Název</label>
+              <Input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="Název tréninku..."
+                className="bg-secondary border-border"
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="text-xs font-mono text-muted-foreground mb-1 block">Kategorie</label>
+              <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v as TrainingActivity["category"] })}>
+                <SelectTrigger className="bg-secondary border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs font-mono text-muted-foreground mb-1 block">Popis</label>
+              <Textarea
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                placeholder="Podrobný popis tréninku, tipy, na co se zaměřit..."
+                className="bg-secondary border-border min-h-[100px] resize-y"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-mono text-muted-foreground mb-1 block">Video URL (YouTube)</label>
+              <Input
+                value={form.videoUrl}
+                onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
+                placeholder="https://youtube.com/watch?v=..."
+                className="bg-secondary border-border"
+              />
+            </div>
+            <Button onClick={saveActivity} className="w-full">
+              {editingActivity ? "Uložit" : "Přidat"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Detail Dialog */}
+      <Dialog open={!!detailActivity} onOpenChange={(open) => !open && setDetailActivity(null)}>
+        <DialogContent className="bg-card border-border max-w-lg">
+          {detailActivity && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs px-2 py-0.5 rounded border font-mono ${CATEGORY_COLORS[detailActivity.category]}`}>
+                    {CATEGORY_LABELS[detailActivity.category]}
+                  </span>
+                  <DialogTitle className="font-mono text-base">{detailActivity.name}</DialogTitle>
+                </div>
+              </DialogHeader>
+              <div className="space-y-4">
+                {detailActivity.description && (
+                  <div>
+                    <p className="text-xs font-mono text-muted-foreground mb-1">Popis</p>
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{detailActivity.description}</p>
+                  </div>
+                )}
+                {detailActivity.videoUrl && (
+                  <div>
+                    <p className="text-xs font-mono text-muted-foreground mb-2">Video</p>
+                    {(() => {
+                      const embedUrl = getVideoEmbedUrl(detailActivity.videoUrl);
+                      if (embedUrl) {
+                        return (
+                          <div className="aspect-video rounded overflow-hidden border border-border">
+                            <iframe
+                              src={embedUrl}
+                              className="w-full h-full"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        );
+                      }
+                      return (
+                        <a
+                          href={detailActivity.videoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-sm text-primary hover:underline"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Otevřít video
+                        </a>
+                      );
+                    })()}
+                  </div>
+                )}
+                {!detailActivity.description && !detailActivity.videoUrl && (
+                  <p className="text-sm text-muted-foreground text-center py-4">Žádné detaily. Uprav aktivitu pro přidání popisu nebo videa.</p>
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

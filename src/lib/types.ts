@@ -3,6 +3,7 @@ export interface TrainingActivity {
   name: string;
   category: "aim" | "movement" | "knowledge" | "strategy" | "utility";
   description?: string;
+  videoUrl?: string;
 }
 
 export interface ScheduleEntry {
