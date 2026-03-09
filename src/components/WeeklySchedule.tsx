@@ -31,6 +31,7 @@ function getEasterDate(year: number): Date {
 }
 
 export function WeeklySchedule({ activities, categories, entries, onChange }: Props) {
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const getCategory = (id: string) => categories.find((c) => c.id === id);
 
 
