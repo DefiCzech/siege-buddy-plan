@@ -81,6 +81,8 @@ const Auth = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="bg-secondary border-border"
               required
+              autoComplete="email"
+              name="email"
             />
           </div>
           {mode !== "forgot" && (
@@ -93,6 +95,8 @@ const Auth = () => {
                 className="bg-secondary border-border"
                 required
                 minLength={6}
+                autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                name="password"
               />
             </div>
           )}
