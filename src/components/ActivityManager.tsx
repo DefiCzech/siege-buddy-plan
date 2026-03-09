@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TrainingActivity, CATEGORY_LABELS, CATEGORY_COLORS } from "@/lib/types";
+import { TrainingActivity, Category } from "@/lib/types";
 import { generateId } from "@/lib/schedule-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,17 +10,20 @@ import { Plus, Trash2, Edit2, Video, FileText, ExternalLink } from "lucide-react
 
 interface Props {
   activities: TrainingActivity[];
+  categories: Category[];
   onChange: (activities: TrainingActivity[]) => void;
 }
 
-export function ActivityManager({ activities, onChange }: Props) {
+export function ActivityManager({ activities, categories, onChange }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [editingActivity, setEditingActivity] = useState<TrainingActivity | null>(null);
-  const [form, setForm] = useState({ name: "", category: "aim" as TrainingActivity["category"], description: "", videoUrl: "" });
+  const [form, setForm] = useState({ name: "", categoryId: categories[0]?.id || "", description: "", videoUrl: "" });
   const [detailActivity, setDetailActivity] = useState<TrainingActivity | null>(null);
 
+  const getCategory = (id: string) => categories.find((c) => c.id === id);
+
   const resetForm = () => {
-    setForm({ name: "", category: "aim", description: "", videoUrl: "" });
+    setForm({ name: "", categoryId: categories[0]?.id || "", description: "", videoUrl: "" });
     setEditingActivity(null);
     setShowForm(false);
   };
@@ -31,7 +34,7 @@ export function ActivityManager({ activities, onChange }: Props) {
   };
 
   const openEdit = (a: TrainingActivity) => {
-    setForm({ name: a.name, category: a.category, description: a.description || "", videoUrl: a.videoUrl || "" });
+    setForm({ name: a.name, categoryId: a.categoryId, description: a.description || "", videoUrl: a.videoUrl || "" });
     setEditingActivity(a);
     setShowForm(true);
   };
@@ -41,7 +44,7 @@ export function ActivityManager({ activities, onChange }: Props) {
     const data: TrainingActivity = {
       id: editingActivity?.id || generateId(),
       name: form.name.trim(),
-      category: form.category,
+      categoryId: form.categoryId,
       description: form.description.trim() || undefined,
       videoUrl: form.videoUrl.trim() || undefined,
     };
@@ -60,7 +63,6 @@ export function ActivityManager({ activities, onChange }: Props) {
   const getVideoEmbedUrl = (url: string): string | null => {
     try {
       const u = new URL(url);
-      // YouTube
       if (u.hostname.includes("youtube.com") || u.hostname.includes("youtu.be")) {
         const videoId = u.hostname.includes("youtu.be")
           ? u.pathname.slice(1)
@@ -71,6 +73,17 @@ export function ActivityManager({ activities, onChange }: Props) {
     } catch {
       return null;
     }
+  };
+
+  const renderCategoryBadge = (categoryId: string) => {
+    const cat = getCategory(categoryId);
+    if (!cat) return null;
+    return (
+      <span className={`text-xs px-2 py-0.5 rounded border font-mono shrink-0 inline-flex items-center gap-1 ${cat.color}`}>
+        <span>{cat.icon}</span>
+        {cat.name}
+      </span>
+    );
   };
 
   return (
@@ -90,9 +103,7 @@ export function ActivityManager({ activities, onChange }: Props) {
             className="flex items-center gap-2 p-2.5 rounded bg-secondary/50 hover:bg-secondary transition-colors group cursor-pointer"
             onClick={() => setDetailActivity(a)}
           >
-            <span className={`text-xs px-2 py-0.5 rounded border font-mono shrink-0 ${CATEGORY_COLORS[a.category]}`}>
-              {CATEGORY_LABELS[a.category]}
-            </span>
+            {renderCategoryBadge(a.categoryId)}
             <span className="flex-1 text-sm font-medium">{a.name}</span>
             <div className="flex items-center gap-1">
               {a.videoUrl && <Video className="h-3.5 w-3.5 text-primary opacity-60" />}
@@ -130,13 +141,18 @@ export function ActivityManager({ activities, onChange }: Props) {
             </div>
             <div>
               <label className="text-xs font-mono text-muted-foreground mb-1 block">Kategorie</label>
-              <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v as TrainingActivity["category"] })}>
+              <Select value={form.categoryId} onValueChange={(v) => setForm({ ...form, categoryId: v })}>
                 <SelectTrigger className="bg-secondary border-border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>{label}</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      <span className="inline-flex items-center gap-1.5">
+                        <span>{cat.icon}</span>
+                        {cat.name}
+                      </span>
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -173,9 +189,7 @@ export function ActivityManager({ activities, onChange }: Props) {
             <>
               <DialogHeader>
                 <div className="flex items-center gap-2">
-                  <span className={`text-xs px-2 py-0.5 rounded border font-mono ${CATEGORY_COLORS[detailActivity.category]}`}>
-                    {CATEGORY_LABELS[detailActivity.category]}
-                  </span>
+                  {renderCategoryBadge(detailActivity.categoryId)}
                   <DialogTitle className="font-mono text-base">{detailActivity.name}</DialogTitle>
                 </div>
               </DialogHeader>

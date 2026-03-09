@@ -3,23 +3,21 @@ import { Schedule } from "@/lib/types";
 import { loadSchedule, saveSchedule, decodeScheduleFromShare } from "@/lib/schedule-store";
 import { ActivityManager } from "@/components/ActivityManager";
 import { WeeklySchedule } from "@/components/WeeklySchedule";
+import { CategoryManager } from "@/components/CategoryManager";
 import { ShareButton } from "@/components/ShareButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Crosshair, Calendar, Settings, AlertTriangle } from "lucide-react";
+import { Crosshair, Calendar, Settings, Tags, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 const Index = () => {
   const [schedule, setSchedule] = useState<Schedule>(() => {
-    // Check for shared plan in URL
     const params = new URLSearchParams(window.location.search);
     const planData = params.get("plan");
     if (planData) {
       const decoded = decodeScheduleFromShare(planData);
       if (decoded) {
         toast.info("Načten sdílený plán!", { description: "Můžeš si ho uložit nebo upravit." });
-        // Clean URL
         window.history.replaceState({}, "", window.location.pathname);
         return decoded;
       }
@@ -40,7 +38,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -61,7 +58,6 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Main */}
       <main className="container max-w-6xl mx-auto px-4 py-6">
         <Tabs defaultValue="schedule" className="space-y-6">
           <TabsList className="bg-secondary border border-border">
@@ -72,6 +68,10 @@ const Index = () => {
             <TabsTrigger value="activities" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Settings className="h-3.5 w-3.5" />
               Aktivity
+            </TabsTrigger>
+            <TabsTrigger value="categories" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Tags className="h-3.5 w-3.5" />
+              Kategorie
             </TabsTrigger>
           </TabsList>
 
@@ -92,6 +92,7 @@ const Index = () => {
               ) : (
                 <WeeklySchedule
                   activities={schedule.activities}
+                  categories={schedule.categories}
                   entries={schedule.entries}
                   onChange={(entries) => updateSchedule({ entries })}
                 />
@@ -102,7 +103,15 @@ const Index = () => {
           <TabsContent value="activities">
             <ActivityManager
               activities={schedule.activities}
+              categories={schedule.categories}
               onChange={(activities) => updateSchedule({ activities })}
+            />
+          </TabsContent>
+
+          <TabsContent value="categories">
+            <CategoryManager
+              categories={schedule.categories}
+              onChange={(categories) => updateSchedule({ categories })}
             />
           </TabsContent>
         </Tabs>
