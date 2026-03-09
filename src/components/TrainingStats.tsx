@@ -1,53 +1,55 @@
-import { ScheduleEntry, TrainingActivity, Category, DAY_NAMES, R6S_MAPS } from "@/lib/types";
+import { TrainingCompletion, TrainingActivity, Category, DAY_NAMES, R6S_MAPS } from "@/lib/types";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 interface Props {
-  entries: ScheduleEntry[];
+  completions: TrainingCompletion[];
   activities: TrainingActivity[];
   categories: Category[];
 }
 
-export function TrainingStats({ entries, activities, categories }: Props) {
+export function TrainingStats({ completions, activities, categories }: Props) {
   const getActivity = (id: string) => activities.find((a) => a.id === id);
   const getCategory = (id: string) => categories.find((c) => c.id === id);
 
-  const completedEntries = entries.filter((e) => e.completed);
-  const totalMinutes = completedEntries.reduce((sum, e) => sum + (e.durationMinutes || 0), 0);
-  const completedCount = completedEntries.length;
+  const totalMinutes = completions.reduce((sum, c) => sum + (c.durationMinutes || 0), 0);
+  const completedCount = completions.length;
 
-  // Per-day data
+  // Per-day data (by day of week from completedDate)
   const dayData = DAY_NAMES.map((name, idx) => {
-    const dayEntries = completedEntries.filter((e) => e.dayOfWeek === idx);
-    const minutes = dayEntries.reduce((sum, e) => sum + (e.durationMinutes || 0), 0);
-    const count = dayEntries.length;
+    const dayCompletions = completions.filter((c) => {
+      const d = new Date(c.completedDate);
+      return (d.getDay() + 6) % 7 === idx;
+    });
+    const minutes = dayCompletions.reduce((sum, c) => sum + (c.durationMinutes || 0), 0);
+    const count = dayCompletions.length;
     return { name, minutes, count };
   });
 
   // Per-category data
   const categoryData = categories.map((cat) => {
     const catActivities = activities.filter((a) => a.categoryId === cat.id);
-    const catEntries = completedEntries.filter((e) =>
-      catActivities.some((a) => a.id === e.activityId)
+    const catCompletions = completions.filter((c) =>
+      catActivities.some((a) => a.id === c.activityId)
     );
-    const minutes = catEntries.reduce((sum, e) => sum + (e.durationMinutes || 0), 0);
-    const count = catEntries.length;
+    const minutes = catCompletions.reduce((sum, c) => sum + (c.durationMinutes || 0), 0);
+    const count = catCompletions.length;
     return { name: `${cat.icon} ${cat.name}`, minutes, count, color: extractColor(cat.color) };
   }).filter((d) => d.count > 0);
 
   // Per-activity data
   const activityData = activities.map((act) => {
-    const actEntries = completedEntries.filter((e) => e.activityId === act.id);
-    const minutes = actEntries.reduce((sum, e) => sum + (e.durationMinutes || 0), 0);
-    const count = actEntries.length;
+    const actCompletions = completions.filter((c) => c.activityId === act.id);
+    const minutes = actCompletions.reduce((sum, c) => sum + (c.durationMinutes || 0), 0);
+    const count = actCompletions.length;
     const cat = getCategory(act.categoryId);
     return { name: act.name, minutes, count, icon: cat?.icon || "" };
   }).filter((d) => d.count > 0).sort((a, b) => b.minutes - a.minutes);
 
-  // Per-map data — aggregate from completedMaps and assignedMaps
+  // Per-map data
   const mapStats = new Map<string, { count: number; minutes: number }>();
-  completedEntries.forEach((entry) => {
-    const maps = entry.completedMaps || [];
-    const perMapMinutes = maps.length > 0 ? Math.round((entry.durationMinutes || 0) / maps.length) : 0;
+  completions.forEach((c) => {
+    const maps = c.completedMaps || [];
+    const perMapMinutes = maps.length > 0 ? Math.round((c.durationMinutes || 0) / maps.length) : 0;
     maps.forEach((mapName) => {
       const existing = mapStats.get(mapName) || { count: 0, minutes: 0 };
       mapStats.set(mapName, {

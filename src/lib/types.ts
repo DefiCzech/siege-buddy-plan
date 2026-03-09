@@ -19,10 +19,15 @@ export interface TrainingActivity {
 export interface ScheduleEntry {
   dayOfWeek: number; // 0=Monday ... 6=Sunday
   activityId: string;
-  completed: boolean;
+  assignedMaps?: string[]; // maps assigned to practice for this entry
+}
+
+export interface TrainingCompletion {
+  id?: string;
+  activityId: string;
+  completedDate: string; // YYYY-MM-DD
   durationMinutes?: number;
   completedMaps?: string[];
-  assignedMaps?: string[]; // maps assigned to practice for this entry
 }
 
 export interface R6SMap {

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useRef } from "react";
-import { Schedule, ScheduleEntry, TrainingActivity, Category, DEFAULT_ACTIVITIES, DEFAULT_CATEGORIES } from "@/lib/types";
+import { Schedule, ScheduleEntry, TrainingActivity, Category, TrainingCompletion, DEFAULT_ACTIVITIES, DEFAULT_CATEGORIES } from "@/lib/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { decodeScheduleFromShare, encodeScheduleForShare } from "@/lib/schedule-store";
@@ -8,6 +8,8 @@ import { toast } from "sonner";
 interface ScheduleContextType {
   schedule: Schedule;
   updateSchedule: (partial: Partial<Schedule>) => void;
+  completions: TrainingCompletion[];
+  addCompletion: (completion: TrainingCompletion) => void;
   loading: boolean;
 }
 
@@ -15,6 +17,10 @@ const ScheduleContext = createContext<ScheduleContextType | null>(null);
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 10);
+}
+
+function todayStr(): string {
+  return new Date().toISOString().slice(0, 10);
 }
 
 export function ScheduleProvider({ children }: { children: ReactNode }) {
@@ -26,9 +32,9 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
     activities: [],
     entries: [],
   });
+  const [completions, setCompletions] = useState<TrainingCompletion[]>([]);
   const [loading, setLoading] = useState(true);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const prevScheduleRef = useRef<Schedule | null>(null);
 
   // Load from DB
   useEffect(() => {
@@ -45,41 +51,47 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
         if (decoded) {
           toast.info("Načten sdílený plán!", { description: "Ukládám do tvého účtu..." });
           window.history.replaceState({}, "", window.location.pathname);
-          await saveAllToDb(user.id, decoded);
+          await saveScheduleToDb(user.id, decoded);
           setSchedule(decoded);
-          prevScheduleRef.current = decoded;
           setLoading(false);
           return;
         }
       }
 
-      const [scheduleRes, catsRes, actsRes, entriesRes] = await Promise.all([
+      const [scheduleRes, catsRes, actsRes, entriesRes, completionsRes] = await Promise.all([
         supabase.from("user_schedules").select("*").eq("user_id", user.id).maybeSingle(),
         supabase.from("user_categories").select("*").eq("user_id", user.id).order("sort_order"),
         supabase.from("user_activities").select("*").eq("user_id", user.id).order("sort_order"),
         supabase.from("schedule_entries").select("*").eq("user_id", user.id),
+        supabase.from("training_completions").select("*").eq("user_id", user.id),
       ]);
 
       const isNew = !scheduleRes.data && (catsRes.data?.length ?? 0) === 0;
 
       if (isNew) {
-        // First time — seed with defaults and migrate localStorage if present
         const localData = localStorage.getItem("r6s-schedule");
         let seed: Schedule;
         if (localData) {
           try {
-            seed = JSON.parse(localData);
-            if (!seed.categories) seed.categories = [...DEFAULT_CATEGORIES];
+            const parsed = JSON.parse(localData);
+            if (!parsed.categories) parsed.categories = [...DEFAULT_CATEGORIES];
+            // Strip completion fields from entries during migration
+            seed = {
+              ...parsed,
+              entries: (parsed.entries || []).map((e: any) => ({
+                dayOfWeek: e.dayOfWeek,
+                activityId: e.activityId,
+                assignedMaps: e.assignedMaps,
+              })),
+            };
           } catch {
             seed = createDefault();
           }
         } else {
           seed = createDefault();
         }
-        await saveAllToDb(user.id, seed);
+        await saveScheduleToDb(user.id, seed);
         setSchedule(seed);
-        prevScheduleRef.current = seed;
-        // Clean up localStorage after migration
         localStorage.removeItem("r6s-schedule");
       } else {
         const loaded: Schedule = {
@@ -102,14 +114,20 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
           entries: (entriesRes.data || []).map((e: any) => ({
             dayOfWeek: e.day_of_week,
             activityId: e.activity_id,
-            completed: e.completed,
-            durationMinutes: e.duration_minutes ?? undefined,
-            completedMaps: e.completed_maps ?? undefined,
             assignedMaps: e.assigned_maps ?? undefined,
           })),
         };
         setSchedule(loaded);
-        prevScheduleRef.current = loaded;
+
+        setCompletions(
+          (completionsRes.data || []).map((c: any) => ({
+            id: c.id,
+            activityId: c.activity_id,
+            completedDate: c.completed_date,
+            durationMinutes: c.duration_minutes ?? undefined,
+            completedMaps: c.completed_maps ?? undefined,
+          }))
+        );
       }
 
       setLoading(false);
@@ -118,13 +136,13 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
     load();
   }, [user]);
 
-  // Save changes to DB with debounce
+  // Save schedule changes to DB with debounce
   const saveToDb = useCallback(
     (newSchedule: Schedule) => {
       if (!user) return;
       if (saveTimeout.current) clearTimeout(saveTimeout.current);
       saveTimeout.current = setTimeout(() => {
-        saveAllToDb(user.id, newSchedule);
+        saveScheduleToDb(user.id, newSchedule);
       }, 500);
     },
     [user]
@@ -141,8 +159,27 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
     [saveToDb]
   );
 
+  const addCompletion = useCallback(
+    (completion: TrainingCompletion) => {
+      if (!user) return;
+      setCompletions((prev) => [...prev, completion]);
+
+      supabase.from("training_completions").upsert(
+        {
+          user_id: user.id,
+          activity_id: completion.activityId,
+          completed_date: completion.completedDate,
+          duration_minutes: completion.durationMinutes ?? null,
+          completed_maps: completion.completedMaps ?? null,
+        },
+        { onConflict: "user_id,activity_id,completed_date" }
+      );
+    },
+    [user]
+  );
+
   return (
-    <ScheduleContext.Provider value={{ schedule, updateSchedule, loading }}>
+    <ScheduleContext.Provider value={{ schedule, updateSchedule, completions, addCompletion, loading }}>
       {children}
     </ScheduleContext.Provider>
   );
@@ -164,14 +201,12 @@ function createDefault(): Schedule {
   };
 }
 
-async function saveAllToDb(userId: string, schedule: Schedule) {
-  // Upsert schedule name
+async function saveScheduleToDb(userId: string, schedule: Schedule) {
   await supabase.from("user_schedules").upsert(
     { user_id: userId, name: schedule.name, updated_at: new Date().toISOString() },
     { onConflict: "user_id" }
   );
 
-  // Delete and re-insert categories
   await supabase.from("user_categories").delete().eq("user_id", userId);
   if (schedule.categories.length > 0) {
     await supabase.from("user_categories").insert(
@@ -186,7 +221,6 @@ async function saveAllToDb(userId: string, schedule: Schedule) {
     );
   }
 
-  // Delete and re-insert activities
   await supabase.from("user_activities").delete().eq("user_id", userId);
   if (schedule.activities.length > 0) {
     await supabase.from("user_activities").insert(
@@ -203,7 +237,6 @@ async function saveAllToDb(userId: string, schedule: Schedule) {
     );
   }
 
-  // Delete and re-insert entries
   await supabase.from("schedule_entries").delete().eq("user_id", userId);
   if (schedule.entries.length > 0) {
     await supabase.from("schedule_entries").insert(
@@ -211,9 +244,6 @@ async function saveAllToDb(userId: string, schedule: Schedule) {
         user_id: userId,
         day_of_week: e.dayOfWeek,
         activity_id: e.activityId,
-        completed: e.completed,
-        duration_minutes: e.durationMinutes ?? null,
-        completed_maps: e.completedMaps ?? null,
         assigned_maps: e.assignedMaps ?? null,
       }))
     );

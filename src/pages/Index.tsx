@@ -9,7 +9,7 @@ import { R6S_MAPS } from "@/lib/types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
-  const { schedule, updateSchedule, loading } = useSchedule();
+  const { schedule, completions, addCompletion, loading } = useSchedule();
   const [completingEntry, setCompletingEntry] = useState<string | null>(null);
   const [duration, setDuration] = useState("");
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
@@ -24,10 +24,14 @@ const Index = () => {
     );
   }
 
+  const todayStr = new Date().toISOString().slice(0, 10);
   const todayIdx = (new Date().getDay() + 6) % 7;
   const todayEntries = schedule.entries.filter((e) => e.dayOfWeek === todayIdx);
-  const completedToday = todayEntries.filter((e) => e.completed).length;
-  const remainingToday = todayEntries.filter((e) => !e.completed);
+  const todayCompletions = completions.filter((c) => c.completedDate === todayStr);
+  const isCompletedToday = (activityId: string) =>
+    todayCompletions.some((c) => c.activityId === activityId);
+  const completedToday = todayEntries.filter((e) => isCompletedToday(e.activityId)).length;
+  const remainingToday = todayEntries.filter((e) => !isCompletedToday(e.activityId));
 
   const getActivity = (id: string) => schedule.activities.find((a) => a.id === id);
   const getCategory = (id: string) => schedule.categories.find((c) => c.id === id);
@@ -50,19 +54,17 @@ const Index = () => {
     const mins = parseInt(duration) || 0;
     const mapsToSave = hasAssignedMaps
       ? completingEntryData!.assignedMaps!
-      : (selectedMaps.length > 0 ? selectedMaps : undefined);
-    updateSchedule({
-      entries: schedule.entries.map((e) =>
-        e.dayOfWeek === todayIdx && e.activityId === completingEntry
-          ? {
-              ...e,
-              completed: true,
-              durationMinutes: mins > 0 ? mins : undefined,
-              completedMaps: isMapLearning ? mapsToSave : undefined,
-            }
-          : e
-      ),
+      : selectedMaps.length > 0
+      ? selectedMaps
+      : undefined;
+
+    addCompletion({
+      activityId: completingEntry,
+      completedDate: todayStr,
+      durationMinutes: mins > 0 ? mins : undefined,
+      completedMaps: isMapLearning ? mapsToSave : undefined,
     });
+
     setCompletingEntry(null);
     setDuration("");
     setSelectedMaps([]);

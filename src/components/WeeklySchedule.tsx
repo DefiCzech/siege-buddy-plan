@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
-import { Plus, CheckCircle2, Clock, X, Map } from "lucide-react";
+import { Plus, X, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Props {
@@ -41,7 +41,7 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
 
   const addEntry = (dayOfWeek: number, activityId: string) => {
     if (entries.some((e) => e.dayOfWeek === dayOfWeek && e.activityId === activityId)) return;
-    onChange([...entries, { dayOfWeek, activityId, completed: false }]);
+    onChange([...entries, { dayOfWeek, activityId }]);
   };
 
   const removeEntry = async (dayOfWeek: number, activityId: string) => {
@@ -118,7 +118,7 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-2">
         {DAY_NAMES.map((dayName, dayIdx) => {
           const de = dayEntries(dayIdx);
-          const allDone = de.length > 0 && de.every((e) => e.completed);
+          const allDone = false; // completions tracked separately
           const weekend = isWeekend(dayIdx);
           const holiday = isHoliday(dayIdx);
           const dateStr = weekDates[dayIdx]
@@ -126,8 +126,7 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
             : "";
 
           let borderClass = "border-border bg-card";
-          if (allDone) borderClass = "border-success/50 bg-success/5";
-          else if (holiday) borderClass = "border-primary/50 bg-primary/5";
+          if (holiday) borderClass = "border-primary/50 bg-primary/5";
           else if (weekend) borderClass = "border-accent/50 bg-accent/10";
 
           return (
@@ -142,7 +141,6 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
                   {holiday && <span className="ml-1 text-[10px]">🎌</span>}
                 </h3>
                 <div className="flex items-center gap-1">
-                  {allDone && <CheckCircle2 className="h-4 w-4 text-success" />}
                   <Select onValueChange={(v) => addEntry(dayIdx, v)}>
                     <SelectTrigger className="h-6 w-6 p-0 border-none bg-transparent text-muted-foreground hover:text-foreground">
                       <Plus className="h-3.5 w-3.5" />
@@ -184,20 +182,9 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
                             {cat && <span>{cat.icon}</span>}
                             {act.name}
                           </div>
-                          {entry.completed && entry.durationMinutes && (
-                            <div className="flex items-center gap-0.5 mt-0.5 opacity-70">
-                              <Clock className="h-2.5 w-2.5" />
-                              {entry.durationMinutes} min
-                            </div>
-                          )}
-                          {entry.completed && entry.completedMaps && entry.completedMaps.length > 0 && (
-                            <div className="mt-0.5 opacity-70 text-[10px]">
-                              🗺️ {entry.completedMaps.join(", ")}
-                            </div>
-                          )}
                         </div>
                         <div className="flex items-center gap-0.5 shrink-0">
-                          {isMapActivity && !entry.completed && (
+                          {isMapActivity && (
                             <MapAssignPopover
                               assignedMaps={entry.assignedMaps || []}
                               onToggle={(map) => toggleAssignedMap(dayIdx, entry.activityId, map)}
