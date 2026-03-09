@@ -3,7 +3,7 @@ import { FriendData } from "@/hooks/use-friends";
 import { DAY_NAMES } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { UserPlus, X, CheckCircle2, Circle, Users } from "lucide-react";
+import { UserPlus, X, CheckCircle2, Circle, Users, ChevronDown, ChevronUp } from "lucide-react";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 
 interface Props {
@@ -15,6 +15,7 @@ interface Props {
 
 export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }: Props) {
   const [friendCode, setFriendCode] = useState("");
+  const [expandedFriend, setExpandedFriend] = useState<string | null>(null);
   const { confirm, ConfirmDialog } = useConfirmDialog();
 
   const todayStr = new Date().toISOString().slice(0, 10);
@@ -26,7 +27,8 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
     setFriendCode("");
   };
 
-  const handleRemove = async (friend: FriendData) => {
+  const handleRemove = async (e: React.MouseEvent, friend: FriendData) => {
+    e.stopPropagation();
     const ok = await confirm({ message: `Opravdu chceš přestat sledovat ${friend.displayName}?` });
     if (ok) onRemoveFriend(friend.userId);
   };
@@ -54,7 +56,6 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
         </Button>
       </div>
 
-      {/* Friend cards */}
       {loading && <p className="text-xs text-muted-foreground">Načítání...</p>}
 
       {friends.length === 0 && !loading && (
@@ -69,7 +70,9 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
         const isCompleted = (activityId: string) =>
           todayCompletions.some((c) => c.activityId === activityId);
         const completedCount = todayEntries.filter((e) => isCompleted(e.activityId)).length;
-        const allDone = todayEntries.length > 0 && completedCount === todayEntries.length;
+        const totalCount = todayEntries.length;
+        const allDone = totalCount > 0 && completedCount === totalCount;
+        const isExpanded = expandedFriend === friend.userId;
 
         const getActivity = (id: string) => friend.schedule.activities.find((a) => a.id === id);
         const getCategory = (id: string) => friend.schedule.categories.find((c) => c.id === id);
@@ -77,88 +80,118 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
         return (
           <div
             key={friend.userId}
-            className="rounded-lg border border-border bg-card p-4 space-y-3"
+            className="rounded-lg border border-border bg-card overflow-hidden"
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            {/* Compact summary card */}
+            <button
+              onClick={() => setExpandedFriend(isExpanded ? null : friend.userId)}
+              className="w-full flex items-center justify-between p-3 hover:bg-secondary/50 transition-colors text-left"
+            >
+              <div className="flex items-center gap-3">
                 <span className="text-sm font-mono font-bold">{friend.displayName}</span>
-                {allDone && <span className="text-xs text-success font-mono">✓ HOTOVO</span>}
-                {todayEntries.length > 0 && (
+                {totalCount === 0 ? (
+                  <span className="text-xs text-muted-foreground font-mono">volno</span>
+                ) : allDone ? (
+                  <span className="text-xs text-success font-mono flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3" />
+                    {completedCount}/{totalCount}
+                  </span>
+                ) : (
                   <span className="text-xs text-muted-foreground font-mono">
-                    {completedCount}/{todayEntries.length}
+                    {completedCount}/{totalCount}
                   </span>
                 )}
               </div>
-              <button
-                onClick={() => handleRemove(friend)}
-                className="text-muted-foreground hover:text-destructive transition-colors"
-                title="Přestat sledovat"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            {todayEntries.length === 0 ? (
-              <p className="text-xs text-muted-foreground">Dnes nemá nic naplánováno</p>
-            ) : (
-              <div className="space-y-1">
-                {todayEntries.map((entry) => {
-                  const act = getActivity(entry.activityId);
-                  if (!act) return null;
-                  const cat = getCategory(act.categoryId);
-                  const done = isCompleted(entry.activityId);
-                  const completion = todayCompletions.find((c) => c.activityId === entry.activityId);
-                  const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
-
-                  return (
+              <div className="flex items-center gap-2">
+                {/* Mini progress bar */}
+                {totalCount > 0 && (
+                  <div className="w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
                     <div
-                      key={entry.activityId}
-                      className={`text-xs p-2 rounded border flex items-center gap-2 ${colorClass} ${
-                        done ? "opacity-60" : ""
-                      }`}
-                    >
-                      {done ? (
-                        <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
-                      ) : (
-                        <Circle className="h-3.5 w-3.5 shrink-0 opacity-40" />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <span className="inline-flex items-center gap-1">
-                          {cat && <span>{cat.icon}</span>}
-                          <span className={done ? "line-through" : ""}>{act.name}</span>
-                        </span>
-                        {done && completion?.durationMinutes && (
-                          <span className="ml-2 opacity-70">{completion.durationMinutes} min</span>
-                        )}
+                      className={`h-full rounded-full transition-all ${allDone ? "bg-success" : "bg-primary"}`}
+                      style={{ width: `${(completedCount / totalCount) * 100}%` }}
+                    />
+                  </div>
+                )}
+                {isExpanded ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
+              </div>
+            </button>
+
+            {/* Expanded detail */}
+            {isExpanded && (
+              <div className="border-t border-border p-3 space-y-3">
+                {todayEntries.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">Dnes nemá nic naplánováno</p>
+                ) : (
+                  <div className="space-y-1">
+                    {todayEntries.map((entry) => {
+                      const act = getActivity(entry.activityId);
+                      if (!act) return null;
+                      const cat = getCategory(act.categoryId);
+                      const done = isCompleted(entry.activityId);
+                      const completion = todayCompletions.find((c) => c.activityId === entry.activityId);
+                      const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
+
+                      return (
+                        <div
+                          key={entry.activityId}
+                          className={`text-xs p-2 rounded border flex items-center gap-2 ${colorClass} ${done ? "opacity-60" : ""}`}
+                        >
+                          {done ? (
+                            <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+                          ) : (
+                            <Circle className="h-3.5 w-3.5 shrink-0 opacity-40" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <span className="inline-flex items-center gap-1">
+                              {cat && <span>{cat.icon}</span>}
+                              <span className={done ? "line-through" : ""}>{act.name}</span>
+                            </span>
+                            {done && completion?.durationMinutes && (
+                              <span className="ml-2 opacity-70">{completion.durationMinutes} min</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Weekly overview */}
+                <div className="flex gap-1 pt-1">
+                  {DAY_NAMES.map((name, idx) => {
+                    const dayEntries = friend.schedule.entries.filter((e) => e.dayOfWeek === idx);
+                    const isToday = idx === todayIdx;
+                    return (
+                      <div
+                        key={idx}
+                        className={`flex-1 text-center text-[10px] font-mono py-0.5 rounded ${
+                          isToday
+                            ? "bg-primary/20 text-primary font-bold"
+                            : dayEntries.length > 0
+                            ? "bg-secondary text-muted-foreground"
+                            : "text-muted-foreground/30"
+                        }`}
+                        title={`${name}: ${dayEntries.length} aktivit`}
+                      >
+                        {name.slice(0, 2)}
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={(e) => handleRemove(e as any, friend)}
+                  className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                >
+                  <X className="h-3 w-3" />
+                  Přestat sledovat
+                </button>
               </div>
             )}
-
-            {/* Weekly overview - compact */}
-            <div className="flex gap-1 pt-1">
-              {DAY_NAMES.map((name, idx) => {
-                const dayEntries = friend.schedule.entries.filter((e) => e.dayOfWeek === idx);
-                const isToday = idx === todayIdx;
-                return (
-                  <div
-                    key={idx}
-                    className={`flex-1 text-center text-[10px] font-mono py-0.5 rounded ${
-                      isToday
-                        ? "bg-primary/20 text-primary font-bold"
-                        : dayEntries.length > 0
-                        ? "bg-secondary text-muted-foreground"
-                        : "text-muted-foreground/30"
-                    }`}
-                    title={`${name}: ${dayEntries.length} aktivit`}
-                  >
-                    {name.slice(0, 2)}
-                  </div>
-                );
-              })}
-            </div>
           </div>
         );
       })}
