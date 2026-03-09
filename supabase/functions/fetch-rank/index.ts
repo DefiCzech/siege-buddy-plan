@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
   const username = profile.ubisoft_username;
 
   try {
-    // Fetch seasonal stats from r6data.eu
+    // First try seasonalStats for current rank with image
     const r6Res = await fetch(
       `https://api.r6data.eu/api/stats?type=seasonalStats&nameOnPlatform=${encodeURIComponent(username)}&platformType=uplay`,
       { headers: { "api-key": R6DATA_API_KEY } }
@@ -79,22 +79,30 @@ Deno.serve(async (req) => {
     }
 
     const r6Data = await r6Res.json();
+    console.log("r6data response structure:", JSON.stringify(r6Data).slice(0, 500));
 
-    // Extract latest rank from history
+    // Extract rank - find the entry with the latest timestamp
     let rankName: string | null = null;
     let rankImageUrl: string | null = null;
 
     const history = r6Data?.data?.history?.data;
     if (Array.isArray(history) && history.length > 0) {
-      // Last entry is the most recent
-      const latest = history[history.length - 1];
-      if (Array.isArray(latest) && latest.length >= 2) {
-        const meta = latest[1]?.metadata;
-        if (meta) {
-          rankName = meta.rank || null;
-          rankImageUrl = meta.imageUrl || null;
+      // Sort by timestamp (first element of each entry) descending, pick most recent
+      let latestTime = "";
+      for (const entry of history) {
+        if (Array.isArray(entry) && entry.length >= 2) {
+          const timestamp = entry[0];
+          if (timestamp > latestTime) {
+            latestTime = timestamp;
+            const meta = entry[1]?.metadata;
+            if (meta) {
+              rankName = meta.rank || null;
+              rankImageUrl = meta.imageUrl || null;
+            }
+          }
         }
       }
+      console.log("Resolved rank:", rankName, "from timestamp:", latestTime);
     }
 
     // Update profile with rank info
