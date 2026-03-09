@@ -123,7 +123,11 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
               className={`rounded border p-3 space-y-2 transition-colors ${borderClass}`}
             >
               <div className="flex items-center justify-between">
-                <h3 className="font-mono text-sm font-bold tracking-wide">{dayName}</h3>
+                <h3 className="font-mono text-sm font-bold tracking-wide">
+                  {dayName}
+                  <span className="text-[10px] font-normal text-muted-foreground ml-1">{dateStr}</span>
+                  {holiday && <span className="ml-1 text-[10px]">🎌</span>}
+                </h3>
                 <div className="flex items-center gap-1">
                   {allDone && <CheckCircle2 className="h-4 w-4 text-success" />}
                   <Select onValueChange={(v) => addEntry(dayIdx, v)}>
