@@ -29,6 +29,7 @@ const Account = () => {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteText, setDeleteText] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [includeStats, setIncludeStats] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
