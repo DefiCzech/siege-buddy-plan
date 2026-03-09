@@ -81,6 +81,8 @@ const Auth = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="bg-secondary border-border"
               required
+              autoComplete="email"
+              name="email"
             />
           </div>
           {mode !== "forgot" && (
