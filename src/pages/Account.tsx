@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useSchedule } from "@/hooks/use-schedule";
-import { encodeScheduleForShare } from "@/lib/schedule-store";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { User, Lock, Mail, Download, Upload, Trash2, BarChart3, Settings, Database } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
