@@ -12,6 +12,7 @@ import { FriendTracker } from "@/components/FriendTracker";
 
 const Index = () => {
   const { schedule, completions, addCompletion, loading } = useSchedule();
+  const { friends, loadingFriends, addFriend, removeFriend } = useFriends();
   const [completingEntry, setCompletingEntry] = useState<string | null>(null);
   const [duration, setDuration] = useState("");
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
