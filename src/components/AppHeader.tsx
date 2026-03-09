@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Crosshair, Calendar, Settings, BarChart3, LogOut } from "lucide-react";
+import { Crosshair, Calendar, Settings, BarChart3, LogOut, UserCog } from "lucide-react";
 import { Schedule } from "@/lib/types";
 import { ShareButton } from "@/components/ShareButton";
 import { useAuth } from "@/hooks/use-auth";
@@ -19,6 +19,7 @@ export function AppHeader({ schedule, completedToday, totalToday }: Props) {
     { to: "/", icon: Calendar, label: "Přehled" },
     { to: "/manage", icon: Settings, label: "Správa" },
     { to: "/stats", icon: BarChart3, label: "Statistiky" },
+    { to: "/account", icon: UserCog, label: "Účet" },
   ];
 
   return (
@@ -56,7 +57,7 @@ export function AppHeader({ schedule, completedToday, totalToday }: Props) {
               <span className="text-success">{completedToday}</span>/{totalToday}
             </div>
           )}
-          <ShareButton schedule={schedule} />
+          
           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={signOut} title="Odhlásit se">
             <LogOut className="h-4 w-4" />
           </Button>
