@@ -5,12 +5,15 @@ export interface Category {
   color: string; // tailwind color classes
 }
 
+export type ActivityType = "default" | "map-learning";
+
 export interface TrainingActivity {
   id: string;
   name: string;
   categoryId: string;
   description?: string;
   videoUrl?: string;
+  activityType?: ActivityType;
 }
 
 export interface ScheduleEntry {
@@ -18,7 +21,15 @@ export interface ScheduleEntry {
   activityId: string;
   completed: boolean;
   durationMinutes?: number;
+  completedMaps?: string[];
 }
+
+export const R6S_MAPS = [
+  "Bank", "Border", "Chalet", "Clubhouse", "Coastline",
+  "Consulate", "Emerald Plains", "Kafe Dostoyevsky", "Kanal",
+  "Lair", "Nighthaven Labs", "Oregon", "Outback",
+  "Skyscraper", "Theme Park", "Villa",
+];
 
 export interface Schedule {
   id: string;
