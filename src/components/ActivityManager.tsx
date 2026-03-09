@@ -49,6 +49,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
       categoryId: form.categoryId,
       description: form.description.trim() || undefined,
       videoUrl: form.videoUrl.trim() || undefined,
+      activityType: form.activityType !== "default" ? form.activityType : undefined,
     };
     if (editingActivity) {
       onChange(activities.map((a) => (a.id === data.id ? data : a)));
