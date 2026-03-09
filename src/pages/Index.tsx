@@ -39,7 +39,11 @@ const Index = () => {
   };
 
   const completingActivity = completingEntry ? getActivity(completingEntry) : null;
+  const completingEntryData = completingEntry
+    ? schedule.entries.find((e) => e.dayOfWeek === todayIdx && e.activityId === completingEntry)
+    : null;
   const isMapLearning = completingActivity?.activityType === "map-learning";
+  const hasAssignedMaps = (completingEntryData?.assignedMaps?.length ?? 0) > 0;
 
   const completeToday = () => {
     if (!completingEntry) return;
