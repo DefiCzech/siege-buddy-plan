@@ -46,6 +46,7 @@ const Index = () => {
   const remainingToday = todayEntries.filter((e) => !e.completed);
 
   const getActivity = (id: string) => schedule.activities.find((a) => a.id === id);
+  const getCategory = (id: string) => schedule.categories.find((c) => c.id === id);
   const getVideoEmbedUrl = (url: string) => {
     const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
     if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
