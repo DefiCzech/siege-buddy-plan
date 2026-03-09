@@ -35,7 +35,6 @@ function getEasterDate(year: number): Date {
 export function WeeklySchedule({ activities, categories, entries, onChange }: Props) {
   const getCategory = (id: string) => categories.find((c) => c.id === id);
 
-  const getCategory = (id: string) => categories.find((c) => c.id === id);
 
   const addEntry = (dayOfWeek: number, activityId: string) => {
     if (entries.some((e) => e.dayOfWeek === dayOfWeek && e.activityId === activityId)) return;
