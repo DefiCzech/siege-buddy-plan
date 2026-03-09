@@ -60,7 +60,7 @@ export function useFriends() {
     for (const friendId of friendIds) {
       const [profileRes, codeRes, schedRes, catsRes, actsRes, entriesRes, completionsRes] =
         await Promise.all([
-          supabase.from("profiles").select("display_name").eq("user_id", friendId).single(),
+          supabase.from("profiles").select("display_name, rank_name, rank_image_url").eq("user_id", friendId).single(),
           supabase.from("user_share_codes").select("share_code").eq("user_id", friendId).single(),
           supabase.from("user_schedules").select("name").eq("user_id", friendId).single(),
           supabase.from("user_categories").select("*").eq("user_id", friendId).order("sort_order"),
