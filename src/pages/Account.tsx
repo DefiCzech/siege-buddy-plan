@@ -147,8 +147,8 @@ const Account = () => {
           entries: data.schedule.entries || [],
         });
 
-        // Import completions
-        if (data.completions?.length) {
+        // Import completions only if user wants stats
+        if (includeStats && data.completions?.length) {
           data.completions.forEach((c: any) => {
             addCompletion({
               activityId: c.activityId,
@@ -159,7 +159,10 @@ const Account = () => {
           });
         }
 
-        toast.success(`Importováno: ${data.schedule.activities?.length || 0} aktivit, ${data.completions?.length || 0} splnění`);
+        const statsMsg = includeStats && data.completions?.length
+          ? `, ${data.completions.length} splnění`
+          : "";
+        toast.success(`Importováno: ${data.schedule.activities?.length || 0} aktivit${statsMsg}`);
       } catch {
         toast.error("Chyba při čtení souboru");
       }
