@@ -13,6 +13,10 @@ import { Crosshair, Calendar, Settings, Tags, AlertTriangle, CheckCircle2, Clock
 import { toast } from "sonner";
 
 const Index = () => {
+  const [completingEntry, setCompletingEntry] = useState<string | null>(null);
+  const [duration, setDuration] = useState("");
+  const [detailActivityId, setDetailActivityId] = useState<string | null>(null);
+
   const [schedule, setSchedule] = useState<Schedule>(() => {
     const params = new URLSearchParams(window.location.search);
     const planData = params.get("plan");
