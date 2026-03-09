@@ -1,7 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
-import { Crosshair, Calendar, Settings, BarChart3 } from "lucide-react";
+import { Crosshair, Calendar, Settings, BarChart3, LogOut } from "lucide-react";
 import { Schedule } from "@/lib/types";
 import { ShareButton } from "@/components/ShareButton";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   schedule: Schedule;
