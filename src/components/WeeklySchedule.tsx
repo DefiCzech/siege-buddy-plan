@@ -296,3 +296,54 @@ function MapAssignPopover({
     </Popover>
   );
 }
+
+function OperatorAssignPopover({
+  assignedOperators,
+  onToggle,
+}: {
+  assignedOperators: string[];
+  onToggle: (op: string) => void;
+}) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className="hover:text-foreground transition-colors"
+          title="Přiřadit operátory"
+        >
+          <Shield className="h-3 w-3" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-56 p-2 max-h-72 overflow-y-auto" align="end">
+        <p className="text-xs font-mono font-bold mb-2">Operátoři na tento den:</p>
+        <p className="text-[10px] text-muted-foreground font-mono mb-1">⚔️ ÚTOK</p>
+        {R6S_OPERATORS.filter((o) => o.side === "attack").map((op) => (
+          <label
+            key={op.name}
+            className="flex items-center gap-2 text-xs p-1 rounded hover:bg-secondary/50 cursor-pointer"
+          >
+            <Checkbox
+              checked={assignedOperators.includes(op.name)}
+              onCheckedChange={() => onToggle(op.name)}
+            />
+            <span>{op.name}</span>
+          </label>
+        ))}
+        <div className="my-1.5 border-t border-border" />
+        <p className="text-[10px] text-muted-foreground font-mono mb-1">🛡️ OBRANA</p>
+        {R6S_OPERATORS.filter((o) => o.side === "defense").map((op) => (
+          <label
+            key={op.name}
+            className="flex items-center gap-2 text-xs p-1 rounded hover:bg-secondary/50 cursor-pointer"
+          >
+            <Checkbox
+              checked={assignedOperators.includes(op.name)}
+              onCheckedChange={() => onToggle(op.name)}
+            />
+            <span>{op.name}</span>
+          </label>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
+}
