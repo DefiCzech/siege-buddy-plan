@@ -14,6 +14,7 @@ const Index = () => {
   const [duration, setDuration] = useState("");
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
   const [detailActivityId, setDetailActivityId] = useState<string | null>(null);
+  const [mapFilter, setMapFilter] = useState<"all" | "ranked" | "unranked">("ranked");
 
   const todayIdx = (new Date().getDay() + 6) % 7;
   const todayEntries = schedule.entries.filter((e) => e.dayOfWeek === todayIdx);
