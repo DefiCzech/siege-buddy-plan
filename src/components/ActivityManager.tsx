@@ -58,8 +58,9 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
     resetForm();
   };
 
-  const removeActivity = (id: string) => {
-    if (!window.confirm("Opravdu chceš smazat tuto aktivitu?")) return;
+  const removeActivity = async (id: string) => {
+    const ok = await confirm({ message: "Opravdu chceš smazat tuto aktivitu?" });
+    if (!ok) return;
     onChange(activities.filter((a) => a.id !== id));
   };
 

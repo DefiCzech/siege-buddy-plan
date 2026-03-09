@@ -55,8 +55,9 @@ export function CategoryManager({ categories, onChange }: Props) {
     resetForm();
   };
 
-  const removeCategory = (id: string) => {
-    if (!window.confirm("Opravdu chceš smazat tuto kategorii?")) return;
+  const removeCategory = async (id: string) => {
+    const ok = await confirm({ message: "Opravdu chceš smazat tuto kategorii?" });
+    if (!ok) return;
     onChange(categories.filter((c) => c.id !== id));
   };
 
