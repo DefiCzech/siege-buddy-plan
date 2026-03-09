@@ -87,30 +87,30 @@ const Index = () => {
               const cat = getCategory(act.categoryId);
               const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
               return (
-                <div key={entry.activityId} className={`rounded border p-3 ${colorClass}`}>
+                <div
+                  key={entry.activityId}
+                  className={`rounded border p-3 ${colorClass} cursor-pointer hover:opacity-90 transition-opacity`}
+                  onClick={() => (act.description || act.videoUrl) && setDetailActivityId(act.id)}
+                >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm font-medium">
+                    <div className="flex items-center gap-2 text-sm font-medium flex-1 min-w-0">
                       {cat && <span>{cat.icon}</span>}
                       {act.name}
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      {(act.description || act.videoUrl) && (
-                        <button
-                          onClick={() => setDetailActivityId(act.id)}
-                          className="text-muted-foreground hover:text-foreground transition-colors"
-                          title="Zobrazit detail"
-                        >
-                          <Info className="h-4 w-4" />
-                        </button>
-                      )}
-                      <button
-                        onClick={() => { setCompletingEntry(entry.activityId); setDuration(""); setSelectedMaps([]); }}
-                        className="text-muted-foreground hover:text-success transition-colors"
-                        title="Označit jako hotové"
-                      >
-                        <CheckCircle2 className="h-4 w-4" />
-                      </button>
-                    </div>
+                    <Button
+                      size="sm"
+                      variant="default"
+                      className="ml-2 gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCompletingEntry(entry.activityId);
+                        setDuration("");
+                        setSelectedMaps([]);
+                      }}
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                      Splnit
+                    </Button>
                   </div>
                   {act.description && (
                     <p className="text-xs mt-1 opacity-70">{act.description}</p>
