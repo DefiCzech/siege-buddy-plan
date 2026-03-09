@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { AppHeader } from "@/components/AppHeader";
 import { useSchedule } from "@/hooks/use-schedule";
-import { DAY_NAMES } from "@/lib/types";
+
 
 export function AppLayout() {
   const { schedule } = useSchedule();
