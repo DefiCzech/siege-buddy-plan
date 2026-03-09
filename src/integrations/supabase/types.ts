@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      friend_follows: {
+        Row: {
+          created_at: string
+          friend_user_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          friend_user_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          friend_user_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -185,12 +206,37 @@ export type Database = {
         }
         Relationships: []
       }
+      user_share_codes: {
+        Row: {
+          created_at: string
+          id: string
+          share_code: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          share_code: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          share_code?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_share_code: { Args: never; Returns: string }
+      is_friend_of: {
+        Args: { _owner_id: string; _viewer_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

@@ -6,9 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useSchedule } from "@/hooks/use-schedule";
-import { encodeScheduleForShare } from "@/lib/schedule-store";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Copy, Check, User, Lock, Mail, Share2, Download, Upload, Trash2, BarChart3, Settings, Database } from "lucide-react";
+import { User, Lock, Mail, Download, Upload, Trash2, BarChart3, Settings, Database } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MfaSettings } from "@/components/MfaSettings";
 import { TrainingStats } from "@/components/TrainingStats";
@@ -28,7 +27,7 @@ const Account = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loadingPassword, setLoadingPassword] = useState(false);
 
-  const [copied, setCopied] = useState(false);
+  
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteText, setDeleteText] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -93,15 +92,6 @@ const Account = () => {
     }
   };
 
-  const handleShare = () => {
-    const encoded = encodeScheduleForShare(schedule);
-    const url = `${window.location.origin}?plan=${encoded}`;
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true);
-      toast.success("Odkaz zkopírován do schránky!");
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
 
   const handleExport = () => {
     const exportData: any = {
@@ -305,24 +295,6 @@ const Account = () => {
           {/* 2FA */}
           <MfaSettings />
 
-          <Separator />
-
-          {/* Share plan */}
-          <section className="space-y-3">
-            <div className="flex items-center gap-2 text-sm font-mono text-primary">
-              <Share2 className="h-4 w-4" />
-              Sdílení plánu
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Vygeneruj odkaz s hash kódem tvého tréninkového plánu a sdílej ho s kýmkoliv.
-            </p>
-            <Button onClick={handleShare} variant="outline" className="gap-2 border-primary/30 hover:border-primary">
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-              {copied ? "Zkopírováno!" : "Zkopírovat odkaz na plán"}
-            </Button>
-          </section>
-
-          <Separator />
 
           {/* Delete account */}
           <section className="space-y-3">
