@@ -118,7 +118,7 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-2">
         {DAY_NAMES.map((dayName, dayIdx) => {
           const de = dayEntries(dayIdx);
-          const allDone = de.length > 0 && de.every((e) => e.completed);
+          const allDone = false; // completions tracked separately
           const weekend = isWeekend(dayIdx);
           const holiday = isHoliday(dayIdx);
           const dateStr = weekDates[dayIdx]
