@@ -249,7 +249,8 @@ function MapAssignPopover({
       </PopoverTrigger>
       <PopoverContent className="w-56 p-2 max-h-64 overflow-y-auto" align="end">
         <p className="text-xs font-mono font-bold mb-2">Mapy na tento den:</p>
-        {R6S_MAPS.map((map) => (
+        <p className="text-[10px] text-muted-foreground font-mono mb-1">RANKED</p>
+        {R6S_MAPS.filter((m) => m.ranked).map((map) => (
           <label
             key={map.name}
             className="flex items-center gap-2 text-xs p-1 rounded hover:bg-secondary/50 cursor-pointer"
@@ -259,7 +260,20 @@ function MapAssignPopover({
               onCheckedChange={() => onToggle(map.name)}
             />
             <span>{map.name}</span>
-            {map.ranked && <span className="text-[9px] text-muted-foreground">R</span>}
+          </label>
+        ))}
+        <div className="my-1.5 border-t border-border" />
+        <p className="text-[10px] text-muted-foreground font-mono mb-1">OSTATNÍ</p>
+        {R6S_MAPS.filter((m) => !m.ranked).map((map) => (
+          <label
+            key={map.name}
+            className="flex items-center gap-2 text-xs p-1 rounded hover:bg-secondary/50 cursor-pointer"
+          >
+            <Checkbox
+              checked={assignedMaps.includes(map.name)}
+              onCheckedChange={() => onToggle(map.name)}
+            />
+            <span>{map.name}</span>
           </label>
         ))}
       </PopoverContent>
