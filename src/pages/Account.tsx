@@ -9,6 +9,7 @@ import { useSchedule } from "@/hooks/use-schedule";
 import { encodeScheduleForShare } from "@/lib/schedule-store";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Copy, Check, User, Lock, Mail, Share2, Download, Upload, Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { MfaSettings } from "@/components/MfaSettings";
 
 const Account = () => {
@@ -29,6 +30,7 @@ const Account = () => {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteText, setDeleteText] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [includeStats, setIncludeStats] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -101,7 +103,7 @@ const Account = () => {
 
   // Export all data as JSON
   const handleExport = () => {
-    const exportData = {
+    const exportData: any = {
       version: 1,
       exportedAt: new Date().toISOString(),
       schedule: {
@@ -110,8 +112,10 @@ const Account = () => {
         activities: schedule.activities,
         entries: schedule.entries,
       },
-      completions,
     };
+    if (includeStats) {
+      exportData.completions = completions;
+    }
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -143,8 +147,8 @@ const Account = () => {
           entries: data.schedule.entries || [],
         });
 
-        // Import completions
-        if (data.completions?.length) {
+        // Import completions only if user wants stats
+        if (includeStats && data.completions?.length) {
           data.completions.forEach((c: any) => {
             addCompletion({
               activityId: c.activityId,
@@ -155,7 +159,10 @@ const Account = () => {
           });
         }
 
-        toast.success(`Importováno: ${data.schedule.activities?.length || 0} aktivit, ${data.completions?.length || 0} splnění`);
+        const statsMsg = includeStats && data.completions?.length
+          ? `, ${data.completions.length} splnění`
+          : "";
+        toast.success(`Importováno: ${data.schedule.activities?.length || 0} aktivit${statsMsg}`);
       } catch {
         toast.error("Chyba při čtení souboru");
       }
@@ -319,6 +326,13 @@ const Account = () => {
           Exportuj všechna svá data (plán, aktivity, kategorie, splněné tréninky) jako JSON soubor.
           Tento soubor můžeš později importovat pod novým účtem.
         </p>
+        <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+          <Checkbox
+            checked={includeStats}
+            onCheckedChange={(v) => setIncludeStats(v === true)}
+          />
+          Zahrnout statistiky (historie splněných tréninků)
+        </label>
         <div className="flex flex-wrap gap-2">
           <Button onClick={handleExport} variant="outline" className="gap-2 border-primary/30 hover:border-primary">
             <Download className="h-4 w-4" />
