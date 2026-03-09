@@ -45,29 +45,6 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
     onChange(entries.filter((e) => !(e.dayOfWeek === dayOfWeek && e.activityId === activityId)));
   };
 
-  const completeEntry = () => {
-    if (!completingEntry) return;
-    const mins = parseInt(duration) || 0;
-    onChange(
-      entries.map((e) =>
-        e.dayOfWeek === completingEntry.day && e.activityId === completingEntry.actId
-          ? { ...e, completed: true, durationMinutes: mins > 0 ? mins : undefined }
-          : e
-      )
-    );
-    setCompletingEntry(null);
-    setDuration("");
-  };
-
-  const uncompleteEntry = (dayOfWeek: number, activityId: string) => {
-    onChange(
-      entries.map((e) =>
-        e.dayOfWeek === dayOfWeek && e.activityId === activityId
-          ? { ...e, completed: false, durationMinutes: undefined }
-          : e
-      )
-    );
-  };
 
   const getActivity = (id: string) => activities.find((a) => a.id === id);
   const dayEntries = (day: number) => entries.filter((e) => e.dayOfWeek === day);
