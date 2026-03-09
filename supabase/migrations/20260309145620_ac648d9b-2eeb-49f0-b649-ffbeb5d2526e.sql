@@ -1,0 +1,1 @@
+ALTER TABLE public.schedule_entries ADD COLUMN assigned_operators text[] DEFAULT NULL;

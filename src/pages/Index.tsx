@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckCircle2, Info, ExternalLink, Loader2 } from "lucide-react";
-import { R6S_MAPS } from "@/lib/types";
+import { R6S_MAPS, R6S_OPERATORS } from "@/lib/types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FriendTracker } from "@/components/FriendTracker";
 
@@ -16,8 +16,10 @@ const Index = () => {
   const [completingEntry, setCompletingEntry] = useState<string | null>(null);
   const [duration, setDuration] = useState("");
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
+  const [selectedOperators, setSelectedOperators] = useState<string[]>([]);
   const [detailActivityId, setDetailActivityId] = useState<string | null>(null);
   const [mapFilter, setMapFilter] = useState<"all" | "ranked" | "unranked">("ranked");
+  const [opFilter, setOpFilter] = useState<"all" | "attack" | "defense">("all");
 
   if (loading) {
     return (
@@ -50,7 +52,9 @@ const Index = () => {
     ? schedule.entries.find((e) => e.dayOfWeek === todayIdx && e.activityId === completingEntry)
     : null;
   const isMapLearning = completingActivity?.activityType === "map-learning";
+  const isOperatorTraining = completingActivity?.activityType === "operator-training";
   const hasAssignedMaps = (completingEntryData?.assignedMaps?.length ?? 0) > 0;
+  const hasAssignedOperators = (completingEntryData?.assignedOperators?.length ?? 0) > 0;
 
   const completeToday = () => {
     if (!completingEntry) return;
@@ -71,11 +75,18 @@ const Index = () => {
     setCompletingEntry(null);
     setDuration("");
     setSelectedMaps([]);
+    setSelectedOperators([]);
   };
 
   const toggleMap = (map: string) => {
     setSelectedMaps((prev) =>
       prev.includes(map) ? prev.filter((m) => m !== map) : [...prev, map]
+    );
+  };
+
+  const toggleOperator = (op: string) => {
+    setSelectedOperators((prev) =>
+      prev.includes(op) ? prev.filter((o) => o !== op) : [...prev, op]
     );
   };
 
@@ -123,6 +134,11 @@ const Index = () => {
                           📋 {entry.assignedMaps.join(", ")}
                         </p>
                       )}
+                      {entry.assignedOperators && entry.assignedOperators.length > 0 && (
+                        <p className="text-xs font-mono font-bold text-primary mt-1">
+                          🛡️ {entry.assignedOperators.join(", ")}
+                        </p>
+                      )}
                       {act.description && (
                         <p className="text-xs mt-1 opacity-70">{act.description}</p>
                       )}
@@ -136,6 +152,7 @@ const Index = () => {
                         setCompletingEntry(entry.activityId);
                         setDuration("");
                         setSelectedMaps([]);
+                        setSelectedOperators([]);
                       }}
                     >
                       <CheckCircle2 className="h-4 w-4" />
@@ -204,6 +221,36 @@ const Index = () => {
                         onCheckedChange={() => toggleMap(map.name)}
                       />
                       {map.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+            {isOperatorTraining && !hasAssignedOperators && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-muted-foreground">Které operátory jsi trénoval/a?</p>
+                </div>
+                <Tabs defaultValue="all" className="mb-2">
+                  <TabsList className="h-7">
+                    <TabsTrigger value="all" className="text-xs h-6" onClick={() => setOpFilter("all")}>Všichni</TabsTrigger>
+                    <TabsTrigger value="attack" className="text-xs h-6" onClick={() => setOpFilter("attack")}>Útok</TabsTrigger>
+                    <TabsTrigger value="defense" className="text-xs h-6" onClick={() => setOpFilter("defense")}>Obrana</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+                <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto">
+                  {R6S_OPERATORS
+                    .filter((o) => opFilter === "all" ? true : o.side === opFilter)
+                    .map((op) => (
+                    <label
+                      key={op.name}
+                      className="flex items-center gap-2 text-sm p-1.5 rounded hover:bg-secondary/50 cursor-pointer"
+                    >
+                      <Checkbox
+                        checked={selectedOperators.includes(op.name)}
+                        onCheckedChange={() => toggleOperator(op.name)}
+                      />
+                      {op.name}
                     </label>
                   ))}
                 </div>

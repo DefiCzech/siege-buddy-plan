@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
-import { ScheduleEntry, TrainingActivity, Category, DAY_NAMES, R6S_MAPS } from "@/lib/types";
+import { ScheduleEntry, TrainingActivity, Category, DAY_NAMES, R6S_MAPS, R6S_OPERATORS } from "@/lib/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
-import { Plus, X, Map } from "lucide-react";
+import { Plus, X, Map, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Props {
@@ -67,6 +67,25 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
       ? current.filter((m) => m !== mapName)
       : [...current, mapName];
     updateEntryMaps(dayOfWeek, activityId, updated);
+  };
+
+  const updateEntryOperators = (dayOfWeek: number, activityId: string, operators: string[]) => {
+    onChange(
+      entries.map((e) =>
+        e.dayOfWeek === dayOfWeek && e.activityId === activityId
+          ? { ...e, assignedOperators: operators.length > 0 ? operators : undefined }
+          : e
+      )
+    );
+  };
+
+  const toggleAssignedOperator = (dayOfWeek: number, activityId: string, opName: string) => {
+    const entry = entries.find((e) => e.dayOfWeek === dayOfWeek && e.activityId === activityId);
+    const current = entry?.assignedOperators || [];
+    const updated = current.includes(opName)
+      ? current.filter((o) => o !== opName)
+      : [...current, opName];
+    updateEntryOperators(dayOfWeek, activityId, updated);
   };
 
   // Czech public holidays for current year
@@ -169,6 +188,7 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
                   const cat = getCategory(act.categoryId);
                   const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
                   const isMapActivity = act.activityType === "map-learning";
+                  const isOperatorActivity = act.activityType === "operator-training";
                   return (
                     <div
                       key={entry.activityId}
@@ -188,6 +208,12 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
                               onToggle={(map) => toggleAssignedMap(dayIdx, entry.activityId, map)}
                             />
                           )}
+                          {isOperatorActivity && (
+                            <OperatorAssignPopover
+                              assignedOperators={entry.assignedOperators || []}
+                              onToggle={(op) => toggleAssignedOperator(dayIdx, entry.activityId, op)}
+                            />
+                          )}
                           <button
                             onClick={() => removeEntry(dayIdx, entry.activityId)}
                             className="hover:text-destructive shrink-0"
@@ -200,6 +226,11 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
                       {entry.assignedMaps && entry.assignedMaps.length > 0 && (
                         <div className="text-[10px] opacity-70">
                           📋 {entry.assignedMaps.join(", ")}
+                        </div>
+                      )}
+                      {entry.assignedOperators && entry.assignedOperators.length > 0 && (
+                        <div className="text-[10px] opacity-70">
+                          🛡️ {entry.assignedOperators.join(", ")}
                         </div>
                       )}
                     </div>
@@ -259,6 +290,57 @@ function MapAssignPopover({
               onCheckedChange={() => onToggle(map.name)}
             />
             <span>{map.name}</span>
+          </label>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function OperatorAssignPopover({
+  assignedOperators,
+  onToggle,
+}: {
+  assignedOperators: string[];
+  onToggle: (op: string) => void;
+}) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className="hover:text-foreground transition-colors"
+          title="Přiřadit operátory"
+        >
+          <Shield className="h-3 w-3" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-56 p-2 max-h-72 overflow-y-auto" align="end">
+        <p className="text-xs font-mono font-bold mb-2">Operátoři na tento den:</p>
+        <p className="text-[10px] text-muted-foreground font-mono mb-1">⚔️ ÚTOK</p>
+        {R6S_OPERATORS.filter((o) => o.side === "attack").map((op) => (
+          <label
+            key={op.name}
+            className="flex items-center gap-2 text-xs p-1 rounded hover:bg-secondary/50 cursor-pointer"
+          >
+            <Checkbox
+              checked={assignedOperators.includes(op.name)}
+              onCheckedChange={() => onToggle(op.name)}
+            />
+            <span>{op.name}</span>
+          </label>
+        ))}
+        <div className="my-1.5 border-t border-border" />
+        <p className="text-[10px] text-muted-foreground font-mono mb-1">🛡️ OBRANA</p>
+        {R6S_OPERATORS.filter((o) => o.side === "defense").map((op) => (
+          <label
+            key={op.name}
+            className="flex items-center gap-2 text-xs p-1 rounded hover:bg-secondary/50 cursor-pointer"
+          >
+            <Checkbox
+              checked={assignedOperators.includes(op.name)}
+              onCheckedChange={() => onToggle(op.name)}
+            />
+            <span>{op.name}</span>
           </label>
         ))}
       </PopoverContent>
