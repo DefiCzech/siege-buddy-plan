@@ -295,24 +295,6 @@ const Account = () => {
           {/* 2FA */}
           <MfaSettings />
 
-          <Separator />
-
-          {/* Share plan */}
-          <section className="space-y-3">
-            <div className="flex items-center gap-2 text-sm font-mono text-primary">
-              <Share2 className="h-4 w-4" />
-              Sdílení plánu
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Vygeneruj odkaz s hash kódem tvého tréninkového plánu a sdílej ho s kýmkoliv.
-            </p>
-            <Button onClick={handleShare} variant="outline" className="gap-2 border-primary/30 hover:border-primary">
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-              {copied ? "Zkopírováno!" : "Zkopírovat odkaz na plán"}
-            </Button>
-          </section>
-
-          <Separator />
 
           {/* Delete account */}
           <section className="space-y-3">
