@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Crosshair, Calendar, Settings, Tags, AlertTriangle, CheckCircle2, Clock, Info, ExternalLink } from "lucide-react";
+import { Crosshair, Calendar, Settings, Tags, AlertTriangle, CheckCircle2, Clock, Info, ExternalLink, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 
 const Index = () => {
