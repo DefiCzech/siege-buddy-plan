@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
-import { TrainingActivity, Category } from "@/lib/types";
+import { TrainingActivity, Category, ActivityType } from "@/lib/types";
 import { generateId } from "@/lib/schedule-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
