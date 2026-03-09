@@ -141,7 +141,6 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
                   {holiday && <span className="ml-1 text-[10px]">🎌</span>}
                 </h3>
                 <div className="flex items-center gap-1">
-                  {allDone && <CheckCircle2 className="h-4 w-4 text-success" />}
                   <Select onValueChange={(v) => addEntry(dayIdx, v)}>
                     <SelectTrigger className="h-6 w-6 p-0 border-none bg-transparent text-muted-foreground hover:text-foreground">
                       <Plus className="h-3.5 w-3.5" />
