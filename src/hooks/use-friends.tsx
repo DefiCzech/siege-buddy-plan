@@ -8,6 +8,8 @@ export interface FriendData {
   userId: string;
   displayName: string;
   shareCode: string;
+  rankName: string | null;
+  rankImageUrl: string | null;
   schedule: {
     name: string;
     categories: Category[];
@@ -58,7 +60,7 @@ export function useFriends() {
     for (const friendId of friendIds) {
       const [profileRes, codeRes, schedRes, catsRes, actsRes, entriesRes, completionsRes] =
         await Promise.all([
-          supabase.from("profiles").select("display_name").eq("user_id", friendId).single(),
+          supabase.from("profiles").select("display_name, rank_name, rank_image_url").eq("user_id", friendId).single(),
           supabase.from("user_share_codes").select("share_code").eq("user_id", friendId).single(),
           supabase.from("user_schedules").select("name").eq("user_id", friendId).single(),
           supabase.from("user_categories").select("*").eq("user_id", friendId).order("sort_order"),
@@ -70,6 +72,8 @@ export function useFriends() {
       friendsData.push({
         userId: friendId,
         displayName: profileRes.data?.display_name || "Kamarád",
+        rankName: (profileRes.data as any)?.rank_name || null,
+        rankImageUrl: (profileRes.data as any)?.rank_image_url || null,
         shareCode: codeRes.data?.share_code || "",
         schedule: {
           name: schedRes.data?.name || "Plán",

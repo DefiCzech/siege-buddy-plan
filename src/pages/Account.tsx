@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useSchedule } from "@/hooks/use-schedule";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { User, Lock, Mail, Download, Upload, Trash2, BarChart3, Settings, Database } from "lucide-react";
+import { User, Lock, Mail, Download, Upload, Trash2, BarChart3, Settings, Database, Gamepad2, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MfaSettings } from "@/components/MfaSettings";
 import { TrainingStats } from "@/components/TrainingStats";
@@ -20,6 +20,12 @@ const Account = () => {
   const [displayName, setDisplayName] = useState("");
   const [loadingName, setLoadingName] = useState(false);
 
+  const [ubisoftUsername, setUbisoftUsername] = useState("");
+  const [rankName, setRankName] = useState<string | null>(null);
+  const [rankImageUrl, setRankImageUrl] = useState<string | null>(null);
+  const [loadingUbisoft, setLoadingUbisoft] = useState(false);
+  const [fetchingRank, setFetchingRank] = useState(false);
+
   const [newEmail, setNewEmail] = useState("");
   const [loadingEmail, setLoadingEmail] = useState(false);
 
@@ -27,7 +33,6 @@ const Account = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loadingPassword, setLoadingPassword] = useState(false);
 
-  
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteText, setDeleteText] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -39,11 +44,14 @@ const Account = () => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("display_name")
+      .select("display_name, ubisoft_username, rank_name, rank_image_url")
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
         if (data?.display_name) setDisplayName(data.display_name);
+        if (data?.ubisoft_username) setUbisoftUsername(data.ubisoft_username);
+        if (data?.rank_name) setRankName(data.rank_name);
+        if (data?.rank_image_url) setRankImageUrl(data.rank_image_url);
       });
   }, [user]);
 
@@ -89,6 +97,51 @@ const Account = () => {
       toast.success("Heslo bylo změněno");
       setNewPassword("");
       setConfirmPassword("");
+    }
+  };
+
+  const handleSaveUbisoft = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setLoadingUbisoft(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ ubisoft_username: ubisoftUsername.trim() || null })
+      .eq("user_id", user.id);
+    setLoadingUbisoft(false);
+    if (error) toast.error("Nepodařilo se uložit");
+    else toast.success("Ubisoft jméno uloženo");
+  };
+
+  const handleFetchRank = async () => {
+    if (!ubisoftUsername.trim()) {
+      toast.error("Nejdříve nastav Ubisoft jméno");
+      return;
+    }
+    setFetchingRank(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("No session");
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const res = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/fetch-rank`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Chyba");
+      setRankName(data.rankName);
+      setRankImageUrl(data.rankImageUrl);
+      toast.success(data.rankName ? `Rank: ${data.rankName}` : "Rank nenalezen");
+    } catch (err: any) {
+      toast.error(err.message || "Nepodařilo se načíst rank");
+    } finally {
+      setFetchingRank(false);
     }
   };
 
@@ -226,6 +279,50 @@ const Account = () => {
                 {loadingName ? "..." : "Uložit"}
               </Button>
             </form>
+          </section>
+
+          <Separator />
+
+          {/* Ubisoft Username & Rank */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-mono text-primary">
+              <Gamepad2 className="h-4 w-4" />
+              Ubisoft Connect
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Nastav své Ubisoft jméno pro automatické zobrazení tvého ranku.
+            </p>
+            <form onSubmit={handleSaveUbisoft} className="flex gap-2">
+              <Input
+                value={ubisoftUsername}
+                onChange={(e) => setUbisoftUsername(e.target.value)}
+                placeholder="Ubisoft username"
+                className="bg-secondary border-border"
+              />
+              <Button type="submit" disabled={loadingUbisoft} size="sm">
+                {loadingUbisoft ? "..." : "Uložit"}
+              </Button>
+            </form>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 border-primary/30 hover:border-primary"
+                onClick={handleFetchRank}
+                disabled={fetchingRank || !ubisoftUsername.trim()}
+              >
+                {fetchingRank ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Gamepad2 className="h-3.5 w-3.5" />}
+                {fetchingRank ? "Načítám..." : "Aktualizovat rank"}
+              </Button>
+              {rankName && (
+                <div className="flex items-center gap-2">
+                  {rankImageUrl && (
+                    <img src={rankImageUrl} alt={rankName} className="h-8 w-8" />
+                  )}
+                  <span className="text-sm font-mono font-bold">{rankName}</span>
+                </div>
+              )}
+            </div>
           </section>
 
           <Separator />

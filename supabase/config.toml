@@ -1,1 +1,4 @@
 project_id = "ryknusdajmpirtqxkvwx"
+
+[functions.fetch-rank]
+verify_jwt = false
