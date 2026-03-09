@@ -126,8 +126,7 @@ export function WeeklySchedule({ activities, categories, entries, onChange }: Pr
             : "";
 
           let borderClass = "border-border bg-card";
-          if (allDone) borderClass = "border-success/50 bg-success/5";
-          else if (holiday) borderClass = "border-primary/50 bg-primary/5";
+          if (holiday) borderClass = "border-primary/50 bg-primary/5";
           else if (weekend) borderClass = "border-accent/50 bg-accent/10";
 
           return (
