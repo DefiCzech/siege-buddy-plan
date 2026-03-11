@@ -155,6 +155,10 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
                   onActivityClick={(activityId) => {
                     setDetailEntry({ friendId: friend.userId, activityId });
                   }}
+                  onShowStats={() => {
+                    setStatsFriend(friend.userId);
+                    setExpandedFriend(null);
+                  }}
                 />
               )}
             </div>
