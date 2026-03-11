@@ -361,13 +361,22 @@ function FriendDetail({
         </div>
       )}
 
-      <button
-        onClick={onRemove}
-        className="text-[10px] text-muted-foreground hover:text-destructive transition-colors flex items-center gap-0.5"
-      >
-        <X className="h-2.5 w-2.5" />
-        Přestat sledovat
-      </button>
+      <div className="flex items-center gap-2 pt-1 border-t border-border">
+        <button
+          onClick={(e) => { e.stopPropagation(); onShowStats(); }}
+          className="text-[10px] text-muted-foreground hover:text-primary transition-colors flex items-center gap-0.5"
+        >
+          <BarChart3 className="h-2.5 w-2.5" />
+          Statistiky
+        </button>
+        <button
+          onClick={onRemove}
+          className="text-[10px] text-muted-foreground hover:text-destructive transition-colors flex items-center gap-0.5"
+        >
+          <X className="h-2.5 w-2.5" />
+          Přestat sledovat
+        </button>
+      </div>
     </div>
   );
 }
