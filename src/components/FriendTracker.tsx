@@ -4,7 +4,8 @@ import { ScheduleEntry } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { UserPlus, X, CheckCircle2, Circle, Users, ExternalLink } from "lucide-react";
+import { UserPlus, X, CheckCircle2, Circle, Users, ExternalLink, BarChart3 } from "lucide-react";
+import { TrainingStats } from "@/components/TrainingStats";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 
 interface Props {
