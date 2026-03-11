@@ -410,10 +410,6 @@ const Account = () => {
           </section>
         </TabsContent>
 
-        {/* === STATISTIKY === */}
-        <TabsContent value="stats">
-          <TrainingStats completions={completions} activities={schedule.activities} categories={schedule.categories} />
-        </TabsContent>
 
         {/* === DATA === */}
         <TabsContent value="data" className="space-y-8">
