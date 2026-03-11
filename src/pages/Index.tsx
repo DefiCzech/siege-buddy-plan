@@ -310,6 +310,19 @@ const Index = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* My stats dialog */}
+      <Dialog open={showStats} onOpenChange={setShowStats}>
+        <DialogContent className="bg-card border-border max-w-4xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-mono flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              MOJE STATISTIKY
+            </DialogTitle>
+          </DialogHeader>
+          <TrainingStats completions={completions} activities={schedule.activities} categories={schedule.categories} />
+        </DialogContent>
+      </Dialog>
     </main>
   );
 };
