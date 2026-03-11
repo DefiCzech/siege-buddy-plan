@@ -250,10 +250,6 @@ const Account = () => {
             <Settings className="h-3.5 w-3.5" />
             Nastavení
           </TabsTrigger>
-          <TabsTrigger value="stats" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            <BarChart3 className="h-3.5 w-3.5" />
-            Statistiky
-          </TabsTrigger>
           <TabsTrigger value="data" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Database className="h-3.5 w-3.5" />
             Data
