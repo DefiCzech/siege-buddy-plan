@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useSchedule } from "@/hooks/use-schedule";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { User, Lock, Mail, Download, Upload, Trash2, BarChart3, Settings, Database, Gamepad2, Loader2 } from "lucide-react";
+import { User, Lock, Mail, Download, Upload, Trash2, Settings, Database, Gamepad2, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MfaSettings } from "@/components/MfaSettings";
 import { TrainingStats } from "@/components/TrainingStats";
