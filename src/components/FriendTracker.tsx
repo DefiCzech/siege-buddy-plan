@@ -299,12 +299,14 @@ function FriendDetail({
   todayStr,
   onRemove,
   onActivityClick,
+  onShowStats,
 }: {
   friend: FriendData;
   todayIdx: number;
   todayStr: string;
   onRemove: (e: React.MouseEvent) => void;
   onActivityClick: (activityId: string) => void;
+  onShowStats: () => void;
 }) {
   const todayEntries = friend.schedule.entries.filter((e) => e.dayOfWeek === todayIdx);
   const todayCompletions = friend.completions.filter((c) => c.completedDate === todayStr);
