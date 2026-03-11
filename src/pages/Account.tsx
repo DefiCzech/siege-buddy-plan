@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { User, Lock, Mail, Download, Upload, Trash2, Settings, Database, Gamepad2, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MfaSettings } from "@/components/MfaSettings";
-import { TrainingStats } from "@/components/TrainingStats";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Account = () => {
