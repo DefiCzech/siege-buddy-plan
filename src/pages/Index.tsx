@@ -102,9 +102,20 @@ const Index = () => {
           <h2 className="font-mono font-bold tracking-wider text-base text-primary">
             🎯 CO TĚ DNES ČEKÁ
           </h2>
-          {todayEntries.length > 0 && completedToday === todayEntries.length && (
-            <span className="text-xs font-mono text-success">✓ MÁME HOTOVO, JDI HRÁT 🎮</span>
-          )}
+          <div className="flex items-center gap-2">
+            {todayEntries.length > 0 && completedToday === todayEntries.length && (
+              <span className="text-xs font-mono text-success">✓ MÁME HOTOVO, JDI HRÁT 🎮</span>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => setShowStats(true)}
+            >
+              <BarChart3 className="h-3.5 w-3.5 mr-1" />
+              Statistiky
+            </Button>
+          </div>
         </div>
         {remainingToday.length === 0 ? (
           <p className="text-sm text-muted-foreground">
