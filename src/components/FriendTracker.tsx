@@ -259,6 +259,31 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
         </DialogContent>
       </Dialog>
 
+      {/* Friend stats dialog */}
+      {(() => {
+        const sf = statsFriend ? friends.find((f) => f.userId === statsFriend) : null;
+        return (
+          <Dialog open={!!statsFriend} onOpenChange={(open) => !open && setStatsFriend(null)}>
+            <DialogContent className="bg-card border-border max-w-4xl max-h-[85vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="font-mono flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  {sf?.displayName} — STATISTIKY
+                  {sf?.rankImageUrl && <img src={sf.rankImageUrl} alt="" className="h-5 w-5" />}
+                </DialogTitle>
+              </DialogHeader>
+              {sf && (
+                <TrainingStats
+                  completions={sf.completions}
+                  activities={sf.schedule.activities}
+                  categories={sf.schedule.categories}
+                />
+              )}
+            </DialogContent>
+          </Dialog>
+        );
+      })()}
+
       {ConfirmDialog}
     </div>
   );
