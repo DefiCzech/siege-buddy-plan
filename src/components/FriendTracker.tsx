@@ -20,6 +20,7 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
   const [expandedFriend, setExpandedFriend] = useState<string | null>(null);
   const [showAddInput, setShowAddInput] = useState(false);
   const [detailEntry, setDetailEntry] = useState<{ friendId: string; activityId: string } | null>(null);
+  const [statsFriend, setStatsFriend] = useState<string | null>(null);
   const { confirm, ConfirmDialog } = useConfirmDialog();
 
   const todayStr = new Date().toISOString().slice(0, 10);
