@@ -4,7 +4,8 @@ import { ScheduleEntry } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { UserPlus, X, CheckCircle2, Circle, Users, ExternalLink } from "lucide-react";
+import { UserPlus, X, CheckCircle2, Circle, Users, ExternalLink, BarChart3 } from "lucide-react";
+import { TrainingStats } from "@/components/TrainingStats";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 
 interface Props {
@@ -19,6 +20,7 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
   const [expandedFriend, setExpandedFriend] = useState<string | null>(null);
   const [showAddInput, setShowAddInput] = useState(false);
   const [detailEntry, setDetailEntry] = useState<{ friendId: string; activityId: string } | null>(null);
+  const [statsFriend, setStatsFriend] = useState<string | null>(null);
   const { confirm, ConfirmDialog } = useConfirmDialog();
 
   const todayStr = new Date().toISOString().slice(0, 10);
@@ -153,6 +155,10 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
                   onActivityClick={(activityId) => {
                     setDetailEntry({ friendId: friend.userId, activityId });
                   }}
+                  onShowStats={() => {
+                    setStatsFriend(friend.userId);
+                    setExpandedFriend(null);
+                  }}
                 />
               )}
             </div>
@@ -257,6 +263,31 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
         </DialogContent>
       </Dialog>
 
+      {/* Friend stats dialog */}
+      {(() => {
+        const sf = statsFriend ? friends.find((f) => f.userId === statsFriend) : null;
+        return (
+          <Dialog open={!!statsFriend} onOpenChange={(open) => !open && setStatsFriend(null)}>
+            <DialogContent className="bg-card border-border max-w-4xl max-h-[85vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="font-mono flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  {sf?.displayName} — STATISTIKY
+                  {sf?.rankImageUrl && <img src={sf.rankImageUrl} alt="" className="h-5 w-5" />}
+                </DialogTitle>
+              </DialogHeader>
+              {sf && (
+                <TrainingStats
+                  completions={sf.completions}
+                  activities={sf.schedule.activities}
+                  categories={sf.schedule.categories}
+                />
+              )}
+            </DialogContent>
+          </Dialog>
+        );
+      })()}
+
       {ConfirmDialog}
     </div>
   );
@@ -268,12 +299,14 @@ function FriendDetail({
   todayStr,
   onRemove,
   onActivityClick,
+  onShowStats,
 }: {
   friend: FriendData;
   todayIdx: number;
   todayStr: string;
   onRemove: (e: React.MouseEvent) => void;
   onActivityClick: (activityId: string) => void;
+  onShowStats: () => void;
 }) {
   const todayEntries = friend.schedule.entries.filter((e) => e.dayOfWeek === todayIdx);
   const todayCompletions = friend.completions.filter((c) => c.completedDate === todayStr);
@@ -328,13 +361,22 @@ function FriendDetail({
         </div>
       )}
 
-      <button
-        onClick={onRemove}
-        className="text-[10px] text-muted-foreground hover:text-destructive transition-colors flex items-center gap-0.5"
-      >
-        <X className="h-2.5 w-2.5" />
-        Přestat sledovat
-      </button>
+      <div className="flex items-center gap-2 pt-1 border-t border-border">
+        <button
+          onClick={(e) => { e.stopPropagation(); onShowStats(); }}
+          className="text-[10px] text-muted-foreground hover:text-primary transition-colors flex items-center gap-0.5"
+        >
+          <BarChart3 className="h-2.5 w-2.5" />
+          Statistiky
+        </button>
+        <button
+          onClick={onRemove}
+          className="text-[10px] text-muted-foreground hover:text-destructive transition-colors flex items-center gap-0.5"
+        >
+          <X className="h-2.5 w-2.5" />
+          Přestat sledovat
+        </button>
+      </div>
     </div>
   );
 }

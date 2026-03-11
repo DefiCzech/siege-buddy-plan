@@ -5,10 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CheckCircle2, Info, ExternalLink, Loader2 } from "lucide-react";
+import { CheckCircle2, Info, ExternalLink, Loader2, BarChart3 } from "lucide-react";
 import { R6S_MAPS, R6S_OPERATORS } from "@/lib/types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FriendTracker } from "@/components/FriendTracker";
+import { TrainingStats } from "@/components/TrainingStats";
 
 const Index = () => {
   const { schedule, completions, addCompletion, loading } = useSchedule();
@@ -18,6 +19,7 @@ const Index = () => {
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
   const [selectedOperators, setSelectedOperators] = useState<string[]>([]);
   const [detailActivityId, setDetailActivityId] = useState<string | null>(null);
+  const [showStats, setShowStats] = useState(false);
   const [mapFilter, setMapFilter] = useState<"all" | "ranked" | "unranked">("ranked");
   const [opFilter, setOpFilter] = useState<"all" | "attack" | "defense">("all");
 
@@ -100,9 +102,20 @@ const Index = () => {
           <h2 className="font-mono font-bold tracking-wider text-base text-primary">
             🎯 CO TĚ DNES ČEKÁ
           </h2>
-          {todayEntries.length > 0 && completedToday === todayEntries.length && (
-            <span className="text-xs font-mono text-success">✓ MÁME HOTOVO, JDI HRÁT 🎮</span>
-          )}
+          <div className="flex items-center gap-2">
+            {todayEntries.length > 0 && completedToday === todayEntries.length && (
+              <span className="text-xs font-mono text-success">✓ MÁME HOTOVO, JDI HRÁT 🎮</span>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => setShowStats(true)}
+            >
+              <BarChart3 className="h-3.5 w-3.5 mr-1" />
+              Statistiky
+            </Button>
+          </div>
         </div>
         {remainingToday.length === 0 ? (
           <p className="text-sm text-muted-foreground">
@@ -295,6 +308,19 @@ const Index = () => {
               </div>
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* My stats dialog */}
+      <Dialog open={showStats} onOpenChange={setShowStats}>
+        <DialogContent className="bg-card border-border max-w-4xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-mono flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              MOJE STATISTIKY
+            </DialogTitle>
+          </DialogHeader>
+          <TrainingStats completions={completions} activities={schedule.activities} categories={schedule.categories} />
         </DialogContent>
       </Dialog>
     </main>

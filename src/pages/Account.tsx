@@ -7,10 +7,10 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useSchedule } from "@/hooks/use-schedule";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { User, Lock, Mail, Download, Upload, Trash2, BarChart3, Settings, Database, Gamepad2, Loader2 } from "lucide-react";
+import { User, Lock, Mail, Download, Upload, Trash2, Settings, Database, Gamepad2, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MfaSettings } from "@/components/MfaSettings";
-import { TrainingStats } from "@/components/TrainingStats";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Account = () => {
@@ -250,10 +250,6 @@ const Account = () => {
             <Settings className="h-3.5 w-3.5" />
             Nastavení
           </TabsTrigger>
-          <TabsTrigger value="stats" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            <BarChart3 className="h-3.5 w-3.5" />
-            Statistiky
-          </TabsTrigger>
           <TabsTrigger value="data" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Database className="h-3.5 w-3.5" />
             Data
@@ -414,10 +410,6 @@ const Account = () => {
           </section>
         </TabsContent>
 
-        {/* === STATISTIKY === */}
-        <TabsContent value="stats">
-          <TrainingStats completions={completions} activities={schedule.activities} categories={schedule.categories} />
-        </TabsContent>
 
         {/* === DATA === */}
         <TabsContent value="data" className="space-y-8">
