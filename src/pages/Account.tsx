@@ -267,26 +267,15 @@ const Account = () => {
                 {loadingUbisoft ? "..." : "Uložit"}
               </Button>
             </form>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5 border-primary/30 hover:border-primary"
-                onClick={handleFetchRank}
-                disabled={fetchingRank || !ubisoftUsername.trim()}
-              >
-                {fetchingRank ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Gamepad2 className="h-3.5 w-3.5" />}
-                {fetchingRank ? "Načítám..." : "Aktualizovat rank"}
-              </Button>
-              {rankName && (
-                <div className="flex items-center gap-2">
-                  {rankImageUrl && (
-                    <img src={rankImageUrl} alt={rankName} className="h-8 w-8" />
-                  )}
-                  <span className="text-sm font-mono font-bold">{rankName}</span>
-                </div>
-              )}
-            </div>
+            {rankName && (
+              <div className="flex items-center gap-2 mt-1">
+                {rankImageUrl && (
+                  <img src={rankImageUrl} alt={rankName} className="h-8 w-8" />
+                )}
+                <span className="text-sm font-mono font-bold">{rankName}</span>
+                <span className="text-xs text-muted-foreground">(aktualizuje se automaticky)</span>
+              </div>
+            )}
           </section>
 
           <Separator />
