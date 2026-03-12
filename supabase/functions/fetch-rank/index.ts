@@ -15,12 +15,31 @@ interface UbiSession {
   expiration: string;
 }
 
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchWithRetry(url: string, options: RequestInit, retries = 3): Promise<Response> {
+  for (let i = 0; i < retries; i++) {
+    const res = await fetch(url, options);
+    if (res.status === 429) {
+      const wait = Math.min(2000 * Math.pow(2, i), 10000);
+      console.log(`Rate limited, waiting ${wait}ms before retry ${i + 1}/${retries}`);
+      await res.text(); // consume body
+      await sleep(wait);
+      continue;
+    }
+    return res;
+  }
+  throw new Error("Rate limited by Ubisoft API after multiple retries");
+}
+
 async function ubiLogin(): Promise<UbiSession> {
   const email = Deno.env.get("UBISOFT_EMAIL");
   const password = Deno.env.get("UBISOFT_PASSWORD");
   if (!email || !password) throw new Error("Ubisoft credentials not configured");
 
-  const res = await fetch("https://public-ubiservices.ubi.com/v3/profiles/sessions", {
+  const res = await fetchWithRetry("https://public-ubiservices.ubi.com/v3/profiles/sessions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
