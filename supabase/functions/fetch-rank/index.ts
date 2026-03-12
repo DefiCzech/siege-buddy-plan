@@ -6,17 +6,180 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const UBI_APP_ID = "39baebad-39e5-4552-8c25-2c9b919064e2";
+const UBI_SPACES_ID = "5172a557-50b5-4665-b7db-e3f2e8c5b118"; // R6S PC space
+
+interface UbiSession {
+  ticket: string;
+  sessionId: string;
+  expiration: string;
+}
+
+async function ubiLogin(): Promise<UbiSession> {
+  const email = Deno.env.get("UBISOFT_EMAIL");
+  const password = Deno.env.get("UBISOFT_PASSWORD");
+  if (!email || !password) throw new Error("Ubisoft credentials not configured");
+
+  const res = await fetch("https://public-ubiservices.ubi.com/v3/profiles/sessions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Ubi-AppId": UBI_APP_ID,
+      "Authorization": "Basic " + btoa(`${email}:${password}`),
+    },
+    body: JSON.stringify({ rememberMe: false }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    console.error("Ubi login failed:", res.status, body);
+    throw new Error(`Ubisoft login failed (${res.status})`);
+  }
+
+  const data = await res.json();
+  return {
+    ticket: data.ticket,
+    sessionId: data.sessionId,
+    expiration: data.expiration,
+  };
+}
+
+async function findProfileId(ticket: string, username: string): Promise<string> {
+  const res = await fetch(
+    `https://public-ubiservices.ubi.com/v3/profiles?platformType=uplay&nameOnPlatform=${encodeURIComponent(username)}`,
+    {
+      headers: {
+        "Ubi-AppId": UBI_APP_ID,
+        "Authorization": `Ubi_v1 t=${ticket}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Profile lookup failed (${res.status}): ${body}`);
+  }
+
+  const data = await res.json();
+  const profiles = data.profiles;
+  if (!profiles || profiles.length === 0) {
+    throw new Error(`Player "${username}" not found`);
+  }
+
+  return profiles[0].profileId;
+}
+
+interface RankResult {
+  rankName: string | null;
+  rankImageUrl: string | null;
+  mmr: number | null;
+}
+
+// Rank name mapping for R6S ranks
+const RANK_NAMES: Record<number, string> = {
+  0: "Unranked",
+  1: "Copper V", 2: "Copper IV", 3: "Copper III", 4: "Copper II", 5: "Copper I",
+  6: "Bronze V", 7: "Bronze IV", 8: "Bronze III", 9: "Bronze II", 10: "Bronze I",
+  11: "Silver V", 12: "Silver IV", 13: "Silver III", 14: "Silver II", 15: "Silver I",
+  16: "Gold V", 17: "Gold IV", 18: "Gold III", 19: "Gold II", 20: "Gold I",
+  21: "Platinum V", 22: "Platinum IV", 23: "Platinum III", 24: "Platinum II", 25: "Platinum I",
+  26: "Emerald V", 27: "Emerald IV", 28: "Emerald III", 29: "Emerald II", 30: "Emerald I",
+  31: "Diamond V", 32: "Diamond IV", 33: "Diamond III", 34: "Diamond II", 35: "Diamond I",
+  36: "Champions",
+};
+
+function getRankImageUrl(rankId: number): string {
+  // Use r6 tracker CDN rank icons
+  return `https://trackercdn.com/cdn/r6.tracker.network/ranks/s27/large/${rankId}.png`;
+}
+
+async function fetchRank(ticket: string, profileId: string): Promise<RankResult> {
+  // Try the v2 skill endpoint for current season ranked
+  const url = `https://public-ubiservices.ubi.com/v1/spaces/${UBI_SPACES_ID}/sandboxes/OSBOR_PC_LNCH_A/r6karma/players?board_id=pvp_ranked&profile_ids=${profileId}&region_id=emea&season_id=-1`;
+
+  const res = await fetch(url, {
+    headers: {
+      "Ubi-AppId": UBI_APP_ID,
+      "Authorization": `Ubi_v1 t=${ticket}`,
+    },
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    console.error("Rank fetch failed:", res.status, body);
+    // Try alternative endpoint
+    return await fetchRankV2(ticket, profileId);
+  }
+
+  const data = await res.json();
+  console.log("Rank API response:", JSON.stringify(data).slice(0, 1000));
+
+  const playerData = data?.players?.[profileId];
+  if (!playerData) {
+    return { rankName: null, rankImageUrl: null, mmr: null };
+  }
+
+  const rankId = playerData.rank ?? 0;
+  const mmr = playerData.mmr ?? playerData.skill_mean * 100 ?? null;
+  const rankName = RANK_NAMES[rankId] || `Rank ${rankId}`;
+  const rankImageUrl = getRankImageUrl(rankId);
+
+  return { rankName, rankImageUrl, mmr };
+}
+
+async function fetchRankV2(ticket: string, profileId: string): Promise<RankResult> {
+  // Alternative: full_profiles endpoint (newer seasons)
+  const url = `https://public-ubiservices.ubi.com/v2/spaces/${UBI_SPACES_ID}/title/r6s/skill/full_profiles?profile_ids=${profileId}&platform_families=pc`;
+
+  const res = await fetch(url, {
+    headers: {
+      "Ubi-AppId": UBI_APP_ID,
+      "Authorization": `Ubi_v1 t=${ticket}`,
+    },
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    console.error("Rank v2 fetch failed:", res.status, body);
+    return { rankName: null, rankImageUrl: null, mmr: null };
+  }
+
+  const data = await res.json();
+  console.log("Rank v2 API response:", JSON.stringify(data).slice(0, 1000));
+
+  // Navigate the nested structure
+  const platforms = data?.platform_families_full_profiles;
+  if (!Array.isArray(platforms) || platforms.length === 0) {
+    return { rankName: null, rankImageUrl: null, mmr: null };
+  }
+
+  const pcData = platforms.find((p: any) => p.platform_family === "pc");
+  const boards = pcData?.board_ids_full_profiles;
+  if (!Array.isArray(boards) || boards.length === 0) {
+    return { rankName: null, rankImageUrl: null, mmr: null };
+  }
+
+  // Look for ranked board
+  const rankedBoard = boards.find((b: any) => b.board_id === "ranked") || boards[0];
+  const seasons = rankedBoard?.full_profiles;
+  if (!Array.isArray(seasons) || seasons.length === 0) {
+    return { rankName: null, rankImageUrl: null, mmr: null };
+  }
+
+  // Get latest season
+  const latest = seasons[seasons.length - 1];
+  const profile = latest?.profile;
+  const rankId = profile?.rank ?? 0;
+  const mmr = profile?.max_rank_points ?? profile?.rank_points ?? null;
+  const rankName = RANK_NAMES[rankId] || `Rank ${rankId}`;
+  const rankImageUrl = getRankImageUrl(rankId);
+
+  return { rankName, rankImageUrl, mmr };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
-  }
-
-  const R6DATA_API_KEY = Deno.env.get("R6DATA_API_KEY");
-  if (!R6DATA_API_KEY) {
-    return new Response(JSON.stringify({ error: "R6DATA_API_KEY not configured" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
   }
 
   const authHeader = req.headers.get("Authorization");
@@ -33,19 +196,16 @@ Deno.serve(async (req) => {
     { global: { headers: { Authorization: authHeader } } }
   );
 
-  const { data: claimsData, error: claimsErr } = await supabase.auth.getClaims(
-    authHeader.replace("Bearer ", "")
-  );
-  if (claimsErr || !claimsData?.claims) {
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
-  const userId = claimsData.claims.sub;
+  const userId = user.id;
 
-  // Get the user's ubisoft_username from profile
   const adminClient = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -67,48 +227,25 @@ Deno.serve(async (req) => {
   const username = profile.ubisoft_username;
 
   try {
-    // First try seasonalStats for current rank with image
-    const r6Res = await fetch(
-      `https://api.r6data.eu/api/stats?type=seasonalStats&nameOnPlatform=${encodeURIComponent(username)}&platformType=uplay`,
-      { headers: { "api-key": R6DATA_API_KEY } }
-    );
+    // 1. Login to Ubisoft
+    const session = await ubiLogin();
+    console.log("Ubisoft login successful");
 
-    if (!r6Res.ok) {
-      const body = await r6Res.text();
-      throw new Error(`r6data API error [${r6Res.status}]: ${body}`);
-    }
+    // 2. Find profile ID
+    const profileId = await findProfileId(session.ticket, username);
+    console.log("Found profile ID:", profileId);
 
-    const r6Data = await r6Res.json();
-    console.log("r6data response structure:", JSON.stringify(r6Data).slice(0, 500));
+    // 3. Fetch rank
+    const rankResult = await fetchRank(session.ticket, profileId);
+    console.log("Rank result:", rankResult);
 
-    // Extract rank - find the entry with the latest timestamp
-    let rankName: string | null = null;
-    let rankImageUrl: string | null = null;
-
-    const history = r6Data?.data?.history?.data;
-    if (Array.isArray(history) && history.length > 0) {
-      // Sort by timestamp (first element of each entry) descending, pick most recent
-      let latestTime = "";
-      for (const entry of history) {
-        if (Array.isArray(entry) && entry.length >= 2) {
-          const timestamp = entry[0];
-          if (timestamp > latestTime) {
-            latestTime = timestamp;
-            const meta = entry[1]?.metadata;
-            if (meta) {
-              rankName = meta.rank || null;
-              rankImageUrl = meta.imageUrl || null;
-            }
-          }
-        }
-      }
-      console.log("Resolved rank:", rankName, "from timestamp:", latestTime);
-    }
-
-    // Update profile with rank info
+    // 4. Update profile
     const { error: updateErr } = await adminClient
       .from("profiles")
-      .update({ rank_name: rankName, rank_image_url: rankImageUrl })
+      .update({
+        rank_name: rankResult.rankName,
+        rank_image_url: rankResult.rankImageUrl,
+      })
       .eq("user_id", userId);
 
     if (updateErr) {
@@ -116,7 +253,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ rankName, rankImageUrl }),
+      JSON.stringify({ rankName: rankResult.rankName, rankImageUrl: rankResult.rankImageUrl }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
