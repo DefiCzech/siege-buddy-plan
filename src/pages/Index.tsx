@@ -168,8 +168,21 @@ const Index = () => {
         )}
       </div>
 
-      {/* Friend tracker — subtle section below main content */}
+      {/* Stats section */}
       <div className="mt-4 px-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground font-mono gap-1.5"
+          onClick={() => setShowStats(true)}
+        >
+          <BarChart3 className="h-3.5 w-3.5" />
+          📊 Moje statistiky
+        </Button>
+      </div>
+
+      {/* Friend tracker */}
+      <div className="mt-2 px-1">
         <FriendTracker
           friends={friends}
           loading={loadingFriends}
