@@ -264,6 +264,7 @@ Deno.serve(async (req) => {
       .update({
         rank_name: rankResult.rankName,
         rank_image_url: rankResult.rankImageUrl,
+        rank_updated_at: new Date().toISOString(),
       })
       .eq("user_id", userId);
 
