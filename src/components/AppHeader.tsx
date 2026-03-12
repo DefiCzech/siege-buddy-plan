@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Calendar, Settings, LogOut, UserCog } from "lucide-react";
 import { Schedule } from "@/lib/types";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { useAutoRank } from "@/hooks/use-auto-rank";
 
 interface Props {
   schedule: Schedule;
@@ -18,18 +18,10 @@ export function AppHeader({ schedule, completedToday, totalToday }: Props) {
   const [rankImageUrl, setRankImageUrl] = useState<string | null>(null);
   const [rankName, setRankName] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("profiles")
-      .select("rank_name, rank_image_url")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data }) => {
-        if (data?.rank_image_url) setRankImageUrl(data.rank_image_url);
-        if (data?.rank_name) setRankName(data.rank_name);
-      });
-  }, [user]);
+  useAutoRank((name, imageUrl) => {
+    setRankName(name);
+    setRankImageUrl(imageUrl);
+  });
 
   const navItems = [
     { to: "/", icon: Calendar, label: "Přehled" },
