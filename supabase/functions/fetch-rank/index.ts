@@ -6,8 +6,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const UBI_APP_ID = "39baebad-39e5-4552-8c25-2c9b919064e2";
-const UBI_SPACES_ID = "5172a557-50b5-4665-b7db-e3f2e8c5b118"; // R6S PC space
+const UBI_APP_ID = "e3d5ea9e-50bd-43b7-88bf-39794f4e3d40";
+const UBI_SPACES_ID = "5172a557-50b5-4665-b7db-e3f2e8c5041d"; // R6S PC space
 
 interface UbiSession {
   ticket: string;
