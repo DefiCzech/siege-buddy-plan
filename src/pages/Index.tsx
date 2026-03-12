@@ -102,20 +102,9 @@ const Index = () => {
           <h2 className="font-mono font-bold tracking-wider text-base text-primary">
             🎯 CO TĚ DNES ČEKÁ
           </h2>
-          <div className="flex items-center gap-2">
-            {todayEntries.length > 0 && completedToday === todayEntries.length && (
-              <span className="text-xs font-mono text-success">✓ MÁME HOTOVO, JDI HRÁT 🎮</span>
-            )}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-              onClick={() => setShowStats(true)}
-            >
-              <BarChart3 className="h-3.5 w-3.5 mr-1" />
-              Statistiky
-            </Button>
-          </div>
+          {todayEntries.length > 0 && completedToday === todayEntries.length && (
+            <span className="text-xs font-mono text-success">✓ MÁME HOTOVO, JDI HRÁT 🎮</span>
+          )}
         </div>
         {remainingToday.length === 0 ? (
           <p className="text-sm text-muted-foreground">
@@ -179,8 +168,21 @@ const Index = () => {
         )}
       </div>
 
-      {/* Friend tracker — subtle section below main content */}
+      {/* Stats section */}
       <div className="mt-4 px-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground font-mono gap-1.5"
+          onClick={() => setShowStats(true)}
+        >
+          <BarChart3 className="h-3.5 w-3.5" />
+          📊 Moje statistiky
+        </Button>
+      </div>
+
+      {/* Friend tracker */}
+      <div className="mt-2 px-1">
         <FriendTracker
           friends={friends}
           loading={loadingFriends}
