@@ -43,6 +43,7 @@ export type Database = {
           id: string
           rank_image_url: string | null
           rank_name: string | null
+          rank_updated_at: string | null
           ubisoft_username: string | null
           updated_at: string
           user_id: string
@@ -54,6 +55,7 @@ export type Database = {
           id?: string
           rank_image_url?: string | null
           rank_name?: string | null
+          rank_updated_at?: string | null
           ubisoft_username?: string | null
           updated_at?: string
           user_id: string
@@ -65,6 +67,7 @@ export type Database = {
           id?: string
           rank_image_url?: string | null
           rank_name?: string | null
+          rank_updated_at?: string | null
           ubisoft_username?: string | null
           updated_at?: string
           user_id?: string

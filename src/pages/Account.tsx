@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useSchedule } from "@/hooks/use-schedule";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { User, Lock, Mail, Download, Upload, Trash2, Settings, Database, Gamepad2, Loader2 } from "lucide-react";
+import { User, Lock, Mail, Download, Upload, Trash2, Settings, Database, Gamepad2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MfaSettings } from "@/components/MfaSettings";
 
@@ -24,7 +24,6 @@ const Account = () => {
   const [rankName, setRankName] = useState<string | null>(null);
   const [rankImageUrl, setRankImageUrl] = useState<string | null>(null);
   const [loadingUbisoft, setLoadingUbisoft] = useState(false);
-  const [fetchingRank, setFetchingRank] = useState(false);
 
   const [newEmail, setNewEmail] = useState("");
   const [loadingEmail, setLoadingEmail] = useState(false);
@@ -113,37 +112,6 @@ const Account = () => {
     else toast.success("Ubisoft jméno uloženo");
   };
 
-  const handleFetchRank = async () => {
-    if (!ubisoftUsername.trim()) {
-      toast.error("Nejdříve nastav Ubisoft jméno");
-      return;
-    }
-    setFetchingRank(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("No session");
-      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-      const res = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/fetch-rank`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Chyba");
-      setRankName(data.rankName);
-      setRankImageUrl(data.rankImageUrl);
-      toast.success(data.rankName ? `Rank: ${data.rankName}` : "Rank nenalezen");
-    } catch (err: any) {
-      toast.error(err.message || "Nepodařilo se načíst rank");
-    } finally {
-      setFetchingRank(false);
-    }
-  };
 
 
   const handleExport = () => {
@@ -299,26 +267,15 @@ const Account = () => {
                 {loadingUbisoft ? "..." : "Uložit"}
               </Button>
             </form>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5 border-primary/30 hover:border-primary"
-                onClick={handleFetchRank}
-                disabled={fetchingRank || !ubisoftUsername.trim()}
-              >
-                {fetchingRank ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Gamepad2 className="h-3.5 w-3.5" />}
-                {fetchingRank ? "Načítám..." : "Aktualizovat rank"}
-              </Button>
-              {rankName && (
-                <div className="flex items-center gap-2">
-                  {rankImageUrl && (
-                    <img src={rankImageUrl} alt={rankName} className="h-8 w-8" />
-                  )}
-                  <span className="text-sm font-mono font-bold">{rankName}</span>
-                </div>
-              )}
-            </div>
+            {rankName && (
+              <div className="flex items-center gap-2 mt-1">
+                {rankImageUrl && (
+                  <img src={rankImageUrl} alt={rankName} className="h-8 w-8" />
+                )}
+                <span className="text-sm font-mono font-bold">{rankName}</span>
+                <span className="text-xs text-muted-foreground">(aktualizuje se automaticky)</span>
+              </div>
+            )}
           </section>
 
           <Separator />
