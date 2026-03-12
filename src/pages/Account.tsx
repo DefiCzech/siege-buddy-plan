@@ -24,7 +24,6 @@ const Account = () => {
   const [rankName, setRankName] = useState<string | null>(null);
   const [rankImageUrl, setRankImageUrl] = useState<string | null>(null);
   const [loadingUbisoft, setLoadingUbisoft] = useState(false);
-  const [fetchingRank, setFetchingRank] = useState(false);
 
   const [newEmail, setNewEmail] = useState("");
   const [loadingEmail, setLoadingEmail] = useState(false);
