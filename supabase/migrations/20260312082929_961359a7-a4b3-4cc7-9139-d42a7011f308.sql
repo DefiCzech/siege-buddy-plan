@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN rank_updated_at timestamp with time zone DEFAULT NULL;
