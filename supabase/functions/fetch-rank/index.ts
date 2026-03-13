@@ -34,6 +34,21 @@ function formatRankName(raw: string): string {
     .join(" ");
 }
 
+function getRankTier(value: string | null): string | null {
+  if (!value) return null;
+  const normalized = value.toLowerCase();
+  if (normalized.includes("champion")) return "champion";
+  if (normalized.includes("diamond")) return "diamond";
+  if (normalized.includes("emerald")) return "emerald";
+  if (normalized.includes("platinum")) return "platinum";
+  if (normalized.includes("gold")) return "gold";
+  if (normalized.includes("silver")) return "silver";
+  if (normalized.includes("bronze")) return "bronze";
+  if (normalized.includes("copper")) return "copper";
+  if (normalized.includes("unranked")) return "unranked";
+  return null;
+}
+
 function extractRelevantSection(content: string): string {
   const overviewMatch = content.match(/Y\d{1,2}S\d{1,2}\s+Overview([\s\S]{0,5000})/i);
   if (overviewMatch) return overviewMatch[1];
