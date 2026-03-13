@@ -257,9 +257,9 @@ const Account = () => {
               Ubisoft Connect
             </div>
             <p className="text-xs text-muted-foreground">
-              Nastav své Ubisoft jméno pro automatické zobrazení tvého ranku.
+              Nastav své Ubisoft jméno pro automatické zobrazení tvého ranku (1× za hodinu při načtení stránky), nebo rank vyžádej ručně.
             </p>
-            <form onSubmit={handleSaveUbisoft} className="flex gap-2">
+            <form onSubmit={handleSaveUbisoft} className="flex flex-wrap gap-2">
               <Input
                 value={ubisoftUsername}
                 onChange={(e) => setUbisoftUsername(e.target.value)}
@@ -269,14 +269,25 @@ const Account = () => {
               <Button type="submit" disabled={loadingUbisoft} size="sm">
                 {loadingUbisoft ? "..." : "Uložit"}
               </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={loadingRankRefresh || !ubisoftUsername.trim()}
+                onClick={handleRefreshRank}
+              >
+                {loadingRankRefresh ? "Aktualizuji..." : "Aktualizovat teď"}
+              </Button>
             </form>
             {rankName && (
               <div className="flex items-center gap-2 mt-1">
                 {rankImageUrl && (
                   <img src={rankImageUrl} alt={rankName} className="h-8 w-8" />
                 )}
-                <span className="text-sm font-mono font-bold">{rankName}</span>
-                <span className="text-xs text-muted-foreground">(aktualizuje se automaticky)</span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-mono font-bold">{rankName}</span>
+                  <span className="text-xs text-muted-foreground">Naposledy aktualizováno: {formatRankUpdatedAt(rankUpdatedAt)}</span>
+                </div>
               </div>
             )}
           </section>
