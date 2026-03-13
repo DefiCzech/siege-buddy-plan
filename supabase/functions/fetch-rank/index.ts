@@ -132,8 +132,9 @@ function parseTrackerProfile(content: string): RankResult | null {
   }
 
   const section = extractRelevantSection(content);
-  const rankName = extractRankNameFromText(section) ?? extractRankNameFromText(content);
-  const rankImageUrl = extractRankImageUrl(section) ?? extractRankImageUrl(content);
+  const imageRank = extractRankFromImages(section);
+  const rankName = imageRank.rankName ?? extractRankNameFromText(section) ?? extractRankNameFromText(content);
+  const rankImageUrl = imageRank.rankImageUrl;
   const mmr = extractMmr(section) ?? extractMmr(content);
 
   if (!rankName && !rankImageUrl && !mmr) {
