@@ -23,7 +23,9 @@ const Account = () => {
   const [ubisoftUsername, setUbisoftUsername] = useState("");
   const [rankName, setRankName] = useState<string | null>(null);
   const [rankImageUrl, setRankImageUrl] = useState<string | null>(null);
+  const [rankUpdatedAt, setRankUpdatedAt] = useState<string | null>(null);
   const [loadingUbisoft, setLoadingUbisoft] = useState(false);
+  const [loadingRankRefresh, setLoadingRankRefresh] = useState(false);
 
   const [newEmail, setNewEmail] = useState("");
   const [loadingEmail, setLoadingEmail] = useState(false);
