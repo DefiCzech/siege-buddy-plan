@@ -111,11 +111,54 @@ const Account = () => {
       .update({ ubisoft_username: ubisoftUsername.trim() || null })
       .eq("user_id", user.id);
     setLoadingUbisoft(false);
-    if (error) toast.error("Nepodařilo se uložit");
-    else toast.success("Ubisoft jméno uloženo");
+    if (error) {
+      toast.error("Nepodařilo se uložit");
+      return;
+    }
+    toast.success("Ubisoft jméno uloženo");
   };
 
+  const formatRankUpdatedAt = (iso: string | null) => {
+    if (!iso) return "nikdy";
+    return new Date(iso).toLocaleString("cs-CZ", {
+      dateStyle: "short",
+      timeStyle: "short",
+    });
+  };
 
+  const handleRefreshRank = async () => {
+    if (!ubisoftUsername.trim()) {
+      toast.error("Nejdřív vyplň Ubisoft jméno");
+      return;
+    }
+
+    setLoadingRankRefresh(true);
+    const { data, error } = await supabase.functions.invoke("fetch-rank", {
+      body: { force: true },
+    });
+    setLoadingRankRefresh(false);
+
+    if (error) {
+      toast.error(error.message || "Nepodařilo se aktualizovat rank");
+      return;
+    }
+
+    setRankName(data?.rankName ?? null);
+    setRankImageUrl(data?.rankImageUrl ?? null);
+    setRankUpdatedAt(data?.rankUpdatedAt ?? new Date().toISOString());
+
+    if (data?.stale) {
+      toast.message("Použit poslední uložený rank (zdroj teď neodpovídá)");
+      return;
+    }
+
+    if (data?.cached) {
+      toast.success("Použit uložený rank");
+      return;
+    }
+
+    toast.success("Rank aktualizován");
+  };
 
   const handleExport = () => {
     const exportData: any = {
