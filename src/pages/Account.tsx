@@ -23,7 +23,9 @@ const Account = () => {
   const [ubisoftUsername, setUbisoftUsername] = useState("");
   const [rankName, setRankName] = useState<string | null>(null);
   const [rankImageUrl, setRankImageUrl] = useState<string | null>(null);
+  const [rankUpdatedAt, setRankUpdatedAt] = useState<string | null>(null);
   const [loadingUbisoft, setLoadingUbisoft] = useState(false);
+  const [loadingRankRefresh, setLoadingRankRefresh] = useState(false);
 
   const [newEmail, setNewEmail] = useState("");
   const [loadingEmail, setLoadingEmail] = useState(false);
@@ -43,7 +45,7 @@ const Account = () => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("display_name, ubisoft_username, rank_name, rank_image_url")
+      .select("display_name, ubisoft_username, rank_name, rank_image_url, rank_updated_at")
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
@@ -51,6 +53,7 @@ const Account = () => {
         if (data?.ubisoft_username) setUbisoftUsername(data.ubisoft_username);
         if (data?.rank_name) setRankName(data.rank_name);
         if (data?.rank_image_url) setRankImageUrl(data.rank_image_url);
+        if (data?.rank_updated_at) setRankUpdatedAt(data.rank_updated_at);
       });
   }, [user]);
 
@@ -108,11 +111,54 @@ const Account = () => {
       .update({ ubisoft_username: ubisoftUsername.trim() || null })
       .eq("user_id", user.id);
     setLoadingUbisoft(false);
-    if (error) toast.error("Nepodařilo se uložit");
-    else toast.success("Ubisoft jméno uloženo");
+    if (error) {
+      toast.error("Nepodařilo se uložit");
+      return;
+    }
+    toast.success("Ubisoft jméno uloženo");
   };
 
+  const formatRankUpdatedAt = (iso: string | null) => {
+    if (!iso) return "nikdy";
+    return new Date(iso).toLocaleString("cs-CZ", {
+      dateStyle: "short",
+      timeStyle: "short",
+    });
+  };
 
+  const handleRefreshRank = async () => {
+    if (!ubisoftUsername.trim()) {
+      toast.error("Nejdřív vyplň Ubisoft jméno");
+      return;
+    }
+
+    setLoadingRankRefresh(true);
+    const { data, error } = await supabase.functions.invoke("fetch-rank", {
+      body: { force: true },
+    });
+    setLoadingRankRefresh(false);
+
+    if (error) {
+      toast.error(error.message || "Nepodařilo se aktualizovat rank");
+      return;
+    }
+
+    setRankName(data?.rankName ?? null);
+    setRankImageUrl(data?.rankImageUrl ?? null);
+    setRankUpdatedAt(data?.rankUpdatedAt ?? new Date().toISOString());
+
+    if (data?.stale) {
+      toast.message("Použit poslední uložený rank (zdroj teď neodpovídá)");
+      return;
+    }
+
+    if (data?.cached) {
+      toast.success("Použit uložený rank");
+      return;
+    }
+
+    toast.success("Rank aktualizován");
+  };
 
   const handleExport = () => {
     const exportData: any = {
@@ -254,9 +300,9 @@ const Account = () => {
               Ubisoft Connect
             </div>
             <p className="text-xs text-muted-foreground">
-              Nastav své Ubisoft jméno pro automatické zobrazení tvého ranku.
+              Nastav své Ubisoft jméno pro automatické zobrazení tvého ranku (1× za hodinu při načtení stránky), nebo rank vyžádej ručně.
             </p>
-            <form onSubmit={handleSaveUbisoft} className="flex gap-2">
+            <form onSubmit={handleSaveUbisoft} className="flex flex-wrap gap-2">
               <Input
                 value={ubisoftUsername}
                 onChange={(e) => setUbisoftUsername(e.target.value)}
@@ -266,14 +312,25 @@ const Account = () => {
               <Button type="submit" disabled={loadingUbisoft} size="sm">
                 {loadingUbisoft ? "..." : "Uložit"}
               </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={loadingRankRefresh || !ubisoftUsername.trim()}
+                onClick={handleRefreshRank}
+              >
+                {loadingRankRefresh ? "Aktualizuji..." : "Aktualizovat teď"}
+              </Button>
             </form>
             {rankName && (
               <div className="flex items-center gap-2 mt-1">
                 {rankImageUrl && (
                   <img src={rankImageUrl} alt={rankName} className="h-8 w-8" />
                 )}
-                <span className="text-sm font-mono font-bold">{rankName}</span>
-                <span className="text-xs text-muted-foreground">(aktualizuje se automaticky)</span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-mono font-bold">{rankName}</span>
+                  <span className="text-xs text-muted-foreground">Naposledy aktualizováno: {formatRankUpdatedAt(rankUpdatedAt)}</span>
+                </div>
               </div>
             )}
           </section>

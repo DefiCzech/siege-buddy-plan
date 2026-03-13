@@ -6,87 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const UBI_APP_ID = "e3d5ea9e-50bd-43b7-88bf-39794f4e3d40";
-const UBI_SPACES_ID = "5172a557-50b5-4665-b7db-e3f2e8c5041d"; // R6S PC space
-
-interface UbiSession {
-  ticket: string;
-  sessionId: string;
-  expiration: string;
-}
-
-async function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function fetchWithRetry(url: string, options: RequestInit, retries = 3): Promise<Response> {
-  for (let i = 0; i < retries; i++) {
-    const res = await fetch(url, options);
-    if (res.status === 429) {
-      const wait = Math.min(2000 * Math.pow(2, i), 10000);
-      console.log(`Rate limited, waiting ${wait}ms before retry ${i + 1}/${retries}`);
-      await res.text(); // consume body
-      await sleep(wait);
-      continue;
-    }
-    return res;
-  }
-  throw new Error("Rate limited by Ubisoft API after multiple retries");
-}
-
-async function ubiLogin(): Promise<UbiSession> {
-  const email = Deno.env.get("UBISOFT_EMAIL");
-  const password = Deno.env.get("UBISOFT_PASSWORD");
-  if (!email || !password) throw new Error("Ubisoft credentials not configured");
-
-  const res = await fetchWithRetry("https://public-ubiservices.ubi.com/v3/profiles/sessions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Ubi-AppId": UBI_APP_ID,
-      "Authorization": "Basic " + btoa(`${email}:${password}`),
-    },
-    body: JSON.stringify({ rememberMe: false }),
-  });
-
-  if (!res.ok) {
-    const body = await res.text();
-    console.error("Ubi login failed:", res.status, body);
-    throw new Error(`Ubisoft login failed (${res.status})`);
-  }
-
-  const data = await res.json();
-  return {
-    ticket: data.ticket,
-    sessionId: data.sessionId,
-    expiration: data.expiration,
-  };
-}
-
-async function findProfileId(ticket: string, username: string): Promise<string> {
-  const res = await fetch(
-    `https://public-ubiservices.ubi.com/v3/profiles?platformType=uplay&nameOnPlatform=${encodeURIComponent(username)}`,
-    {
-      headers: {
-        "Ubi-AppId": UBI_APP_ID,
-        "Authorization": `Ubi_v1 t=${ticket}`,
-      },
-    }
-  );
-
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Profile lookup failed (${res.status}): ${body}`);
-  }
-
-  const data = await res.json();
-  const profiles = data.profiles;
-  if (!profiles || profiles.length === 0) {
-    throw new Error(`Player "${username}" not found`);
-  }
-
-  return profiles[0].profileId;
-}
+const AUTO_RANK_COOLDOWN_MS = 60 * 60 * 1000; // 1 hour
 
 interface RankResult {
   rankName: string | null;
@@ -94,106 +14,194 @@ interface RankResult {
   mmr: number | null;
 }
 
-// Rank name mapping for R6S ranks
-const RANK_NAMES: Record<number, string> = {
-  0: "Unranked",
-  1: "Copper V", 2: "Copper IV", 3: "Copper III", 4: "Copper II", 5: "Copper I",
-  6: "Bronze V", 7: "Bronze IV", 8: "Bronze III", 9: "Bronze II", 10: "Bronze I",
-  11: "Silver V", 12: "Silver IV", 13: "Silver III", 14: "Silver II", 15: "Silver I",
-  16: "Gold V", 17: "Gold IV", 18: "Gold III", 19: "Gold II", 20: "Gold I",
-  21: "Platinum V", 22: "Platinum IV", 23: "Platinum III", 24: "Platinum II", 25: "Platinum I",
-  26: "Emerald V", 27: "Emerald IV", 28: "Emerald III", 29: "Emerald II", 30: "Emerald I",
-  31: "Diamond V", 32: "Diamond IV", 33: "Diamond III", 34: "Diamond II", 35: "Diamond I",
-  36: "Champions",
-};
-
-function getRankImageUrl(rankId: number): string {
-  // Use r6 tracker CDN rank icons
-  return `https://trackercdn.com/cdn/r6.tracker.network/ranks/s27/large/${rankId}.png`;
+interface FetchRankRequestBody {
+  force?: boolean;
 }
 
-async function fetchRank(ticket: string, profileId: string): Promise<RankResult> {
-  // Try the v2 skill endpoint for current season ranked
-  const url = `https://public-ubiservices.ubi.com/v1/spaces/${UBI_SPACES_ID}/sandboxes/OSBOR_PC_LNCH_A/r6karma/players?board_id=pvp_ranked&profile_ids=${profileId}&region_id=emea&season_id=-1`;
+function formatRankName(raw: string): string {
+  const normalized = raw.trim().replace(/\s+/g, " ").toUpperCase();
 
-  const res = await fetch(url, {
-    headers: {
-      "Ubi-AppId": UBI_APP_ID,
-      "Authorization": `Ubi_v1 t=${ticket}`,
-    },
-  });
-
-  if (!res.ok) {
-    const body = await res.text();
-    console.error("Rank fetch failed:", res.status, body);
-    // Try alternative endpoint
-    return await fetchRankV2(ticket, profileId);
+  if (normalized === "CHAMPION" || normalized === "CHAMPIONS") {
+    return "Champions";
   }
 
-  const data = await res.json();
-  console.log("Rank API response:", JSON.stringify(data).slice(0, 1000));
+  return normalized
+    .split(" ")
+    .map((part) => {
+      if (/^[IVX]+$/.test(part)) return part;
+      return part.charAt(0) + part.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
 
-  const playerData = data?.players?.[profileId];
-  if (!playerData) {
-    return { rankName: null, rankImageUrl: null, mmr: null };
+function getRankTier(value: string | null): string | null {
+  if (!value) return null;
+  const normalized = value.toLowerCase();
+  if (normalized.includes("champion")) return "champion";
+  if (normalized.includes("diamond")) return "diamond";
+  if (normalized.includes("emerald")) return "emerald";
+  if (normalized.includes("platinum")) return "platinum";
+  if (normalized.includes("gold")) return "gold";
+  if (normalized.includes("silver")) return "silver";
+  if (normalized.includes("bronze")) return "bronze";
+  if (normalized.includes("copper")) return "copper";
+  if (normalized.includes("unranked")) return "unranked";
+  return null;
+}
+
+function extractRelevantSection(content: string): string {
+  const overviewMatch = content.match(/Y\d{1,2}S\d{1,2}\s+Overview([\s\S]{0,5000})/i);
+  if (overviewMatch) return overviewMatch[1];
+
+  const currentSeasonMatch = content.match(/Current Season([\s\S]{0,5000})/i);
+  if (currentSeasonMatch) return currentSeasonMatch[1];
+
+  return content.slice(0, 12000);
+}
+
+function extractRankNameFromText(content: string): string | null {
+  const rankMatch = content.match(
+    /(CHAMPIONS?|DIAMOND(?:\s+[IVX]+)?|EMERALD(?:\s+[IVX]+)?|PLATINUM(?:\s+[IVX]+)?|GOLD(?:\s+[IVX]+)?|SILVER(?:\s+[IVX]+)?|BRONZE(?:\s+[IVX]+)?|COPPER(?:\s+[IVX]+)?|UNRANKED)/i,
+  );
+
+  if (!rankMatch?.[1]) return null;
+  return formatRankName(rankMatch[1]);
+}
+
+function extractTrackerImageUrl(rawUrl: string): string {
+  const sanitized = rawUrl.replace(/&amp;/g, "&");
+
+  const encodedTrackerUrl = sanitized.match(
+    /https%3A%2F%2Ftrackercdn\.com%2Fcdn%2Fr6\.tracker\.network%2Franks%2F[^"'\s)]+/i,
+  );
+
+  if (encodedTrackerUrl?.[0]) {
+    return decodeURIComponent(encodedTrackerUrl[0]);
   }
 
-  const rankId = playerData.rank ?? 0;
-  const mmr = playerData.mmr ?? playerData.skill_mean * 100 ?? null;
-  const rankName = RANK_NAMES[rankId] || `Rank ${rankId}`;
-  const rankImageUrl = getRankImageUrl(rankId);
+  const directTrackerUrl = sanitized.match(
+    /https?:\/\/[^"'\s)]*trackercdn\.com\/cdn\/r6\.tracker\.network\/ranks\/[^"'\s)]+\.png/i,
+  );
+
+  if (directTrackerUrl?.[0]) {
+    return directTrackerUrl[0];
+  }
+
+  return sanitized;
+}
+
+function extractRankFromImages(content: string): { rankName: string | null; rankImageUrl: string | null } {
+  const markdownImageRegex = /!\[([^\]]+)\]\((https?:\/\/[^)\s]*ranks[^)\s]*\.png[^)\s]*)\)/gi;
+  let markdownMatch: RegExpExecArray | null;
+
+  while ((markdownMatch = markdownImageRegex.exec(content)) !== null) {
+    const rankName = extractRankNameFromText(markdownMatch[1] ?? "");
+    if (rankName && markdownMatch[2]) {
+      return {
+        rankName,
+        rankImageUrl: extractTrackerImageUrl(markdownMatch[2]),
+      };
+    }
+  }
+
+  const htmlAltBeforeSrcRegex = /alt=["']([^"']+)["'][^>]*src=["']([^"']*ranks[^"']*\.png[^"']*)["']/gi;
+  let htmlAltBeforeSrcMatch: RegExpExecArray | null;
+
+  while ((htmlAltBeforeSrcMatch = htmlAltBeforeSrcRegex.exec(content)) !== null) {
+    const rankName = extractRankNameFromText(htmlAltBeforeSrcMatch[1] ?? "");
+    if (rankName && htmlAltBeforeSrcMatch[2]) {
+      return {
+        rankName,
+        rankImageUrl: extractTrackerImageUrl(htmlAltBeforeSrcMatch[2]),
+      };
+    }
+  }
+
+  const htmlSrcBeforeAltRegex = /src=["']([^"']*ranks[^"']*\.png[^"']*)["'][^>]*alt=["']([^"']+)["']/gi;
+  let htmlSrcBeforeAltMatch: RegExpExecArray | null;
+
+  while ((htmlSrcBeforeAltMatch = htmlSrcBeforeAltRegex.exec(content)) !== null) {
+    const rankName = extractRankNameFromText(htmlSrcBeforeAltMatch[2] ?? "");
+    if (rankName && htmlSrcBeforeAltMatch[1]) {
+      return {
+        rankName,
+        rankImageUrl: extractTrackerImageUrl(htmlSrcBeforeAltMatch[1]),
+      };
+    }
+  }
+
+  return { rankName: null, rankImageUrl: null };
+}
+
+function extractMmr(content: string): number | null {
+  const mmrMatch = content.match(/([0-9][0-9,.]{2,8})\s*(RP|MMR)/i);
+  if (!mmrMatch?.[1]) return null;
+
+  const parsed = Number(mmrMatch[1].replace(/[,\.\s]/g, ""));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseTrackerProfile(content: string): RankResult | null {
+  if (/Player Not Found|missing in action|has not played R6 Siege|#\s*404/i.test(content)) {
+    throw new Error("Hráč nebyl na trackeru nalezen");
+  }
+
+  const section = extractRelevantSection(content);
+  const imageRank = extractRankFromImages(section);
+  const rankName = imageRank.rankName ?? extractRankNameFromText(section) ?? extractRankNameFromText(content);
+
+  let rankImageUrl = imageRank.rankImageUrl;
+  const rankTier = getRankTier(rankName);
+  const imageTier = getRankTier(rankImageUrl);
+  if (rankTier && imageTier && rankTier !== imageTier) {
+    rankImageUrl = null;
+  }
+
+  const mmr = extractMmr(section) ?? extractMmr(content);
+
+  if (!rankName && !rankImageUrl && !mmr) {
+    return null;
+  }
 
   return { rankName, rankImageUrl, mmr };
 }
 
-async function fetchRankV2(ticket: string, profileId: string): Promise<RankResult> {
-  // Alternative: full_profiles endpoint (newer seasons)
-  const url = `https://public-ubiservices.ubi.com/v2/spaces/${UBI_SPACES_ID}/title/r6s/skill/full_profiles?profile_ids=${profileId}&platform_families=pc`;
+async function fetchTrackerProfilePage(username: string): Promise<string> {
+  const encodedUsername = encodeURIComponent(username.trim());
+  const url = `https://r6.tracker.network/r6siege/profile/ubi/${encodedUsername}/overview`;
 
   const res = await fetch(url, {
     headers: {
-      "Ubi-AppId": UBI_APP_ID,
-      "Authorization": `Ubi_v1 t=${ticket}`,
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Cache-Control": "no-cache",
+      "Pragma": "no-cache",
+      "Referer": "https://r6.tracker.network/",
     },
   });
 
+  if (res.status === 404) {
+    throw new Error(`Hráč \"${username}\" nebyl nalezen`);
+  }
+
+  if (res.status === 429) {
+    throw new Error("Tracker je dočasně limitovaný (429)");
+  }
+
   if (!res.ok) {
     const body = await res.text();
-    console.error("Rank v2 fetch failed:", res.status, body);
-    return { rankName: null, rankImageUrl: null, mmr: null };
+    throw new Error(`Tracker request failed (${res.status}): ${body.slice(0, 200)}`);
   }
 
-  const data = await res.json();
-  console.log("Rank v2 API response:", JSON.stringify(data).slice(0, 1000));
+  const content = await res.text();
 
-  // Navigate the nested structure
-  const platforms = data?.platform_families_full_profiles;
-  if (!Array.isArray(platforms) || platforms.length === 0) {
-    return { rankName: null, rankImageUrl: null, mmr: null };
+  if (!content || content.length < 200) {
+    throw new Error("Tracker vrátil prázdnou odpověď");
   }
 
-  const pcData = platforms.find((p: any) => p.platform_family === "pc");
-  const boards = pcData?.board_ids_full_profiles;
-  if (!Array.isArray(boards) || boards.length === 0) {
-    return { rankName: null, rankImageUrl: null, mmr: null };
-  }
-
-  // Look for ranked board
-  const rankedBoard = boards.find((b: any) => b.board_id === "ranked") || boards[0];
-  const seasons = rankedBoard?.full_profiles;
-  if (!Array.isArray(seasons) || seasons.length === 0) {
-    return { rankName: null, rankImageUrl: null, mmr: null };
-  }
-
-  // Get latest season
-  const latest = seasons[seasons.length - 1];
-  const profile = latest?.profile;
-  const rankId = profile?.rank ?? 0;
-  const mmr = profile?.max_rank_points ?? profile?.rank_points ?? null;
-  const rankName = RANK_NAMES[rankId] || `Rank ${rankId}`;
-  const rankImageUrl = getRankImageUrl(rankId);
-
-  return { rankName, rankImageUrl, mmr };
+  return content;
 }
 
 Deno.serve(async (req) => {
@@ -209,13 +217,23 @@ Deno.serve(async (req) => {
     });
   }
 
+  let force = false;
+  if (req.method === "POST") {
+    const body = (await req.json().catch(() => ({}))) as FetchRankRequestBody;
+    force = body?.force === true;
+  }
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_ANON_KEY")!,
-    { global: { headers: { Authorization: authHeader } } }
+    { global: { headers: { Authorization: authHeader } } },
   );
 
-  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: userErr,
+  } = await supabase.auth.getUser();
+
   if (userErr || !user) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
@@ -227,44 +245,56 @@ Deno.serve(async (req) => {
 
   const adminClient = createClient(
     Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
   const { data: profile, error: profileErr } = await adminClient
     .from("profiles")
-    .select("ubisoft_username")
+    .select("ubisoft_username, rank_updated_at, rank_name, rank_image_url")
     .eq("user_id", userId)
     .single();
 
   if (profileErr || !profile?.ubisoft_username) {
-    return new Response(
-      JSON.stringify({ error: "Ubisoft username not set" }),
-      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: "Ubisoft username not set" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
-  const username = profile.ubisoft_username;
+  if (!force && profile.rank_updated_at) {
+    const lastUpdate = new Date(profile.rank_updated_at).getTime();
+    if (Date.now() - lastUpdate < AUTO_RANK_COOLDOWN_MS) {
+      return new Response(
+        JSON.stringify({
+          rankName: profile.rank_name,
+          rankImageUrl: profile.rank_image_url,
+          rankUpdatedAt: profile.rank_updated_at,
+          cached: true,
+          source: "cache",
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+  }
 
   try {
-    // 1. Login to Ubisoft
-    const session = await ubiLogin();
-    console.log("Ubisoft login successful");
+    const content = await fetchTrackerProfilePage(profile.ubisoft_username);
+    const parsedRank = parseTrackerProfile(content);
 
-    // 2. Find profile ID
-    const profileId = await findProfileId(session.ticket, username);
-    console.log("Found profile ID:", profileId);
+    if (!parsedRank) {
+      throw new Error("Nepodařilo se z odpovědi trackeru rozpoznat rank");
+    }
 
-    // 3. Fetch rank
-    const rankResult = await fetchRank(session.ticket, profileId);
-    console.log("Rank result:", rankResult);
+    const rankUpdatedAt = new Date().toISOString();
+    const rankName = parsedRank.rankName ?? profile.rank_name;
+    const rankImageUrl = parsedRank.rankImageUrl ?? profile.rank_image_url;
 
-    // 4. Update profile
     const { error: updateErr } = await adminClient
       .from("profiles")
       .update({
-        rank_name: rankResult.rankName,
-        rank_image_url: rankResult.rankImageUrl,
-        rank_updated_at: new Date().toISOString(),
+        rank_name: rankName,
+        rank_image_url: rankImageUrl,
+        rank_updated_at: rankUpdatedAt,
       })
       .eq("user_id", userId);
 
@@ -273,15 +303,38 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ rankName: rankResult.rankName, rankImageUrl: rankResult.rankImageUrl }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({
+        rankName,
+        rankImageUrl,
+        rankUpdatedAt,
+        mmr: parsedRank.mmr,
+        cached: false,
+        source: "tracker-public",
+      }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
-    console.error("Error fetching rank:", err);
-    const msg = err instanceof Error ? err.message : "Unknown error";
-    return new Response(
-      JSON.stringify({ error: msg }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("Error fetching rank:", message);
+
+    if (profile.rank_name || profile.rank_image_url) {
+      return new Response(
+        JSON.stringify({
+          rankName: profile.rank_name,
+          rankImageUrl: profile.rank_image_url,
+          rankUpdatedAt: profile.rank_updated_at,
+          cached: true,
+          stale: true,
+          source: "cache",
+          warning: message,
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    return new Response(JSON.stringify({ error: message }), {
+      status: 503,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
