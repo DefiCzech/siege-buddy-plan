@@ -75,26 +75,47 @@ function extractTrackerImageUrl(rawUrl: string): string {
   return sanitized;
 }
 
-function extractRankImageUrl(content: string): string | null {
-  const markdownImageRegex = /!\[[^\]]*\]\((https?:\/\/[^)\s]*ranks[^)\s]*\.png[^)\s]*)\)/gi;
+function extractRankFromImages(content: string): { rankName: string | null; rankImageUrl: string | null } {
+  const markdownImageRegex = /!\[([^\]]+)\]\((https?:\/\/[^)\s]*ranks[^)\s]*\.png[^)\s]*)\)/gi;
   let markdownMatch: RegExpExecArray | null;
 
   while ((markdownMatch = markdownImageRegex.exec(content)) !== null) {
-    if (markdownMatch[1]) {
-      return extractTrackerImageUrl(markdownMatch[1]);
+    const rankName = extractRankNameFromText(markdownMatch[1] ?? "");
+    if (rankName && markdownMatch[2]) {
+      return {
+        rankName,
+        rankImageUrl: extractTrackerImageUrl(markdownMatch[2]),
+      };
     }
   }
 
-  const htmlImageRegex = /src=["']([^"']*ranks[^"']*\.png[^"']*)["']/gi;
-  let htmlMatch: RegExpExecArray | null;
+  const htmlAltBeforeSrcRegex = /alt=["']([^"']+)["'][^>]*src=["']([^"']*ranks[^"']*\.png[^"']*)["']/gi;
+  let htmlAltBeforeSrcMatch: RegExpExecArray | null;
 
-  while ((htmlMatch = htmlImageRegex.exec(content)) !== null) {
-    if (htmlMatch[1]) {
-      return extractTrackerImageUrl(htmlMatch[1]);
+  while ((htmlAltBeforeSrcMatch = htmlAltBeforeSrcRegex.exec(content)) !== null) {
+    const rankName = extractRankNameFromText(htmlAltBeforeSrcMatch[1] ?? "");
+    if (rankName && htmlAltBeforeSrcMatch[2]) {
+      return {
+        rankName,
+        rankImageUrl: extractTrackerImageUrl(htmlAltBeforeSrcMatch[2]),
+      };
     }
   }
 
-  return null;
+  const htmlSrcBeforeAltRegex = /src=["']([^"']*ranks[^"']*\.png[^"']*)["'][^>]*alt=["']([^"']+)["']/gi;
+  let htmlSrcBeforeAltMatch: RegExpExecArray | null;
+
+  while ((htmlSrcBeforeAltMatch = htmlSrcBeforeAltRegex.exec(content)) !== null) {
+    const rankName = extractRankNameFromText(htmlSrcBeforeAltMatch[2] ?? "");
+    if (rankName && htmlSrcBeforeAltMatch[1]) {
+      return {
+        rankName,
+        rankImageUrl: extractTrackerImageUrl(htmlSrcBeforeAltMatch[1]),
+      };
+    }
+  }
+
+  return { rankName: null, rankImageUrl: null };
 }
 
 function extractMmr(content: string): number | null {
