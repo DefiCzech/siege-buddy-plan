@@ -45,7 +45,7 @@ const Account = () => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("display_name, ubisoft_username, rank_name, rank_image_url")
+      .select("display_name, ubisoft_username, rank_name, rank_image_url, rank_updated_at")
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
@@ -53,6 +53,7 @@ const Account = () => {
         if (data?.ubisoft_username) setUbisoftUsername(data.ubisoft_username);
         if (data?.rank_name) setRankName(data.rank_name);
         if (data?.rank_image_url) setRankImageUrl(data.rank_image_url);
+        if (data?.rank_updated_at) setRankUpdatedAt(data.rank_updated_at);
       });
   }, [user]);
 
