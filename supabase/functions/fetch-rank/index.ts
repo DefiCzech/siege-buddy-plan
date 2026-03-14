@@ -91,7 +91,7 @@ function extractTrackerImageUrl(rawUrl: string): string {
 }
 
 function extractRankFromImages(content: string): { rankName: string | null; rankImageUrl: string | null } {
-  const markdownImageRegex = /!\[([^\]]+)\]\((https?:\/\/[^)\s]*ranks[^)\s]*\.png[^)\s]*)\)/gi;
+  const markdownImageRegex = /!\[([^\]]+)\]\((https?:\/\/[^)\s]*ranks[^)\s]*\.(?:png|webp|svg|jpg)[^)\s]*)\)/gi;
   let markdownMatch: RegExpExecArray | null;
 
   while ((markdownMatch = markdownImageRegex.exec(content)) !== null) {
