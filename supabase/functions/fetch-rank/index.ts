@@ -271,7 +271,7 @@ Deno.serve(async (req) => {
 
   const { data: profile, error: profileErr } = await adminClient
     .from("profiles")
-    .select("ubisoft_username, rank_updated_at, rank_name, rank_image_url")
+    .select("ubisoft_username, rank_updated_at, rank_name, rank_image_url, avatar_url")
     .eq("user_id", userId)
     .single();
 
