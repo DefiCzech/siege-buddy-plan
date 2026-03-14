@@ -117,7 +117,7 @@ function extractRankFromImages(content: string): { rankName: string | null; rank
     }
   }
 
-  const htmlSrcBeforeAltRegex = /src=["']([^"']*ranks[^"']*\.png[^"']*)["'][^>]*alt=["']([^"']+)["']/gi;
+  const htmlSrcBeforeAltRegex = /src=["']([^"']*ranks[^"']*\.(?:png|webp|svg|jpg)[^"']*)["'][^>]*alt=["']([^"']+)["']/gi;
   let htmlSrcBeforeAltMatch: RegExpExecArray | null;
 
   while ((htmlSrcBeforeAltMatch = htmlSrcBeforeAltRegex.exec(content)) !== null) {
