@@ -307,8 +307,9 @@ Deno.serve(async (req) => {
     }
 
     const rankUpdatedAt = new Date().toISOString();
-    const rankName = parsedRank.rankName ?? profile.rank_name;
     const rankImageUrl = parsedRank.rankImageUrl ?? profile.rank_image_url;
+    const rankNameFromImage = extractRankNameFromImageUrl(rankImageUrl);
+    const rankName = rankNameFromImage ?? parsedRank.rankName ?? profile.rank_name;
 
     const { error: updateErr } = await adminClient
       .from("profiles")
