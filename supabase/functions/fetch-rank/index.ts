@@ -80,7 +80,7 @@ function extractTrackerImageUrl(rawUrl: string): string {
   }
 
   const directTrackerUrl = sanitized.match(
-    /https?:\/\/[^"'\s)]*trackercdn\.com\/cdn\/r6\.tracker\.network\/ranks\/[^"'\s)]+\.png/i,
+    /https?:\/\/[^"'\s)]*trackercdn\.com\/cdn\/r6\.tracker\.network\/ranks\/[^"'\s)]+\.(?:png|webp|svg|jpg)/i,
   );
 
   if (directTrackerUrl?.[0]) {
