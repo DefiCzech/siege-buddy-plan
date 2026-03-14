@@ -141,6 +141,23 @@ function extractMmr(content: string): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+const DIVISION_TO_ROMAN: Record<string, string> = {
+  "1": "I", "2": "II", "3": "III", "4": "IV", "5": "V",
+};
+
+function extractRankNameFromImageUrl(url: string | null): string | null {
+  if (!url) return null;
+  // Match patterns like: ranks/s28/copper_2.png, ranks/copper_2.png, copper_2.png
+  const match = url.match(/(champion|diamond|emerald|platinum|gold|silver|bronze|copper|unranked)(?:[_\-](\d))?\.png/i);
+  if (!match?.[1]) return null;
+
+  const tier = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
+  if (tier.toLowerCase() === "champion" || tier.toLowerCase() === "unranked") return tier === "Champion" ? "Champions" : tier;
+
+  const division = match[2] ? DIVISION_TO_ROMAN[match[2]] : null;
+  return division ? `${tier} ${division}` : tier;
+}
+
 function parseTrackerProfile(content: string): RankResult | null {
   if (/Player Not Found|missing in action|has not played R6 Siege|#\s*404/i.test(content)) {
     throw new Error("Hráč nebyl na trackeru nalezen");
@@ -148,9 +165,12 @@ function parseTrackerProfile(content: string): RankResult | null {
 
   const section = extractRelevantSection(content);
   const imageRank = extractRankFromImages(section);
-  const rankName = imageRank.rankName ?? extractRankNameFromText(section) ?? extractRankNameFromText(content);
 
   let rankImageUrl = imageRank.rankImageUrl;
+  // Derive rank name from the image URL first for consistency
+  const rankFromUrl = extractRankNameFromImageUrl(rankImageUrl);
+  const rankName = rankFromUrl ?? imageRank.rankName ?? extractRankNameFromText(section) ?? extractRankNameFromText(content);
+
   const rankTier = getRankTier(rankName);
   const imageTier = getRankTier(rankImageUrl);
   if (rankTier && imageTier && rankTier !== imageTier) {
