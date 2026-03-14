@@ -154,7 +154,8 @@ function extractRankNameFromImageUrl(url: string | null): string | null {
   const tier = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
   if (tier.toLowerCase() === "champion" || tier.toLowerCase() === "unranked") return tier === "Champion" ? "Champions" : tier;
 
-  const division = match[2] ? DIVISION_TO_ROMAN[match[2]] : null;
+  const divisionToken = match[2]?.toUpperCase();
+  const division = divisionToken ? (DIVISION_TO_ROMAN[divisionToken] ?? divisionToken) : null;
   return division ? `${tier} ${division}` : tier;
 }
 
