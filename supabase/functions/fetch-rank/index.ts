@@ -148,13 +148,14 @@ const DIVISION_TO_ROMAN: Record<string, string> = {
 function extractRankNameFromImageUrl(url: string | null): string | null {
   if (!url) return null;
   // Match patterns like: ranks/s28/copper_2.png, ranks/copper_2.png, copper_2.png
-  const match = url.match(/(champion|diamond|emerald|platinum|gold|silver|bronze|copper|unranked)(?:[_\-](\d))?\.(?:png|webp|svg|jpg)/i);
+  const match = url.match(/(champion|diamond|emerald|platinum|gold|silver|bronze|copper|unranked)(?:[_\- ](1|2|3|4|5|i|ii|iii|iv|v))?\.(?:png|webp|svg|jpg|jpeg)/i);
   if (!match?.[1]) return null;
 
   const tier = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
   if (tier.toLowerCase() === "champion" || tier.toLowerCase() === "unranked") return tier === "Champion" ? "Champions" : tier;
 
-  const division = match[2] ? DIVISION_TO_ROMAN[match[2]] : null;
+  const divisionToken = match[2]?.toUpperCase();
+  const division = divisionToken ? (DIVISION_TO_ROMAN[divisionToken] ?? divisionToken) : null;
   return division ? `${tier} ${division}` : tier;
 }
 
@@ -306,8 +307,9 @@ Deno.serve(async (req) => {
     }
 
     const rankUpdatedAt = new Date().toISOString();
-    const rankName = parsedRank.rankName ?? profile.rank_name;
     const rankImageUrl = parsedRank.rankImageUrl ?? profile.rank_image_url;
+    const rankNameFromImage = extractRankNameFromImageUrl(rankImageUrl);
+    const rankName = rankNameFromImage ?? parsedRank.rankName ?? profile.rank_name;
 
     const { error: updateErr } = await adminClient
       .from("profiles")
