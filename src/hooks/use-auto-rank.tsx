@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 const RANK_COOLDOWN_MS = 60 * 60 * 1000; // 1 hour
 const inflightByUser = new Set<string>();
 
-export function useAutoRank(onUpdate?: (rankName: string | null, rankImageUrl: string | null) => void) {
+export function useAutoRank(onUpdate?: (rankName: string | null, rankImageUrl: string | null, avatarUrl: string | null) => void) {
   const { user } = useAuth();
   const onUpdateRef = useRef(onUpdate);
 
@@ -21,13 +21,13 @@ export function useAutoRank(onUpdate?: (rankName: string | null, rankImageUrl: s
     const checkAndFetch = async () => {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("ubisoft_username, rank_updated_at, rank_name, rank_image_url")
+        .select("ubisoft_username, rank_updated_at, rank_name, rank_image_url, avatar_url")
         .eq("user_id", user.id)
         .single();
 
       if (cancelled || !profile?.ubisoft_username) return;
 
-      onUpdateRef.current?.(profile.rank_name, profile.rank_image_url);
+      onUpdateRef.current?.(profile.rank_name, profile.rank_image_url, profile.avatar_url);
 
       if (profile.rank_updated_at) {
         const lastUpdate = new Date(profile.rank_updated_at).getTime();
@@ -46,6 +46,7 @@ export function useAutoRank(onUpdate?: (rankName: string | null, rankImageUrl: s
         onUpdateRef.current?.(
           data?.rankName ?? profile.rank_name ?? null,
           data?.rankImageUrl ?? profile.rank_image_url ?? null,
+          data?.avatarUrl ?? profile.avatar_url ?? null,
         );
       } finally {
         inflightByUser.delete(user.id);
