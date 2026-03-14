@@ -271,7 +271,7 @@ Deno.serve(async (req) => {
 
   const { data: profile, error: profileErr } = await adminClient
     .from("profiles")
-    .select("ubisoft_username, rank_updated_at, rank_name, rank_image_url")
+    .select("ubisoft_username, rank_updated_at, rank_name, rank_image_url, avatar_url")
     .eq("user_id", userId)
     .single();
 
@@ -289,6 +289,7 @@ Deno.serve(async (req) => {
         JSON.stringify({
           rankName: profile.rank_name,
           rankImageUrl: profile.rank_image_url,
+          avatarUrl: profile.avatar_url,
           rankUpdatedAt: profile.rank_updated_at,
           cached: true,
           source: "cache",
@@ -296,6 +297,33 @@ Deno.serve(async (req) => {
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
+  }
+
+  // Fetch avatar from r6data.eu API (best-effort, don't block on failure)
+  let avatarUrl: string | null = profile.avatar_url;
+  try {
+    const r6dataApiKey = Deno.env.get("R6DATA_API_KEY");
+    if (r6dataApiKey) {
+      const accountRes = await fetch(
+        `https://api.r6data.eu/api/stats?type=accountInfo&nameOnPlatform=${encodeURIComponent(profile.ubisoft_username)}&platformType=uplay`,
+        { headers: { "api-key": r6dataApiKey } },
+      );
+      if (accountRes.ok) {
+        const accountData = await accountRes.json();
+        // accountInfo response may have avatarUrl or avatar fields
+        const fetchedAvatar =
+          accountData?.avatarUrl ??
+          accountData?.avatar ??
+          accountData?.platformInfo?.avatarUrl ??
+          accountData?.data?.platformInfo?.avatarUrl ??
+          null;
+        if (fetchedAvatar && typeof fetchedAvatar === "string") {
+          avatarUrl = fetchedAvatar;
+        }
+      }
+    }
+  } catch (avatarErr) {
+    console.error("Avatar fetch failed (non-fatal):", avatarErr);
   }
 
   try {
@@ -317,6 +345,7 @@ Deno.serve(async (req) => {
         rank_name: rankName,
         rank_image_url: rankImageUrl,
         rank_updated_at: rankUpdatedAt,
+        avatar_url: avatarUrl,
       })
       .eq("user_id", userId);
 
@@ -328,6 +357,7 @@ Deno.serve(async (req) => {
       JSON.stringify({
         rankName,
         rankImageUrl,
+        avatarUrl,
         rankUpdatedAt,
         mmr: parsedRank.mmr,
         cached: false,
@@ -344,6 +374,7 @@ Deno.serve(async (req) => {
         JSON.stringify({
           rankName: profile.rank_name,
           rankImageUrl: profile.rank_image_url,
+          avatarUrl: avatarUrl ?? profile.avatar_url,
           rankUpdatedAt: profile.rank_updated_at,
           cached: true,
           stale: true,
