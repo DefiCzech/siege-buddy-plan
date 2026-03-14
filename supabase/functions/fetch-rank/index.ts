@@ -80,7 +80,7 @@ function extractTrackerImageUrl(rawUrl: string): string {
   }
 
   const directTrackerUrl = sanitized.match(
-    /https?:\/\/[^"'\s)]*trackercdn\.com\/cdn\/r6\.tracker\.network\/ranks\/[^"'\s)]+\.png/i,
+    /https?:\/\/[^"'\s)]*trackercdn\.com\/cdn\/r6\.tracker\.network\/ranks\/[^"'\s)]+\.(?:png|webp|svg|jpg)/i,
   );
 
   if (directTrackerUrl?.[0]) {
@@ -91,7 +91,7 @@ function extractTrackerImageUrl(rawUrl: string): string {
 }
 
 function extractRankFromImages(content: string): { rankName: string | null; rankImageUrl: string | null } {
-  const markdownImageRegex = /!\[([^\]]+)\]\((https?:\/\/[^)\s]*ranks[^)\s]*\.png[^)\s]*)\)/gi;
+  const markdownImageRegex = /!\[([^\]]+)\]\((https?:\/\/[^)\s]*ranks[^)\s]*\.(?:png|webp|svg|jpg)[^)\s]*)\)/gi;
   let markdownMatch: RegExpExecArray | null;
 
   while ((markdownMatch = markdownImageRegex.exec(content)) !== null) {
@@ -104,7 +104,7 @@ function extractRankFromImages(content: string): { rankName: string | null; rank
     }
   }
 
-  const htmlAltBeforeSrcRegex = /alt=["']([^"']+)["'][^>]*src=["']([^"']*ranks[^"']*\.png[^"']*)["']/gi;
+  const htmlAltBeforeSrcRegex = /alt=["']([^"']+)["'][^>]*src=["']([^"']*ranks[^"']*\.(?:png|webp|svg|jpg)[^"']*)["']/gi;
   let htmlAltBeforeSrcMatch: RegExpExecArray | null;
 
   while ((htmlAltBeforeSrcMatch = htmlAltBeforeSrcRegex.exec(content)) !== null) {
@@ -117,7 +117,7 @@ function extractRankFromImages(content: string): { rankName: string | null; rank
     }
   }
 
-  const htmlSrcBeforeAltRegex = /src=["']([^"']*ranks[^"']*\.png[^"']*)["'][^>]*alt=["']([^"']+)["']/gi;
+  const htmlSrcBeforeAltRegex = /src=["']([^"']*ranks[^"']*\.(?:png|webp|svg|jpg)[^"']*)["'][^>]*alt=["']([^"']+)["']/gi;
   let htmlSrcBeforeAltMatch: RegExpExecArray | null;
 
   while ((htmlSrcBeforeAltMatch = htmlSrcBeforeAltRegex.exec(content)) !== null) {
@@ -148,7 +148,7 @@ const DIVISION_TO_ROMAN: Record<string, string> = {
 function extractRankNameFromImageUrl(url: string | null): string | null {
   if (!url) return null;
   // Match patterns like: ranks/s28/copper_2.png, ranks/copper_2.png, copper_2.png
-  const match = url.match(/(champion|diamond|emerald|platinum|gold|silver|bronze|copper|unranked)(?:[_\-](\d))?\.png/i);
+  const match = url.match(/(champion|diamond|emerald|platinum|gold|silver|bronze|copper|unranked)(?:[_\-](\d))?\.(?:png|webp|svg|jpg)/i);
   if (!match?.[1]) return null;
 
   const tier = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
