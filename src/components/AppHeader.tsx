@@ -17,10 +17,12 @@ export function AppHeader({ schedule, completedToday, totalToday }: Props) {
   const { user, signOut } = useAuth();
   const [rankImageUrl, setRankImageUrl] = useState<string | null>(null);
   const [rankName, setRankName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  useAutoRank((name, imageUrl) => {
+  useAutoRank((name, imageUrl, avatar) => {
     setRankName(name);
     setRankImageUrl(imageUrl);
+    setAvatarUrl(avatar);
   });
 
   const navItems = [
