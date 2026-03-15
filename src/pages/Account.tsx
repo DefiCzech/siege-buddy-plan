@@ -24,8 +24,12 @@ const Account = () => {
   const [rankName, setRankName] = useState<string | null>(null);
   const [rankImageUrl, setRankImageUrl] = useState<string | null>(null);
   const [rankUpdatedAt, setRankUpdatedAt] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [ubisoftUuid, setUbisoftUuid] = useState("");
   const [loadingUbisoft, setLoadingUbisoft] = useState(false);
   const [loadingRankRefresh, setLoadingRankRefresh] = useState(false);
+  const [loadingAvatar, setLoadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const [newEmail, setNewEmail] = useState("");
   const [loadingEmail, setLoadingEmail] = useState(false);
