@@ -133,6 +133,22 @@ function extractRankFromImages(content: string): { rankName: string | null; rank
   return { rankName: null, rankImageUrl: null };
 }
 
+function extractAvatarUrl(content: string): string | null {
+  // Look for Ubisoft avatar CDN URLs
+  const ubiAvatarMatch = content.match(
+    /https?:\/\/ubisoft-avatars\.akamaized\.net\/[a-f0-9\-]+\/default_\d+_\d+\.\w+/i,
+  );
+  if (ubiAvatarMatch?.[0]) return ubiAvatarMatch[0];
+
+  // Tracker CDN avatar pattern
+  const trackerAvatarMatch = content.match(
+    /https?:\/\/[^"'\s)]*trackercdn\.com\/cdn\/r6\.tracker\.network\/avatars\/[^"'\s)]+/i,
+  );
+  if (trackerAvatarMatch?.[0]) return trackerAvatarMatch[0].replace(/&amp;/g, "&");
+
+  return null;
+}
+
 function extractMmr(content: string): number | null {
   const mmrMatch = content.match(/([0-9][0-9,.]{2,8})\s*(RP|MMR)/i);
   if (!mmrMatch?.[1]) return null;
