@@ -133,9 +133,11 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
                     : "border-border bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary"
                 }`}
               >
-                {friend.rankImageUrl && (
+                {friend.avatarUrl ? (
+                  <img src={friend.avatarUrl} alt="" className="h-4 w-4 rounded-full object-cover" />
+                ) : friend.rankImageUrl ? (
                   <img src={friend.rankImageUrl} alt="" className="h-3.5 w-3.5" />
-                )}
+                ) : null}
                 <span className="font-mono font-medium text-[11px]">{friend.displayName}</span>
                 {totalCount === 0 ? (
                   <span className="text-[10px] opacity-50">—</span>
