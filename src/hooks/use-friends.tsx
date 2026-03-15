@@ -75,6 +75,7 @@ export function useFriends() {
         displayName: profileRes.data?.display_name || "Kamarád",
         rankName: (profileRes.data as any)?.rank_name || null,
         rankImageUrl: (profileRes.data as any)?.rank_image_url || null,
+        avatarUrl: (profileRes.data as any)?.avatar_url || null,
         shareCode: codeRes.data?.share_code || "",
         schedule: {
           name: schedRes.data?.name || "Plán",
