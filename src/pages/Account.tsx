@@ -165,6 +165,70 @@ const Account = () => {
     toast.success("Rank aktualizován");
   };
 
+  const handleSaveUuid = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    const uuid = ubisoftUuid.trim();
+    if (!uuid) return;
+    // Construct Ubisoft avatar URL from UUID
+    const url = `https://ubisoft-avatars.akamaized.net/${uuid}/default_256_256.png`;
+    setLoadingAvatar(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ avatar_url: url })
+      .eq("user_id", user.id);
+    setLoadingAvatar(false);
+    if (error) {
+      toast.error("Nepodařilo se uložit avatar");
+      return;
+    }
+    setAvatarUrl(url);
+    toast.success("Avatar nastaven z Ubisoft UUID");
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Nahraj prosím obrázek");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Maximální velikost je 2 MB");
+      return;
+    }
+    setLoadingAvatar(true);
+    const ext = file.name.split(".").pop() || "png";
+    const path = `${user.id}/avatar.${ext}`;
+
+    const { error: uploadErr } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true });
+
+    if (uploadErr) {
+      toast.error("Nahrání se nezdařilo: " + uploadErr.message);
+      setLoadingAvatar(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+    const publicUrl = urlData.publicUrl + "?t=" + Date.now();
+
+    const { error: updateErr } = await supabase
+      .from("profiles")
+      .update({ avatar_url: publicUrl })
+      .eq("user_id", user.id);
+
+    setLoadingAvatar(false);
+    if (updateErr) {
+      toast.error("Nepodařilo se uložit avatar URL");
+      return;
+    }
+    setAvatarUrl(publicUrl);
+    toast.success("Avatar nahrán");
+    if (avatarInputRef.current) avatarInputRef.current.value = "";
+  };
+
   const handleExport = () => {
     const exportData: any = {
       version: 1,
