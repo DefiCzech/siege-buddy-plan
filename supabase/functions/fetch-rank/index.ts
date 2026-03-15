@@ -366,7 +366,7 @@ Deno.serve(async (req) => {
         JSON.stringify({
           rankName: profile.rank_name,
           rankImageUrl: profile.rank_image_url,
-          avatarUrl: avatarUrl ?? profile.avatar_url,
+          avatarUrl: profile.avatar_url,
           rankUpdatedAt: profile.rank_updated_at,
           cached: true,
           stale: true,
