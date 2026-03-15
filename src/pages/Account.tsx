@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useSchedule } from "@/hooks/use-schedule";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { User, Lock, Mail, Download, Upload, Trash2, Settings, Database, Gamepad2 } from "lucide-react";
+import { User, Lock, Mail, Download, Upload, Trash2, Settings, Database, Gamepad2, ImagePlus } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MfaSettings } from "@/components/MfaSettings";
 
@@ -24,8 +24,12 @@ const Account = () => {
   const [rankName, setRankName] = useState<string | null>(null);
   const [rankImageUrl, setRankImageUrl] = useState<string | null>(null);
   const [rankUpdatedAt, setRankUpdatedAt] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [ubisoftUuid, setUbisoftUuid] = useState("");
   const [loadingUbisoft, setLoadingUbisoft] = useState(false);
   const [loadingRankRefresh, setLoadingRankRefresh] = useState(false);
+  const [loadingAvatar, setLoadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const [newEmail, setNewEmail] = useState("");
   const [loadingEmail, setLoadingEmail] = useState(false);
@@ -45,7 +49,7 @@ const Account = () => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("display_name, ubisoft_username, rank_name, rank_image_url, rank_updated_at")
+      .select("display_name, ubisoft_username, rank_name, rank_image_url, rank_updated_at, avatar_url")
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
@@ -54,6 +58,7 @@ const Account = () => {
         if (data?.rank_name) setRankName(data.rank_name);
         if (data?.rank_image_url) setRankImageUrl(data.rank_image_url);
         if (data?.rank_updated_at) setRankUpdatedAt(data.rank_updated_at);
+        if (data?.avatar_url) setAvatarUrl(data.avatar_url);
       });
   }, [user]);
 
@@ -158,6 +163,70 @@ const Account = () => {
     }
 
     toast.success("Rank aktualizován");
+  };
+
+  const handleSaveUuid = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    const uuid = ubisoftUuid.trim();
+    if (!uuid) return;
+    // Construct Ubisoft avatar URL from UUID
+    const url = `https://ubisoft-avatars.akamaized.net/${uuid}/default_256_256.png`;
+    setLoadingAvatar(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ avatar_url: url })
+      .eq("user_id", user.id);
+    setLoadingAvatar(false);
+    if (error) {
+      toast.error("Nepodařilo se uložit avatar");
+      return;
+    }
+    setAvatarUrl(url);
+    toast.success("Avatar nastaven z Ubisoft UUID");
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Nahraj prosím obrázek");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Maximální velikost je 2 MB");
+      return;
+    }
+    setLoadingAvatar(true);
+    const ext = file.name.split(".").pop() || "png";
+    const path = `${user.id}/avatar.${ext}`;
+
+    const { error: uploadErr } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true });
+
+    if (uploadErr) {
+      toast.error("Nahrání se nezdařilo: " + uploadErr.message);
+      setLoadingAvatar(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+    const publicUrl = urlData.publicUrl + "?t=" + Date.now();
+
+    const { error: updateErr } = await supabase
+      .from("profiles")
+      .update({ avatar_url: publicUrl })
+      .eq("user_id", user.id);
+
+    setLoadingAvatar(false);
+    if (updateErr) {
+      toast.error("Nepodařilo se uložit avatar URL");
+      return;
+    }
+    setAvatarUrl(publicUrl);
+    toast.success("Avatar nahrán");
+    if (avatarInputRef.current) avatarInputRef.current.value = "";
   };
 
   const handleExport = () => {
@@ -337,7 +406,59 @@ const Account = () => {
 
           <Separator />
 
-          {/* Email */}
+          {/* Avatar */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-mono text-primary">
+              <ImagePlus className="h-4 w-4" />
+              Profilový obrázek
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Zadej své Ubisoft UUID pro automatický avatar, nebo nahraj vlastní obrázek.
+            </p>
+
+            {avatarUrl && (
+              <div className="flex items-center gap-3">
+                <img src={avatarUrl} alt="Avatar" className="h-16 w-16 rounded-full object-cover border border-border" />
+                <span className="text-xs text-muted-foreground">Aktuální avatar</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveUuid} className="flex flex-wrap gap-2">
+              <Input
+                value={ubisoftUuid}
+                onChange={(e) => setUbisoftUuid(e.target.value)}
+                placeholder="Ubisoft UUID (např. a1b2c3d4-...)"
+                className="bg-secondary border-border"
+              />
+              <Button type="submit" disabled={loadingAvatar || !ubisoftUuid.trim()} size="sm">
+                {loadingAvatar ? "..." : "Nastavit z UUID"}
+              </Button>
+            </form>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">nebo</span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                disabled={loadingAvatar}
+                onClick={() => avatarInputRef.current?.click()}
+              >
+                <Upload className="h-3.5 w-3.5" />
+                {loadingAvatar ? "Nahrávám..." : "Nahrát obrázek"}
+              </Button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarUpload}
+              />
+            </div>
+          </section>
+
+          <Separator />
           <section className="space-y-3">
             <div className="flex items-center gap-2 text-sm font-mono text-primary">
               <Mail className="h-4 w-4" />
