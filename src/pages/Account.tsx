@@ -406,7 +406,59 @@ const Account = () => {
 
           <Separator />
 
-          {/* Email */}
+          {/* Avatar */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-mono text-primary">
+              <ImagePlus className="h-4 w-4" />
+              Profilový obrázek
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Zadej své Ubisoft UUID pro automatický avatar, nebo nahraj vlastní obrázek.
+            </p>
+
+            {avatarUrl && (
+              <div className="flex items-center gap-3">
+                <img src={avatarUrl} alt="Avatar" className="h-16 w-16 rounded-full object-cover border border-border" />
+                <span className="text-xs text-muted-foreground">Aktuální avatar</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveUuid} className="flex flex-wrap gap-2">
+              <Input
+                value={ubisoftUuid}
+                onChange={(e) => setUbisoftUuid(e.target.value)}
+                placeholder="Ubisoft UUID (např. a1b2c3d4-...)"
+                className="bg-secondary border-border"
+              />
+              <Button type="submit" disabled={loadingAvatar || !ubisoftUuid.trim()} size="sm">
+                {loadingAvatar ? "..." : "Nastavit z UUID"}
+              </Button>
+            </form>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">nebo</span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                disabled={loadingAvatar}
+                onClick={() => avatarInputRef.current?.click()}
+              >
+                <Upload className="h-3.5 w-3.5" />
+                {loadingAvatar ? "Nahrávám..." : "Nahrát obrázek"}
+              </Button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarUpload}
+              />
+            </div>
+          </section>
+
+          <Separator />
           <section className="space-y-3">
             <div className="flex items-center gap-2 text-sm font-mono text-primary">
               <Mail className="h-4 w-4" />
