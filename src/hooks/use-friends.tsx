@@ -10,6 +10,7 @@ export interface FriendData {
   shareCode: string;
   rankName: string | null;
   rankImageUrl: string | null;
+  avatarUrl: string | null;
   schedule: {
     name: string;
     categories: Category[];
