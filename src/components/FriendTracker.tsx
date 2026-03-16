@@ -4,7 +4,7 @@ import { ScheduleEntry } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { UserPlus, X, CheckCircle2, Circle, Users, ExternalLink, BarChart3 } from "lucide-react";
+import { UserPlus, X, CheckCircle2, Circle, Users, ExternalLink, BarChart3, HelpCircle, User } from "lucide-react";
 import { TrainingStats } from "@/components/TrainingStats";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 
@@ -134,10 +134,19 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
                 }`}
               >
                 {friend.avatarUrl ? (
-                  <img src={friend.avatarUrl} alt="" className="h-4 w-4 rounded-full object-cover" />
-                ) : friend.rankImageUrl ? (
-                  <img src={friend.rankImageUrl} alt="" className="h-3.5 w-3.5" />
-                ) : null}
+                  <img src={friend.avatarUrl} alt="" className="h-5 w-5 rounded-full object-cover border border-border" />
+                ) : (
+                  <span className="h-5 w-5 rounded-full bg-muted border border-border flex items-center justify-center">
+                    <User className="h-3 w-3 text-muted-foreground" />
+                  </span>
+                )}
+                {friend.rankImageUrl ? (
+                  <img src={friend.rankImageUrl} alt="" className="h-4 w-4 -ml-1" />
+                ) : (
+                  <span className="h-4 w-4 -ml-1 rounded bg-muted border border-border flex items-center justify-center">
+                    <HelpCircle className="h-2.5 w-2.5 text-muted-foreground" />
+                  </span>
+                )}
                 <span className="font-mono font-medium text-[11px]">{friend.displayName}</span>
                 {totalCount === 0 ? (
                   <span className="text-[10px] opacity-50">—</span>
