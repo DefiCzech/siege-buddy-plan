@@ -91,8 +91,6 @@ async function fetchRankFromApi(username: string): Promise<{
   return { rankName, rankImageUrl, mmr };
 }
 
-  return { rankName, rankImageUrl, mmr };
-}
 
 async function fetchAvatarUrl(username: string): Promise<string | null> {
   const apiKey = Deno.env.get("R6DATA_API_KEY");
