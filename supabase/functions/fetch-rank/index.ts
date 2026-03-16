@@ -50,43 +50,54 @@ async function fetchRankFromApi(username: string): Promise<{
   }
 
   const encodedUsername = encodeURIComponent(username.trim());
-  const url = `https://api.r6data.eu/api/stats?type=seasonalStats&nameOnPlatform=${encodedUsername}&platformType=uplay`;
 
-  const res = await fetch(url, {
+  // Try seasonalStats first for detailed rank history
+  const seasonalUrl = `https://api.r6data.eu/api/stats?type=seasonalStats&nameOnPlatform=${encodedUsername}&platformType=uplay`;
+  const seasonalRes = await fetch(seasonalUrl, {
     headers: { "api-key": apiKey },
   });
 
-  if (res.status === 404) {
+  if (seasonalRes.status === 404) {
     throw new Error(`Hráč "${username}" nebyl nalezen`);
   }
-
-  if (res.status === 429) {
+  if (seasonalRes.status === 429) {
     throw new Error("API je dočasně limitované (429)");
   }
 
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`R6Data API request failed (${res.status}): ${body.slice(0, 200)}`);
+  let rankName: string | null = null;
+  let rankImageUrl: string | null = null;
+  let mmr: number | null = null;
+
+  if (seasonalRes.ok) {
+    const json = await seasonalRes.json();
+    console.log("seasonalStats response:", JSON.stringify(json).slice(0, 2000));
+
+    const history: Array<[string, SeasonalEntry]> = json?.data?.history?.data;
+    if (history && history.length > 0) {
+      const latest = history[history.length - 1];
+      const entry = latest?.[1];
+      if (entry?.metadata) {
+        rankName = entry.metadata.rank ? formatRankName(entry.metadata.rank) : null;
+        rankImageUrl = entry.metadata.imageUrl || null;
+        mmr = typeof entry.value === "number" ? entry.value : null;
+      }
+    }
+  } else {
+    await seasonalRes.text(); // consume body
   }
 
-  const json = await res.json();
+  // Also try stats endpoint for potentially more current data
+  const statsUrl = `https://api.r6data.eu/api/stats?type=stats&nameOnPlatform=${encodedUsername}&platformType=uplay&platform_families=pc`;
+  const statsRes = await fetch(statsUrl, {
+    headers: { "api-key": apiKey },
+  });
 
-  // Extract the latest entry from the history array
-  const history: Array<[string, SeasonalEntry]> = json?.data?.history?.data;
-  if (!history || history.length === 0) {
-    return { rankName: null, rankImageUrl: null, mmr: null };
+  if (statsRes.ok) {
+    const statsJson = await statsRes.json();
+    console.log("stats response:", JSON.stringify(statsJson).slice(0, 3000));
+  } else {
+    await statsRes.text(); // consume body
   }
-
-  // Last entry is the most recent
-  const latest = history[history.length - 1];
-  const entry = latest?.[1];
-  if (!entry?.metadata) {
-    return { rankName: null, rankImageUrl: null, mmr: null };
-  }
-
-  const rankName = entry.metadata.rank ? formatRankName(entry.metadata.rank) : null;
-  const rankImageUrl = entry.metadata.imageUrl || null;
-  const mmr = typeof entry.value === "number" ? entry.value : null;
 
   return { rankName, rankImageUrl, mmr };
 }
