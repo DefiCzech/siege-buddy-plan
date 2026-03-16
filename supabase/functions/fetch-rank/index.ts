@@ -74,7 +74,8 @@ async function fetchRankFromApi(username: string): Promise<{
 
     const history: Array<[string, SeasonalEntry]> = json?.data?.history?.data;
     if (history && history.length > 0) {
-      const latest = history[history.length - 1];
+      // First entry is the most recent (sorted newest-first)
+      const latest = history[0];
       const entry = latest?.[1];
       if (entry?.metadata) {
         rankName = entry.metadata.rank ? formatRankName(entry.metadata.rank) : null;
@@ -86,18 +87,9 @@ async function fetchRankFromApi(username: string): Promise<{
     await seasonalRes.text(); // consume body
   }
 
-  // Also try stats endpoint for potentially more current data
-  const statsUrl = `https://api.r6data.eu/api/stats?type=stats&nameOnPlatform=${encodedUsername}&platformType=uplay&platform_families=pc`;
-  const statsRes = await fetch(statsUrl, {
-    headers: { "api-key": apiKey },
-  });
-
-  if (statsRes.ok) {
-    const statsJson = await statsRes.json();
-    console.log("stats response:", JSON.stringify(statsJson).slice(0, 3000));
-  } else {
-    await statsRes.text(); // consume body
-  }
+  // Remove debug logging
+  return { rankName, rankImageUrl, mmr };
+}
 
   return { rankName, rankImageUrl, mmr };
 }
