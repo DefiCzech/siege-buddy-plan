@@ -127,33 +127,36 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
             <div key={friend.userId} className="relative z-20">
               <button
                 onClick={() => setExpandedFriend(isExpanded ? null : friend.userId)}
-                className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-colors ${
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${
                   isExpanded
                     ? "border-primary/40 bg-primary/10 text-foreground"
                     : "border-border bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary"
                 }`}
               >
-                {friend.avatarUrl ? (
-                  <img src={friend.avatarUrl} alt="" className="h-5 w-5 rounded-full object-cover border border-border" />
-                ) : (
-                  <span className="h-5 w-5 rounded-full bg-muted border border-border flex items-center justify-center">
-                    <User className="h-3 w-3 text-muted-foreground" />
-                  </span>
-                )}
-                {friend.rankImageUrl ? (
-                  <img src={friend.rankImageUrl} alt="" className="h-4 w-4 -ml-1" />
-                ) : (
-                  <span className="h-4 w-4 -ml-1 rounded bg-muted border border-border flex items-center justify-center">
-                    <HelpCircle className="h-2.5 w-2.5 text-muted-foreground" />
-                  </span>
-                )}
-                <span className="font-mono font-medium text-[11px]">{friend.displayName}</span>
+                <div className="relative h-7 w-7 shrink-0">
+                  {friend.avatarUrl ? (
+                    <img src={friend.avatarUrl} alt="" className="h-7 w-7 rounded-full object-cover border border-border" />
+                  ) : (
+                    <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center border border-border">
+                      <User className="h-3.5 w-3.5 text-muted-foreground" />
+                    </div>
+                  )}
+                  {friend.rankImageUrl && (
+                    <img
+                      src={friend.rankImageUrl}
+                      alt={friend.rankName || "Rank"}
+                      title={friend.rankName || undefined}
+                      className="absolute -bottom-0.5 -right-0.5 h-4 w-4 drop-shadow-md"
+                    />
+                  )}
+                </div>
+                <span className="font-mono font-medium text-xs">{friend.displayName}</span>
                 {totalCount === 0 ? (
                   <span className="text-[10px] opacity-50">—</span>
                 ) : allDone ? (
-                  <CheckCircle2 className="h-3 w-3 text-success" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-success" />
                 ) : (
-                  <span className="text-[10px] font-mono opacity-60">{completedCount}/{totalCount}</span>
+                  <span className="text-[11px] font-mono opacity-60">{completedCount}/{totalCount}</span>
                 )}
               </button>
 
