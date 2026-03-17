@@ -72,7 +72,7 @@ export function useFriends() {
 
       friendsData.push({
         userId: friendId,
-        displayName: profileRes.data?.display_name || "Kamarád",
+        displayName: (profileRes.data as any)?.ubisoft_username || profileRes.data?.display_name || "Kamarád",
         rankName: (profileRes.data as any)?.rank_name || null,
         rankImageUrl: (profileRes.data as any)?.rank_image_url || null,
         avatarUrl: (profileRes.data as any)?.avatar_url || null,
