@@ -61,7 +61,7 @@ export function useFriends() {
     for (const friendId of friendIds) {
       const [profileRes, codeRes, schedRes, catsRes, actsRes, entriesRes, completionsRes] =
         await Promise.all([
-          supabase.from("profiles").select("display_name, rank_name, rank_image_url, avatar_url").eq("user_id", friendId).single(),
+          supabase.from("profiles").select("display_name, rank_name, rank_image_url, avatar_url, ubisoft_username").eq("user_id", friendId).single(),
           supabase.from("user_share_codes").select("share_code").eq("user_id", friendId).single(),
           supabase.from("user_schedules").select("name").eq("user_id", friendId).single(),
           supabase.from("user_categories").select("*").eq("user_id", friendId).order("sort_order"),
@@ -72,7 +72,7 @@ export function useFriends() {
 
       friendsData.push({
         userId: friendId,
-        displayName: profileRes.data?.display_name || "Kamarád",
+        displayName: (profileRes.data as any)?.ubisoft_username || profileRes.data?.display_name || "Kamarád",
         rankName: (profileRes.data as any)?.rank_name || null,
         rankImageUrl: (profileRes.data as any)?.rank_image_url || null,
         avatarUrl: (profileRes.data as any)?.avatar_url || null,
