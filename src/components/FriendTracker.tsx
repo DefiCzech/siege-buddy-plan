@@ -150,7 +150,12 @@ export function FriendTracker({ friends, loading, onAddFriend, onRemoveFriend }:
                     />
                   )}
                 </div>
-                <span className="font-mono font-medium text-xs">{friend.displayName}</span>
+                <div className="flex flex-col items-start">
+                  <span className="font-mono font-medium text-xs">{friend.displayName}</span>
+                  {friend.rankName && (
+                    <span className="font-mono text-[10px] text-muted-foreground leading-tight">{friend.rankName}</span>
+                  )}
+                </div>
                 {totalCount === 0 ? (
                   <span className="text-[10px] opacity-50">—</span>
                 ) : allDone ? (
