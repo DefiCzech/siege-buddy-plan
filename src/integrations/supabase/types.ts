@@ -200,6 +200,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_mindset_items: {
+        Row: {
+          created_at: string
+          id: string
+          sort_order: number
+          text: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          sort_order?: number
+          text: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          sort_order?: number
+          text?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_schedules: {
         Row: {
           created_at: string
