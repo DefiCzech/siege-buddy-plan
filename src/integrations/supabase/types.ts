@@ -41,6 +41,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          mindset_description: string | null
           rank_image_url: string | null
           rank_name: string | null
           rank_updated_at: string | null
@@ -53,6 +54,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          mindset_description?: string | null
           rank_image_url?: string | null
           rank_name?: string | null
           rank_updated_at?: string | null
@@ -65,6 +67,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          mindset_description?: string | null
           rank_image_url?: string | null
           rank_name?: string | null
           rank_updated_at?: string | null
