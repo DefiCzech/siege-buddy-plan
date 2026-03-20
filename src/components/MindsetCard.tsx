@@ -142,7 +142,7 @@ export function MindsetCard({ readOnly, items: externalItems, description: exter
         <div className="flex items-center justify-between">
           <h2 className="font-mono font-bold tracking-wider text-sm text-muted-foreground flex items-center gap-2">
             <Brain className="h-4 w-4" />
-            🧠 {label ? `MINDSET — ${label}` : "MINDSET"}
+            {label ? `MINDSET — ${label}` : "MINDSET"}
           </h2>
           {!readOnly && (
             <Button
