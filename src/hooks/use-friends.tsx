@@ -85,6 +85,8 @@ export function useFriends() {
         rankName: (profileRes.data as any)?.rank_name || null,
         rankImageUrl: (profileRes.data as any)?.rank_image_url || null,
         avatarUrl: (profileRes.data as any)?.avatar_url || null,
+        mindsetDescription: (profileRes.data as any)?.mindset_description || null,
+        mindsetItems: (mindsetRes.data || []).map((m: any) => ({ id: m.id, text: m.text, sort_order: m.sort_order })),
         shareCode: codeRes.data?.share_code || "",
         schedule: {
           name: schedRes.data?.name || "Plán",
