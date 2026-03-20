@@ -97,7 +97,8 @@ const Index = () => {
   const detailCategory = detailActivity ? getCategory(detailActivity.categoryId) : null;
 
   return (
-    <main className="container max-w-6xl mx-auto px-4 py-6">
+    <main className="container max-w-6xl mx-auto px-4 py-6 space-y-4">
+      <MindsetCard />
       <div className="rounded-lg border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-5 space-y-4 shadow-lg shadow-primary/5">
         <div className="flex items-center justify-between">
           <h2 className="font-mono font-bold tracking-wider text-base text-primary">
