@@ -346,13 +346,17 @@ function FriendDetail({
       )}
 
       {(friend.mindsetItems.length > 0 || friend.mindsetDescription) && (
-        <div className="mb-1">
-          <MindsetCard
-            readOnly
-            items={friend.mindsetItems}
-            description={friend.mindsetDescription}
-            label={friend.displayName}
-          />
+        <div className="mb-1 space-y-0.5">
+          <p className="text-[10px] font-mono text-muted-foreground flex items-center gap-1">🧠 MINDSET</p>
+          {friend.mindsetDescription && (
+            <p className="text-[10px] text-muted-foreground/70 italic">{friend.mindsetDescription}</p>
+          )}
+          {friend.mindsetItems.map((item) => (
+            <p key={item.id} className="text-[11px] text-foreground flex items-start gap-1">
+              <span className="text-primary shrink-0">•</span>
+              <span>{item.text}</span>
+            </p>
+          ))}
         </div>
       )}
 
