@@ -4,6 +4,12 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { TrainingActivity, Category, ScheduleEntry, TrainingCompletion } from "@/lib/types";
 
+export interface FriendMindsetItem {
+  id: string;
+  text: string;
+  sort_order: number;
+}
+
 export interface FriendData {
   userId: string;
   displayName: string;
@@ -11,6 +17,8 @@ export interface FriendData {
   rankName: string | null;
   rankImageUrl: string | null;
   avatarUrl: string | null;
+  mindsetDescription: string | null;
+  mindsetItems: FriendMindsetItem[];
   schedule: {
     name: string;
     categories: Category[];
