@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MindsetCard } from "@/components/MindsetCard";
+
 import { FriendData } from "@/hooks/use-friends";
 import { ScheduleEntry } from "@/lib/types";
 import { Input } from "@/components/ui/input";
