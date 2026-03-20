@@ -9,6 +9,7 @@ import { CheckCircle2, Info, ExternalLink, Loader2, BarChart3 } from "lucide-rea
 import { R6S_MAPS, R6S_OPERATORS } from "@/lib/types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FriendTracker } from "@/components/FriendTracker";
+import { MindsetCard } from "@/components/MindsetCard";
 import { TrainingStats } from "@/components/TrainingStats";
 
 const Index = () => {
