@@ -345,6 +345,17 @@ function FriendDetail({
         </div>
       )}
 
+      {(friend.mindsetItems.length > 0 || friend.mindsetDescription) && (
+        <div className="mb-1">
+          <MindsetCard
+            readOnly
+            items={friend.mindsetItems}
+            description={friend.mindsetDescription}
+            label={friend.displayName}
+          />
+        </div>
+      )}
+
       {todayEntries.length === 0 ? (
         <p className="text-[11px] text-muted-foreground">Dnes nemá nic naplánováno</p>
       ) : (
