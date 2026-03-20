@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Brain, Pencil, Plus, Trash2, GripVertical } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -13,20 +14,31 @@ interface MindsetItem {
   sort_order: number;
 }
 
-export function MindsetCard() {
+interface MindsetCardProps {
+  readOnly?: boolean;
+  items?: MindsetItem[];
+  description?: string | null;
+  label?: string;
+}
+
+export function MindsetCard({ readOnly, items: externalItems, description: externalDescription, label }: MindsetCardProps = {}) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [items, setItems] = useState<MindsetItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [description, setDescription] = useState<string | null>(null);
+  const [loading, setLoading] = useState(!readOnly);
   const [editOpen, setEditOpen] = useState(false);
   const [editItems, setEditItems] = useState<MindsetItem[]>([]);
+  const [editDescription, setEditDescription] = useState("");
   const [newText, setNewText] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    if (readOnly) return;
     if (!user) return;
     loadItems();
-  }, [user]);
+    loadDescription();
+  }, [user, readOnly]);
 
   const loadItems = async () => {
     if (!user) return;
@@ -39,8 +51,22 @@ export function MindsetCard() {
     setLoading(false);
   };
 
+  const loadDescription = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("profiles")
+      .select("mindset_description")
+      .eq("user_id", user.id)
+      .single();
+    setDescription((data as any)?.mindset_description || null);
+  };
+
+  const displayItems = readOnly ? (externalItems || []) : items;
+  const displayDescription = readOnly ? (externalDescription || null) : description;
+
   const openEdit = () => {
     setEditItems([...items]);
+    setEditDescription(description || "");
     setNewText("");
     setEditOpen(true);
   };
@@ -75,6 +101,12 @@ export function MindsetCard() {
     if (!user) return;
     setSaving(true);
 
+    // Save description
+    await supabase
+      .from("profiles")
+      .update({ mindset_description: editDescription.trim() || null } as any)
+      .eq("user_id", user.id);
+
     // Delete all existing items and re-insert
     await supabase.from("user_mindset_items").delete().eq("user_id", user.id);
 
@@ -96,11 +128,13 @@ export function MindsetCard() {
     }
 
     await loadItems();
+    await loadDescription();
     setSaving(false);
     setEditOpen(false);
   };
 
   if (loading) return null;
+  if (readOnly && displayItems.length === 0 && !displayDescription) return null;
 
   return (
     <>
@@ -108,24 +142,29 @@ export function MindsetCard() {
         <div className="flex items-center justify-between">
           <h2 className="font-mono font-bold tracking-wider text-sm text-muted-foreground flex items-center gap-2">
             <Brain className="h-4 w-4" />
-            🧠 MINDSET
+            🧠 {label ? `MINDSET — ${label}` : "MINDSET"}
           </h2>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-muted-foreground hover:text-foreground"
-            onClick={openEdit}
-          >
-            <Pencil className="h-3.5 w-3.5" />
-          </Button>
+          {!readOnly && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-muted-foreground hover:text-foreground"
+              onClick={openEdit}
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
+          )}
         </div>
-        {items.length === 0 ? (
+        {displayDescription && (
+          <p className="text-xs text-muted-foreground italic">{displayDescription}</p>
+        )}
+        {displayItems.length === 0 && !readOnly ? (
           <p className="text-xs text-muted-foreground italic">
             Klikni na tužku a přidej si věci, na které myslet během hry.
           </p>
         ) : (
           <ul className="space-y-1">
-            {items.map((item) => (
+            {displayItems.map((item) => (
               <li key={item.id} className="text-sm text-foreground flex items-start gap-2">
                 <span className="text-primary mt-0.5 shrink-0">•</span>
                 <span>{item.text}</span>
@@ -135,71 +174,83 @@ export function MindsetCard() {
         )}
       </div>
 
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="bg-card border-border max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-mono flex items-center gap-2">
-              <Brain className="h-4 w-4" />
-              UPRAVIT MINDSET
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <p className="text-xs text-muted-foreground">
-              Věci, na které je potřeba během hry pořád myslet.
-            </p>
-            <div className="space-y-1.5 max-h-64 overflow-y-auto">
-              {editItems.map((item, idx) => (
-                <div key={item.id} className="flex items-center gap-1.5">
-                  <div className="flex flex-col">
-                    <button
-                      className="text-muted-foreground hover:text-foreground p-0.5 disabled:opacity-30"
-                      onClick={() => moveItem(idx, -1)}
-                      disabled={idx === 0}
-                    >
-                      <GripVertical className="h-3 w-3 rotate-180" />
-                    </button>
-                    <button
-                      className="text-muted-foreground hover:text-foreground p-0.5 disabled:opacity-30"
-                      onClick={() => moveItem(idx, 1)}
-                      disabled={idx === editItems.length - 1}
-                    >
-                      <GripVertical className="h-3 w-3" />
-                    </button>
-                  </div>
+      {!readOnly && (
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent className="bg-card border-border max-w-md">
+            <DialogHeader>
+              <DialogTitle className="font-mono flex items-center gap-2">
+                <Brain className="h-4 w-4" />
+                UPRAVIT MINDSET
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Popisek (volitelný)</label>
+                <Textarea
+                  placeholder="Krátký popisek pod nadpis..."
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  className="bg-secondary border-border text-sm min-h-[48px] resize-none"
+                  rows={2}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Položky</label>
+                <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                  {editItems.map((item, idx) => (
+                    <div key={item.id} className="flex items-center gap-1.5">
+                      <div className="flex flex-col">
+                        <button
+                          className="text-muted-foreground hover:text-foreground p-0.5 disabled:opacity-30"
+                          onClick={() => moveItem(idx, -1)}
+                          disabled={idx === 0}
+                        >
+                          <GripVertical className="h-3 w-3 rotate-180" />
+                        </button>
+                        <button
+                          className="text-muted-foreground hover:text-foreground p-0.5 disabled:opacity-30"
+                          onClick={() => moveItem(idx, 1)}
+                          disabled={idx === editItems.length - 1}
+                        >
+                          <GripVertical className="h-3 w-3" />
+                        </button>
+                      </div>
+                      <Input
+                        value={item.text}
+                        onChange={(e) => updateItemText(item.id, e.target.value)}
+                        className="bg-secondary border-border text-sm h-8"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0"
+                        onClick={() => removeItem(item.id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2 mt-1.5">
                   <Input
-                    value={item.text}
-                    onChange={(e) => updateItemText(item.id, e.target.value)}
+                    placeholder="Nová položka..."
+                    value={newText}
+                    onChange={(e) => setNewText(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && addItem()}
                     className="bg-secondary border-border text-sm h-8"
                   />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0"
-                    onClick={() => removeItem(item.id)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
+                  <Button size="sm" variant="outline" className="h-8 shrink-0" onClick={addItem}>
+                    <Plus className="h-3.5 w-3.5" />
                   </Button>
                 </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Nová položka..."
-                value={newText}
-                onChange={(e) => setNewText(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addItem()}
-                className="bg-secondary border-border text-sm h-8"
-              />
-              <Button size="sm" variant="outline" className="h-8 shrink-0" onClick={addItem}>
-                <Plus className="h-3.5 w-3.5" />
+              </div>
+              <Button onClick={saveItems} disabled={saving} className="w-full">
+                {saving ? "Ukládám..." : "Uložit"}
               </Button>
             </div>
-            <Button onClick={saveItems} disabled={saving} className="w-full">
-              {saving ? "Ukládám..." : "Uložit"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 }

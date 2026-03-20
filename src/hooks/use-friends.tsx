@@ -4,6 +4,12 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { TrainingActivity, Category, ScheduleEntry, TrainingCompletion } from "@/lib/types";
 
+export interface FriendMindsetItem {
+  id: string;
+  text: string;
+  sort_order: number;
+}
+
 export interface FriendData {
   userId: string;
   displayName: string;
@@ -11,6 +17,8 @@ export interface FriendData {
   rankName: string | null;
   rankImageUrl: string | null;
   avatarUrl: string | null;
+  mindsetDescription: string | null;
+  mindsetItems: FriendMindsetItem[];
   schedule: {
     name: string;
     categories: Category[];
@@ -59,15 +67,16 @@ export function useFriends() {
     const friendsData: FriendData[] = [];
 
     for (const friendId of friendIds) {
-      const [profileRes, codeRes, schedRes, catsRes, actsRes, entriesRes, completionsRes] =
+      const [profileRes, codeRes, schedRes, catsRes, actsRes, entriesRes, completionsRes, mindsetRes] =
         await Promise.all([
-          supabase.from("profiles").select("display_name, rank_name, rank_image_url, avatar_url, ubisoft_username").eq("user_id", friendId).single(),
+          supabase.from("profiles").select("display_name, rank_name, rank_image_url, avatar_url, ubisoft_username, mindset_description").eq("user_id", friendId).single(),
           supabase.from("user_share_codes").select("share_code").eq("user_id", friendId).single(),
           supabase.from("user_schedules").select("name").eq("user_id", friendId).single(),
           supabase.from("user_categories").select("*").eq("user_id", friendId).order("sort_order"),
           supabase.from("user_activities").select("*").eq("user_id", friendId).order("sort_order"),
           supabase.from("schedule_entries").select("*").eq("user_id", friendId),
           supabase.from("training_completions").select("*").eq("user_id", friendId),
+          supabase.from("user_mindset_items").select("id, text, sort_order").eq("user_id", friendId).order("sort_order"),
         ]);
 
       friendsData.push({
@@ -76,6 +85,8 @@ export function useFriends() {
         rankName: (profileRes.data as any)?.rank_name || null,
         rankImageUrl: (profileRes.data as any)?.rank_image_url || null,
         avatarUrl: (profileRes.data as any)?.avatar_url || null,
+        mindsetDescription: (profileRes.data as any)?.mindset_description || null,
+        mindsetItems: (mindsetRes.data || []).map((m: any) => ({ id: m.id, text: m.text, sort_order: m.sort_order })),
         shareCode: codeRes.data?.share_code || "",
         schedule: {
           name: schedRes.data?.name || "Plán",
