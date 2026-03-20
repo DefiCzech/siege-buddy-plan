@@ -67,15 +67,16 @@ export function useFriends() {
     const friendsData: FriendData[] = [];
 
     for (const friendId of friendIds) {
-      const [profileRes, codeRes, schedRes, catsRes, actsRes, entriesRes, completionsRes] =
+      const [profileRes, codeRes, schedRes, catsRes, actsRes, entriesRes, completionsRes, mindsetRes] =
         await Promise.all([
-          supabase.from("profiles").select("display_name, rank_name, rank_image_url, avatar_url, ubisoft_username").eq("user_id", friendId).single(),
+          supabase.from("profiles").select("display_name, rank_name, rank_image_url, avatar_url, ubisoft_username, mindset_description").eq("user_id", friendId).single(),
           supabase.from("user_share_codes").select("share_code").eq("user_id", friendId).single(),
           supabase.from("user_schedules").select("name").eq("user_id", friendId).single(),
           supabase.from("user_categories").select("*").eq("user_id", friendId).order("sort_order"),
           supabase.from("user_activities").select("*").eq("user_id", friendId).order("sort_order"),
           supabase.from("schedule_entries").select("*").eq("user_id", friendId),
           supabase.from("training_completions").select("*").eq("user_id", friendId),
+          supabase.from("user_mindset_items").select("id, text, sort_order").eq("user_id", friendId).order("sort_order"),
         ]);
 
       friendsData.push({
