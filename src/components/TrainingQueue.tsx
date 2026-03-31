@@ -178,7 +178,7 @@ export function TrainingQueue({ activities, categories, entries, onChange }: Pro
                     <ArrowDown className="h-3 w-3" />
                   </button>
                   <button
-                    onClick={() => removeEntry(entry.activityId)}
+                    onClick={() => setPendingRemove(entry.activityId)}
                     className="hover:text-destructive p-0.5"
                     title="Odebrat"
                   >
@@ -190,7 +190,23 @@ export function TrainingQueue({ activities, categories, entries, onChange }: Pro
           })}
         </div>
       )}
-      
+
+      <AlertDialog open={!!pendingRemove} onOpenChange={(open) => !open && setPendingRemove(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Odebrat aktivitu</AlertDialogTitle>
+            <AlertDialogDescription>
+              Opravdu chceš odebrat tuto aktivitu z plánu?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Zrušit</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRemove} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Odebrat
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
