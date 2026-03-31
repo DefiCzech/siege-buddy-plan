@@ -15,7 +15,7 @@ interface Props {
 }
 
 export function TrainingQueue({ activities, categories, entries, onChange }: Props) {
-  const { confirm, ConfirmDialog } = useConfirmDialog();
+  
   const getCategory = (id: string) => categories.find((c) => c.id === id);
   const getActivity = (id: string) => activities.find((a) => a.id === id);
 
