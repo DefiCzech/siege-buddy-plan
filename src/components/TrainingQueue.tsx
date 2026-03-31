@@ -28,11 +28,9 @@ export function TrainingQueue({ activities, categories, entries, onChange }: Pro
     onChange([...entries, { dayOfWeek: maxOrder, activityId }]);
   };
 
-  const removeEntry = async (activityId: string) => {
-    const ok = await confirm({ message: "Opravdu chceš odebrat tuto aktivitu z plánu?" });
-    if (!ok) return;
+  const removeEntry = (activityId: string) => {
+    if (!window.confirm("Opravdu chceš odebrat tuto aktivitu z plánu?")) return;
     const filtered = entries.filter((e) => e.activityId !== activityId);
-    // Re-index sort orders
     onChange(filtered.map((e, i) => ({ ...e, dayOfWeek: i })));
   };
 
