@@ -101,16 +101,19 @@ const Index = () => {
       <div className="rounded-lg border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-5 space-y-4 shadow-lg shadow-primary/5">
         <div className="flex items-center justify-between">
           <h2 className="font-mono font-bold tracking-wider text-base text-primary">
-            🎯 CO TĚ DNES ČEKÁ
+            🎯 CO TĚ ČEKÁ
           </h2>
-          {todayEntries.length > 0 && completedToday === todayEntries.length && (
-            <span className="text-xs font-mono text-success">✓ MÁME HOTOVO, JDI HRÁT 🎮</span>
+          {allEntries.length > 0 && completedCount === allEntries.length && (
+            <span className="text-xs font-mono text-success">✓ VŠE HOTOVO! 🎮</span>
+          )}
+          {allEntries.length > 0 && completedCount < allEntries.length && (
+            <span className="text-xs font-mono text-muted-foreground">{completedCount}/{allEntries.length}</span>
           )}
         </div>
-        {remainingToday.length === 0 ? (
+        {remainingEntries.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            {todayEntries.length === 0
-              ? "Dneska volno? Nebo ses bál si něco naplánovat? 😏"
+            {allEntries.length === 0
+              ? "Nemáš nic v plánu. Přidej aktivity v nastavení! 😏"
               : "Vše odtrénováno — teď můžeš bez výčitek rankovat! 🏆"}
           </p>
         ) : (
