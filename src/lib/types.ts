@@ -17,7 +17,7 @@ export interface TrainingActivity {
 }
 
 export interface ScheduleEntry {
-  dayOfWeek: number; // 0=Monday ... 6=Sunday
+  dayOfWeek: number; // used as sortOrder for sequential training list
   activityId: string;
   assignedMaps?: string[]; // maps assigned to practice for this entry
   assignedOperators?: string[]; // operators assigned to practice for this entry
