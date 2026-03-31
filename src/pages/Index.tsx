@@ -33,13 +33,12 @@ const Index = () => {
   }
 
   const todayStr = new Date().toISOString().slice(0, 10);
-  const todayIdx = (new Date().getDay() + 6) % 7;
-  const todayEntries = schedule.entries.filter((e) => e.dayOfWeek === todayIdx);
-  const todayCompletions = completions.filter((c) => c.completedDate === todayStr);
-  const isCompletedToday = (activityId: string) =>
-    todayCompletions.some((c) => c.activityId === activityId);
-  const completedToday = todayEntries.filter((e) => isCompletedToday(e.activityId)).length;
-  const remainingToday = todayEntries.filter((e) => !isCompletedToday(e.activityId));
+  // All entries sorted by order, show uncompleted ones first
+  const allEntries = [...schedule.entries].sort((a, b) => a.dayOfWeek - b.dayOfWeek);
+  const isCompleted = (activityId: string) =>
+    completions.some((c) => c.activityId === activityId);
+  const completedCount = allEntries.filter((e) => isCompleted(e.activityId)).length;
+  const remainingEntries = allEntries.filter((e) => !isCompleted(e.activityId));
 
   const getActivity = (id: string) => schedule.activities.find((a) => a.id === id);
   const getCategory = (id: string) => schedule.categories.find((c) => c.id === id);
