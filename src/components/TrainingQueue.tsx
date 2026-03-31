@@ -3,7 +3,7 @@ import { ScheduleEntry, TrainingActivity, Category, R6S_MAPS, R6S_OPERATORS } fr
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
+
 import { Plus, X, Map, Shield, GripVertical, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
