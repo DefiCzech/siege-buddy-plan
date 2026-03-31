@@ -13,8 +13,8 @@ export function AppLayout() {
     <div className="min-h-screen bg-background">
       <AppHeader
         schedule={schedule}
-        completedToday={completedToday}
-        totalToday={todayEntries.length}
+        completedToday={completedCount}
+        totalToday={allEntries.length}
       />
       <Outlet />
     </div>
