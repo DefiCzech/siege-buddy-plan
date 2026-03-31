@@ -33,13 +33,12 @@ const Index = () => {
   }
 
   const todayStr = new Date().toISOString().slice(0, 10);
-  const todayIdx = (new Date().getDay() + 6) % 7;
-  const todayEntries = schedule.entries.filter((e) => e.dayOfWeek === todayIdx);
-  const todayCompletions = completions.filter((c) => c.completedDate === todayStr);
-  const isCompletedToday = (activityId: string) =>
-    todayCompletions.some((c) => c.activityId === activityId);
-  const completedToday = todayEntries.filter((e) => isCompletedToday(e.activityId)).length;
-  const remainingToday = todayEntries.filter((e) => !isCompletedToday(e.activityId));
+  // All entries sorted by order, show uncompleted ones first
+  const allEntries = [...schedule.entries].sort((a, b) => a.dayOfWeek - b.dayOfWeek);
+  const isCompleted = (activityId: string) =>
+    completions.some((c) => c.activityId === activityId);
+  const completedCount = allEntries.filter((e) => isCompleted(e.activityId)).length;
+  const remainingEntries = allEntries.filter((e) => !isCompleted(e.activityId));
 
   const getActivity = (id: string) => schedule.activities.find((a) => a.id === id);
   const getCategory = (id: string) => schedule.categories.find((c) => c.id === id);
@@ -52,7 +51,7 @@ const Index = () => {
 
   const completingActivity = completingEntry ? getActivity(completingEntry) : null;
   const completingEntryData = completingEntry
-    ? schedule.entries.find((e) => e.dayOfWeek === todayIdx && e.activityId === completingEntry)
+    ? schedule.entries.find((e) => e.activityId === completingEntry)
     : null;
   const isMapLearning = completingActivity?.activityType === "map-learning";
   const isOperatorTraining = completingActivity?.activityType === "operator-training";
@@ -102,21 +101,24 @@ const Index = () => {
       <div className="rounded-lg border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-5 space-y-4 shadow-lg shadow-primary/5">
         <div className="flex items-center justify-between">
           <h2 className="font-mono font-bold tracking-wider text-base text-primary">
-            🎯 CO TĚ DNES ČEKÁ
+            🎯 CO TĚ ČEKÁ
           </h2>
-          {todayEntries.length > 0 && completedToday === todayEntries.length && (
-            <span className="text-xs font-mono text-success">✓ MÁME HOTOVO, JDI HRÁT 🎮</span>
+          {allEntries.length > 0 && completedCount === allEntries.length && (
+            <span className="text-xs font-mono text-success">✓ VŠE HOTOVO! 🎮</span>
+          )}
+          {allEntries.length > 0 && completedCount < allEntries.length && (
+            <span className="text-xs font-mono text-muted-foreground">{completedCount}/{allEntries.length}</span>
           )}
         </div>
-        {remainingToday.length === 0 ? (
+        {remainingEntries.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            {todayEntries.length === 0
-              ? "Dneska volno? Nebo ses bál si něco naplánovat? 😏"
+            {allEntries.length === 0
+              ? "Nemáš nic v plánu. Přidej aktivity v nastavení! 😏"
               : "Vše odtrénováno — teď můžeš bez výčitek rankovat! 🏆"}
           </p>
         ) : (
           <div className="space-y-2">
-            {remainingToday.map((entry) => {
+            {remainingEntries.map((entry) => {
               const act = getActivity(entry.activityId);
               if (!act) return null;
               const cat = getCategory(act.categoryId);

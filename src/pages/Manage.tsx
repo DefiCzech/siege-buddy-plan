@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useSchedule } from "@/hooks/use-schedule";
 import { useFriends } from "@/hooks/use-friends";
 import { ActivityManager } from "@/components/ActivityManager";
-import { WeeklySchedule } from "@/components/WeeklySchedule";
+import { TrainingQueue } from "@/components/TrainingQueue";
 import { CategoryManager } from "@/components/CategoryManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -61,7 +61,7 @@ const Manage = () => {
             <p>Nejdříve si přidej tréninky níže v záložce "Aktivity"</p>
           </div>
         ) : (
-          <WeeklySchedule
+          <TrainingQueue
             activities={schedule.activities}
             categories={schedule.categories}
             entries={schedule.entries}
