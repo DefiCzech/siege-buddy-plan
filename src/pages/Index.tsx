@@ -118,7 +118,7 @@ const Index = () => {
           </p>
         ) : (
           <div className="space-y-2">
-            {remainingToday.map((entry) => {
+            {remainingEntries.map((entry) => {
               const act = getActivity(entry.activityId);
               if (!act) return null;
               const cat = getCategory(act.categoryId);

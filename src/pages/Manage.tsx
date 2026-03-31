@@ -61,7 +61,7 @@ const Manage = () => {
             <p>Nejdříve si přidej tréninky níže v záložce "Aktivity"</p>
           </div>
         ) : (
-          <WeeklySchedule
+          <TrainingQueue
             activities={schedule.activities}
             categories={schedule.categories}
             entries={schedule.entries}
