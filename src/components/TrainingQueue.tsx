@@ -3,7 +3,7 @@ import { ScheduleEntry, TrainingActivity, Category, R6S_MAPS, R6S_OPERATORS } fr
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
+
 import { Plus, X, Map, Shield, GripVertical, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -15,7 +15,7 @@ interface Props {
 }
 
 export function TrainingQueue({ activities, categories, entries, onChange }: Props) {
-  const { confirm, ConfirmDialog } = useConfirmDialog();
+  
   const getCategory = (id: string) => categories.find((c) => c.id === id);
   const getActivity = (id: string) => activities.find((a) => a.id === id);
 
@@ -28,11 +28,9 @@ export function TrainingQueue({ activities, categories, entries, onChange }: Pro
     onChange([...entries, { dayOfWeek: maxOrder, activityId }]);
   };
 
-  const removeEntry = async (activityId: string) => {
-    const ok = await confirm({ message: "Opravdu chceš odebrat tuto aktivitu z plánu?" });
-    if (!ok) return;
+  const removeEntry = (activityId: string) => {
+    if (!window.confirm("Opravdu chceš odebrat tuto aktivitu z plánu?")) return;
     const filtered = entries.filter((e) => e.activityId !== activityId);
-    // Re-index sort orders
     onChange(filtered.map((e, i) => ({ ...e, dayOfWeek: i })));
   };
 
@@ -182,7 +180,7 @@ export function TrainingQueue({ activities, categories, entries, onChange }: Pro
           })}
         </div>
       )}
-      {ConfirmDialog}
+      
     </div>
   );
 }
