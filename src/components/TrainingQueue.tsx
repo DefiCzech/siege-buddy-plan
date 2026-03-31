@@ -180,7 +180,7 @@ export function TrainingQueue({ activities, categories, entries, onChange }: Pro
           })}
         </div>
       )}
-      {ConfirmDialog}
+      
     </div>
   );
 }
