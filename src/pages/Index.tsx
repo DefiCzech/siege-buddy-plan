@@ -51,7 +51,7 @@ const Index = () => {
 
   const completingActivity = completingEntry ? getActivity(completingEntry) : null;
   const completingEntryData = completingEntry
-    ? schedule.entries.find((e) => e.dayOfWeek === todayIdx && e.activityId === completingEntry)
+    ? schedule.entries.find((e) => e.activityId === completingEntry)
     : null;
   const isMapLearning = completingActivity?.activityType === "map-learning";
   const isOperatorTraining = completingActivity?.activityType === "operator-training";
