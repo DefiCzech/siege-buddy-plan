@@ -3,7 +3,16 @@ import { ScheduleEntry, TrainingActivity, Category, R6S_MAPS, R6S_OPERATORS } fr
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Plus, X, Map, Shield, GripVertical, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -15,7 +24,7 @@ interface Props {
 }
 
 export function TrainingQueue({ activities, categories, entries, onChange }: Props) {
-  
+  const [pendingRemove, setPendingRemove] = useState<string | null>(null);
   const getCategory = (id: string) => categories.find((c) => c.id === id);
   const getActivity = (id: string) => activities.find((a) => a.id === id);
 
@@ -28,10 +37,11 @@ export function TrainingQueue({ activities, categories, entries, onChange }: Pro
     onChange([...entries, { dayOfWeek: maxOrder, activityId }]);
   };
 
-  const removeEntry = (activityId: string) => {
-    if (!window.confirm("Opravdu chceš odebrat tuto aktivitu z plánu?")) return;
-    const filtered = entries.filter((e) => e.activityId !== activityId);
+  const confirmRemove = () => {
+    if (!pendingRemove) return;
+    const filtered = entries.filter((e) => e.activityId !== pendingRemove);
     onChange(filtered.map((e, i) => ({ ...e, dayOfWeek: i })));
+    setPendingRemove(null);
   };
 
   const moveEntry = (activityId: string, direction: -1 | 1) => {
