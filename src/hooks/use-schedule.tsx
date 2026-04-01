@@ -116,6 +116,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
             activityId: e.activity_id,
             assignedMaps: e.assigned_maps ?? undefined,
             assignedOperators: e.assigned_operators ?? undefined,
+            durationMinutes: e.duration_minutes ?? undefined,
           })),
         };
         setSchedule(loaded);
