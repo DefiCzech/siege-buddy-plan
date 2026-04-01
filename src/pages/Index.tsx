@@ -138,7 +138,6 @@ const Index = () => {
                           <span className="text-[10px] font-mono opacity-60">⏱️ {entry.durationMinutes} min</span>
                         )}
                       </div>
-                      </div>
                       {entry.assignedMaps && entry.assignedMaps.length > 0 && (
                         <p className="text-xs font-mono font-bold text-primary mt-1">
                           📋 {entry.assignedMaps.join(", ")}
