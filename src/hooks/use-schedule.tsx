@@ -248,6 +248,7 @@ async function saveScheduleToDb(userId: string, schedule: Schedule) {
         activity_id: e.activityId,
         assigned_maps: e.assignedMaps ?? null,
         assigned_operators: e.assignedOperators ?? null,
+        duration_minutes: e.durationMinutes ?? null,
       }))
     );
   }

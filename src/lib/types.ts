@@ -21,6 +21,7 @@ export interface ScheduleEntry {
   activityId: string;
   assignedMaps?: string[]; // maps assigned to practice for this entry
   assignedOperators?: string[]; // operators assigned to practice for this entry
+  durationMinutes?: number; // recommended training duration in minutes
 }
 
 export interface TrainingCompletion {
