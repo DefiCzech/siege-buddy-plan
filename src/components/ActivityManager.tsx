@@ -164,7 +164,16 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
               </Select>
             </div>
             <div>
-              <label className="text-xs font-mono text-muted-foreground mb-1 block">Popis</label>
+              <label className="text-xs font-mono text-muted-foreground mb-1 block">Perex (krátký popis, viditelný v přehledu)</label>
+              <Input
+                value={form.perex}
+                onChange={(e) => setForm({ ...form, perex: e.target.value })}
+                placeholder="Krátký popis tréninku..."
+                className="bg-secondary border-border"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-mono text-muted-foreground mb-1 block">Detailní popis (viditelný po rozkliku)</label>
               <Textarea
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
