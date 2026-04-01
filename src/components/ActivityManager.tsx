@@ -47,6 +47,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
       id: editingActivity?.id || generateId(),
       name: form.name.trim(),
       categoryId: form.categoryId,
+      perex: form.perex.trim() || undefined,
       description: form.description.trim() || undefined,
       videoUrl: form.videoUrl.trim() || undefined,
       activityType: form.activityType !== "default" ? form.activityType : undefined,
