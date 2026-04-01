@@ -44,9 +44,28 @@ const Index = () => {
   const getCategory = (id: string) => schedule.categories.find((c) => c.id === id);
 
   const getVideoEmbedUrl = (url: string) => {
-    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
-    if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
-    return url;
+    try {
+      const u = new URL(url);
+      if (u.hostname.includes("youtube.com") || u.hostname.includes("youtu.be")) {
+        let videoId: string | null = null;
+        let startSeconds = 0;
+        if (u.hostname.includes("youtu.be")) {
+          videoId = u.pathname.slice(1);
+        } else {
+          videoId = u.searchParams.get("v");
+        }
+        const tParam = u.searchParams.get("t");
+        if (tParam) {
+          startSeconds = parseInt(tParam.replace("s", "")) || 0;
+        }
+        if (videoId) {
+          return `https://www.youtube-nocookie.com/embed/${videoId}${startSeconds ? `?start=${startSeconds}` : ""}`;
+        }
+      }
+      return url;
+    } catch {
+      return url;
+    }
   };
 
   const completingActivity = completingEntry ? getActivity(completingEntry) : null;

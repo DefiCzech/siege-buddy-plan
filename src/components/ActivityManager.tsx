@@ -70,10 +70,20 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
     try {
       const u = new URL(url);
       if (u.hostname.includes("youtube.com") || u.hostname.includes("youtu.be")) {
-        const videoId = u.hostname.includes("youtu.be")
-          ? u.pathname.slice(1)
-          : u.searchParams.get("v");
-        if (videoId) return `https://www.youtube-nocookie.com/embed/${videoId}`;
+        let videoId: string | null = null;
+        let startSeconds = 0;
+        if (u.hostname.includes("youtu.be")) {
+          videoId = u.pathname.slice(1);
+        } else {
+          videoId = u.searchParams.get("v");
+        }
+        const tParam = u.searchParams.get("t");
+        if (tParam) {
+          startSeconds = parseInt(tParam.replace("s", "")) || 0;
+        }
+        if (videoId) {
+          return `https://www.youtube-nocookie.com/embed/${videoId}${startSeconds ? `?start=${startSeconds}` : ""}`;
+        }
       }
       return null;
     } catch {
