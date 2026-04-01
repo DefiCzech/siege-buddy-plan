@@ -3,6 +3,7 @@ import { ScheduleEntry, TrainingActivity, Category, R6S_MAPS, R6S_OPERATORS } fr
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, X, Map, Shield, GripVertical, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, X, Map, Shield, GripVertical, ArrowUp, ArrowDown, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Props {
@@ -77,6 +78,14 @@ export function TrainingQueue({ activities, categories, entries, onChange }: Pro
           : [...current, opName];
         return { ...e, assignedOperators: updated.length > 0 ? updated : undefined };
       })
+    );
+  };
+
+  const updateDuration = (activityId: string, minutes: number | undefined) => {
+    onChange(
+      entries.map((e) =>
+        e.activityId === activityId ? { ...e, durationMinutes: minutes } : e
+      )
     );
   };
 
@@ -147,8 +156,34 @@ export function TrainingQueue({ activities, categories, entries, onChange }: Pro
                       🛡️ {entry.assignedOperators.join(", ")}
                     </p>
                   )}
+                  {entry.durationMinutes && (
+                    <p className="text-[10px] opacity-70 mt-0.5">
+                      ⏱️ {entry.durationMinutes} min
+                    </p>
+                  )}
                 </div>
                 <div className="flex items-center gap-0.5 shrink-0">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="hover:text-foreground transition-colors p-0.5" title="Nastavit čas">
+                        <Clock className="h-3 w-3" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-40 p-2" align="end">
+                      <p className="text-xs font-mono font-bold mb-2">Čas (min):</p>
+                      <Input
+                        type="number"
+                        placeholder="Minuty"
+                        value={entry.durationMinutes ?? ""}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          updateDuration(entry.activityId, isNaN(val) || val <= 0 ? undefined : val);
+                        }}
+                        className="h-7 text-xs"
+                        min={1}
+                      />
+                    </PopoverContent>
+                  </Popover>
                   {isMapActivity && (
                     <MapAssignPopover
                       assignedMaps={entry.assignedMaps || []}

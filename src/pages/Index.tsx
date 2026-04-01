@@ -134,6 +134,9 @@ const Index = () => {
                       <div className="flex items-center gap-2 text-sm font-medium">
                         {cat && <span>{cat.icon}</span>}
                         {act.name}
+                        {entry.durationMinutes && (
+                          <span className="text-[10px] font-mono opacity-60">⏱️ {entry.durationMinutes} min</span>
+                        )}
                       </div>
                       {entry.assignedMaps && entry.assignedMaps.length > 0 && (
                         <p className="text-xs font-mono font-bold text-primary mt-1">

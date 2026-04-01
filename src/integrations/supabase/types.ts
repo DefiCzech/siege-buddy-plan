@@ -84,6 +84,7 @@ export type Database = {
           assigned_operators: string[] | null
           created_at: string
           day_of_week: number
+          duration_minutes: number | null
           id: string
           user_id: string
         }
@@ -93,6 +94,7 @@ export type Database = {
           assigned_operators?: string[] | null
           created_at?: string
           day_of_week: number
+          duration_minutes?: number | null
           id?: string
           user_id: string
         }
@@ -102,6 +104,7 @@ export type Database = {
           assigned_operators?: string[] | null
           created_at?: string
           day_of_week?: number
+          duration_minutes?: number | null
           id?: string
           user_id?: string
         }
