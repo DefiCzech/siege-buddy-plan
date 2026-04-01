@@ -1,0 +1,1 @@
+ALTER TABLE public.schedule_entries ADD COLUMN duration_minutes integer DEFAULT NULL;
