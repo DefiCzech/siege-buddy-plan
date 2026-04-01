@@ -38,25 +38,25 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/signup-success" element={<SignupSuccess />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route
-              element={
-                <ProtectedRoute>
-                  <ScheduleProvider>
+          <ScheduleProvider>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/signup-success" element={<SignupSuccess />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route
+                element={
+                  <ProtectedRoute>
                     <AppLayout />
-                  </ScheduleProvider>
-                </ProtectedRoute>
-              }
-            >
-              <Route path="/" element={<Index />} />
-              <Route path="/manage" element={<Manage />} />
-              <Route path="/account" element={<Account />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="/" element={<Index />} />
+                <Route path="/manage" element={<Manage />} />
+                <Route path="/account" element={<Account />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </ScheduleProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
