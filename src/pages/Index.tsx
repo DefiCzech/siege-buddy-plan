@@ -148,8 +148,8 @@ const Index = () => {
                           🛡️ {entry.assignedOperators.join(", ")}
                         </p>
                       )}
-                      {act.description && (
-                        <p className="text-xs mt-1 opacity-70">{act.description}</p>
+                      {act.perex && (
+                        <p className="text-xs mt-1 opacity-70">{act.perex}</p>
                       )}
                     </div>
                     <Button
