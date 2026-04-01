@@ -11,6 +11,7 @@ export interface TrainingActivity {
   id: string;
   name: string;
   categoryId: string;
+  perex?: string;
   description?: string;
   videoUrl?: string;
   activityType?: ActivityType;

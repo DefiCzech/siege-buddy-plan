@@ -222,9 +222,12 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
                 </div>
               </DialogHeader>
               <div className="space-y-4">
+                {detailActivity.perex && (
+                  <p className="text-sm text-muted-foreground">{detailActivity.perex}</p>
+                )}
                 {detailActivity.description && (
                   <div>
-                    <p className="text-xs font-mono text-muted-foreground mb-1">Popis</p>
+                    <p className="text-xs font-mono text-muted-foreground mb-1">Detailní popis</p>
                     <p className="text-sm whitespace-pre-wrap leading-relaxed">{detailActivity.description}</p>
                   </div>
                 )}

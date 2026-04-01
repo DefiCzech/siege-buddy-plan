@@ -232,6 +232,7 @@ async function saveScheduleToDb(userId: string, schedule: Schedule) {
         user_id: userId,
         name: a.name,
         category_id: a.categoryId,
+        perex: a.perex ?? null,
         description: a.description ?? null,
         video_url: a.videoUrl ?? null,
         activity_type: a.activityType ?? "default",
