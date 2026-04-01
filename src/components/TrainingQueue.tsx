@@ -81,6 +81,14 @@ export function TrainingQueue({ activities, categories, entries, onChange }: Pro
     );
   };
 
+  const updateDuration = (activityId: string, minutes: number | undefined) => {
+    onChange(
+      entries.map((e) =>
+        e.activityId === activityId ? { ...e, durationMinutes: minutes } : e
+      )
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
