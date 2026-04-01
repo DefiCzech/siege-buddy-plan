@@ -107,6 +107,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
             id: a.id,
             name: a.name,
             categoryId: a.category_id,
+            perex: a.perex ?? undefined,
             description: a.description ?? undefined,
             videoUrl: a.video_url ?? undefined,
             activityType: (a.activity_type === "map-learning" || a.activity_type === "operator-training") ? a.activity_type : "default",
