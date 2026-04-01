@@ -3,6 +3,7 @@ import { ScheduleEntry, TrainingActivity, Category, R6S_MAPS, R6S_OPERATORS } fr
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, X, Map, Shield, GripVertical, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, X, Map, Shield, GripVertical, ArrowUp, ArrowDown, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Props {
