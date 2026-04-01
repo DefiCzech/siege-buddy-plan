@@ -262,7 +262,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
                     })()}
                   </div>
                 )}
-                {!detailActivity.description && !detailActivity.videoUrl && (
+                {!detailActivity.perex && !detailActivity.description && !detailActivity.videoUrl && (
                   <p className="text-sm text-muted-foreground text-center py-4">Žádné detaily. Uprav aktivitu pro přidání popisu nebo videa.</p>
                 )}
               </div>

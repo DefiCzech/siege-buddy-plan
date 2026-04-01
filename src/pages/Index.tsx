@@ -126,8 +126,8 @@ const Index = () => {
               return (
                 <div
                   key={entry.activityId}
-                  className={`rounded border p-3 ${colorClass} cursor-pointer hover:opacity-90 transition-opacity`}
-                  onClick={() => (act.description || act.videoUrl) && setDetailActivityId(act.id)}
+                   className={`rounded border p-3 ${colorClass} cursor-pointer hover:opacity-90 transition-opacity`}
+                  onClick={() => (act.description || act.videoUrl || act.perex) && setDetailActivityId(act.id)}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div className="flex-1 min-w-0">
