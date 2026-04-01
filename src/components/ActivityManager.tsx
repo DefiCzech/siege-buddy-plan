@@ -19,13 +19,13 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
   const { confirm, ConfirmDialog } = useConfirmDialog();
   const [showForm, setShowForm] = useState(false);
   const [editingActivity, setEditingActivity] = useState<TrainingActivity | null>(null);
-  const [form, setForm] = useState({ name: "", categoryId: categories[0]?.id || "", description: "", videoUrl: "", activityType: "default" as ActivityType });
+  const [form, setForm] = useState({ name: "", categoryId: categories[0]?.id || "", perex: "", description: "", videoUrl: "", activityType: "default" as ActivityType });
   const [detailActivity, setDetailActivity] = useState<TrainingActivity | null>(null);
 
   const getCategory = (id: string) => categories.find((c) => c.id === id);
 
   const resetForm = () => {
-    setForm({ name: "", categoryId: categories[0]?.id || "", description: "", videoUrl: "", activityType: "default" });
+    setForm({ name: "", categoryId: categories[0]?.id || "", perex: "", description: "", videoUrl: "", activityType: "default" });
     setEditingActivity(null);
     setShowForm(false);
   };
@@ -36,7 +36,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
   };
 
   const openEdit = (a: TrainingActivity) => {
-    setForm({ name: a.name, categoryId: a.categoryId, description: a.description || "", videoUrl: a.videoUrl || "", activityType: a.activityType || "default" });
+    setForm({ name: a.name, categoryId: a.categoryId, perex: a.perex || "", description: a.description || "", videoUrl: a.videoUrl || "", activityType: a.activityType || "default" });
     setEditingActivity(a);
     setShowForm(true);
   };
@@ -47,6 +47,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
       id: editingActivity?.id || generateId(),
       name: form.name.trim(),
       categoryId: form.categoryId,
+      perex: form.perex.trim() || undefined,
       description: form.description.trim() || undefined,
       videoUrl: form.videoUrl.trim() || undefined,
       activityType: form.activityType !== "default" ? form.activityType : undefined,
@@ -163,7 +164,16 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
               </Select>
             </div>
             <div>
-              <label className="text-xs font-mono text-muted-foreground mb-1 block">Popis</label>
+              <label className="text-xs font-mono text-muted-foreground mb-1 block">Perex (krátký popis, viditelný v přehledu)</label>
+              <Input
+                value={form.perex}
+                onChange={(e) => setForm({ ...form, perex: e.target.value })}
+                placeholder="Krátký popis tréninku..."
+                className="bg-secondary border-border"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-mono text-muted-foreground mb-1 block">Detailní popis (viditelný po rozkliku)</label>
               <Textarea
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -212,9 +222,12 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
                 </div>
               </DialogHeader>
               <div className="space-y-4">
+                {detailActivity.perex && (
+                  <p className="text-sm text-muted-foreground">{detailActivity.perex}</p>
+                )}
                 {detailActivity.description && (
                   <div>
-                    <p className="text-xs font-mono text-muted-foreground mb-1">Popis</p>
+                    <p className="text-xs font-mono text-muted-foreground mb-1">Detailní popis</p>
                     <p className="text-sm whitespace-pre-wrap leading-relaxed">{detailActivity.description}</p>
                   </div>
                 )}
@@ -249,7 +262,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
                     })()}
                   </div>
                 )}
-                {!detailActivity.description && !detailActivity.videoUrl && (
+                {!detailActivity.perex && !detailActivity.description && !detailActivity.videoUrl && (
                   <p className="text-sm text-muted-foreground text-center py-4">Žádné detaily. Uprav aktivitu pro přidání popisu nebo videa.</p>
                 )}
               </div>

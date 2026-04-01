@@ -126,8 +126,8 @@ const Index = () => {
               return (
                 <div
                   key={entry.activityId}
-                  className={`rounded border p-3 ${colorClass} cursor-pointer hover:opacity-90 transition-opacity`}
-                  onClick={() => (act.description || act.videoUrl) && setDetailActivityId(act.id)}
+                   className={`rounded border p-3 ${colorClass} cursor-pointer hover:opacity-90 transition-opacity`}
+                  onClick={() => (act.description || act.videoUrl || act.perex) && setDetailActivityId(act.id)}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div className="flex-1 min-w-0">
@@ -148,8 +148,8 @@ const Index = () => {
                           🛡️ {entry.assignedOperators.join(", ")}
                         </p>
                       )}
-                      {act.description && (
-                        <p className="text-xs mt-1 opacity-70">{act.description}</p>
+                      {act.perex && (
+                        <p className="text-xs mt-1 opacity-70">{act.perex}</p>
                       )}
                     </div>
                     <Button
@@ -293,8 +293,11 @@ const Index = () => {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {detailActivity?.perex && (
+              <p className="text-sm text-muted-foreground">{detailActivity.perex}</p>
+            )}
             {detailActivity?.description && (
-              <p className="text-sm text-muted-foreground">{detailActivity.description}</p>
+              <p className="text-sm whitespace-pre-wrap leading-relaxed">{detailActivity.description}</p>
             )}
             {detailActivity?.videoUrl && (
               <div className="space-y-2">
