@@ -293,8 +293,11 @@ const Index = () => {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {detailActivity?.perex && (
+              <p className="text-sm text-muted-foreground">{detailActivity.perex}</p>
+            )}
             {detailActivity?.description && (
-              <p className="text-sm text-muted-foreground">{detailActivity.description}</p>
+              <p className="text-sm whitespace-pre-wrap leading-relaxed">{detailActivity.description}</p>
             )}
             {detailActivity?.videoUrl && (
               <div className="space-y-2">
