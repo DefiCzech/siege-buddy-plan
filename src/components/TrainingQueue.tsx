@@ -143,8 +143,11 @@ export function TrainingQueue({ activities, categories, entries, onChange }: Pro
                     {cat && <span>{cat.icon}</span>}
                     {act.name}
                   </div>
+                  {act.perex && (
+                    <p className="text-xs mt-0.5 opacity-70">{act.perex}</p>
+                  )}
                   {act.description && (
-                    <p className="text-xs mt-0.5 opacity-70">{act.description}</p>
+                    <p className="text-xs mt-0.5 opacity-60 whitespace-pre-wrap">{act.description}</p>
                   )}
                   {entry.assignedMaps && entry.assignedMaps.length > 0 && (
                     <p className="text-[10px] opacity-70 mt-0.5">
