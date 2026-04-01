@@ -148,6 +148,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          perex: string | null
           sort_order: number
           user_id: string
           video_url: string | null
@@ -159,6 +160,7 @@ export type Database = {
           description?: string | null
           id: string
           name: string
+          perex?: string | null
           sort_order?: number
           user_id: string
           video_url?: string | null
@@ -170,6 +172,7 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          perex?: string | null
           sort_order?: number
           user_id?: string
           video_url?: string | null

@@ -1,0 +1,1 @@
+ALTER TABLE public.user_activities ADD COLUMN perex text DEFAULT NULL;
