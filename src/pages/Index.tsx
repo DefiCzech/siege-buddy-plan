@@ -179,11 +179,12 @@ const Index = () => {
                       size="sm"
                       variant="default"
                       className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs shrink-0 w-full sm:w-auto"
-                      onClick={(e) => {
+                       onClick={(e) => {
                         e.stopPropagation();
                         setCompletingEntry(entry.activityId);
-                        setDuration("");
                         setSelectedMaps([]);
+                        setSelectedOperators([]);
+                      }}
                         setSelectedOperators([]);
                       }}
                     >
