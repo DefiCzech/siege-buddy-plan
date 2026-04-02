@@ -80,7 +80,7 @@ const Index = () => {
 
   const completeToday = () => {
     if (!completingEntry) return;
-    const mins = parseInt(duration) || 0;
+    const entryDuration = completingEntryData?.durationMinutes;
     const mapsToSave = hasAssignedMaps
       ? completingEntryData!.assignedMaps!
       : selectedMaps.length > 0
@@ -90,12 +90,11 @@ const Index = () => {
     addCompletion({
       activityId: completingEntry,
       completedDate: todayStr,
-      durationMinutes: mins > 0 ? mins : undefined,
+      durationMinutes: entryDuration ?? undefined,
       completedMaps: isMapLearning ? mapsToSave : undefined,
     });
 
     setCompletingEntry(null);
-    setDuration("");
     setSelectedMaps([]);
     setSelectedOperators([]);
   };
