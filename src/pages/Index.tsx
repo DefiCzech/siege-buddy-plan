@@ -5,12 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CheckCircle2, Info, ExternalLink, Loader2, BarChart3 } from "lucide-react";
-import { R6S_MAPS, R6S_OPERATORS } from "@/lib/types";
+import { CheckCircle2, Info, ExternalLink, Loader2, BarChart3, GripVertical } from "lucide-react";
+import { R6S_MAPS, R6S_OPERATORS, ScheduleEntry } from "@/lib/types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FriendTracker } from "@/components/FriendTracker";
 import { MindsetCard } from "@/components/MindsetCard";
 import { TrainingStats } from "@/components/TrainingStats";
+import { DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const Index = () => {
   const { schedule, completions, addCompletion, loading } = useSchedule();
