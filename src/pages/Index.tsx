@@ -14,7 +14,7 @@ import { TrainingStats } from "@/components/TrainingStats";
 import { DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+
 
 interface SortableEntryItemProps {
   entry: ScheduleEntry;
