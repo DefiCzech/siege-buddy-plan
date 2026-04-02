@@ -228,20 +228,10 @@ const Index = () => {
           <DialogHeader>
             <DialogTitle className="font-mono">DOKONČIT TRÉNINK</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Jak dlouho jsi trénoval/a? (volitelné)</p>
-            <div className="flex items-center gap-2">
-              <Input
-                type="number"
-                placeholder="Minuty"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && !isMapLearning && completeToday()}
-                className="bg-secondary border-border"
-                autoFocus
-              />
-              <span className="text-sm text-muted-foreground">min</span>
-            </div>
+           <div className="space-y-4">
+             {completingEntryData?.durationMinutes && (
+               <p className="text-sm text-muted-foreground">⏱️ Přiřazený čas: <strong>{completingEntryData.durationMinutes} min</strong></p>
+             )}
             {isMapLearning && !hasAssignedMaps && (
               <div>
                 <div className="flex items-center justify-between mb-2">
