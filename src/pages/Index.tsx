@@ -16,8 +16,8 @@ const Index = () => {
   const { schedule, completions, addCompletion, loading } = useSchedule();
   const { friends, loadingFriends, addFriend, removeFriend } = useFriends();
   const [completingEntry, setCompletingEntry] = useState<string | null>(null);
-  const [duration, setDuration] = useState("");
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
+  const [selectedOperators, setSelectedOperators] = useState<string[]>([]);
   const [selectedOperators, setSelectedOperators] = useState<string[]>([]);
   const [detailActivityId, setDetailActivityId] = useState<string | null>(null);
   const [showStats, setShowStats] = useState(false);
