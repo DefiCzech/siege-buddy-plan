@@ -119,9 +119,14 @@ const Index = () => {
       <MindsetCard />
       <div className="rounded-lg border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-5 space-y-4 shadow-lg shadow-primary/5">
         <div className="flex items-center justify-between">
-          <h2 className="font-mono font-bold tracking-wider text-base text-primary">
-            🎯 CO TĚ ČEKÁ
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="font-mono font-bold tracking-wider text-base text-primary">
+              🎯 CO TĚ ČEKÁ
+            </h2>
+            {totalRemainingMinutes > 0 && remainingEntries.length > 0 && (
+              <span className="text-xs font-mono text-muted-foreground">⏱️ {totalRemainingMinutes} min</span>
+            )}
+          </div>
           {allEntries.length > 0 && completedCount === allEntries.length && (
             <span className="text-xs font-mono text-success">✓ VŠE HOTOVO! 🎮</span>
           )}
