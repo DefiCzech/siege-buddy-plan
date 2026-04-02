@@ -143,60 +143,26 @@ const Index = () => {
               : "Vše odtrénováno — teď můžeš bez výčitek rankovat! 🏆"}
           </p>
         ) : (
-          <div className="space-y-2">
-            {remainingEntries.map((entry) => {
-              const act = getActivity(entry.activityId);
-              if (!act) return null;
-              const cat = getCategory(act.categoryId);
-              const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
-              return (
-                <div
-                  key={entry.activityId}
-                   className={`rounded border p-3 ${colorClass} cursor-pointer hover:opacity-90 transition-opacity`}
-                  onClick={() => (act.description || act.videoUrl || act.perex) && setDetailActivityId(act.id)}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 text-sm font-medium">
-                        {cat && <span>{cat.icon}</span>}
-                        {act.name}
-                        {entry.durationMinutes && (
-                          <span className="text-[10px] font-mono opacity-60">⏱️ {entry.durationMinutes} min</span>
-                        )}
-                      </div>
-                      {entry.assignedMaps && entry.assignedMaps.length > 0 && (
-                        <p className="text-xs font-mono font-bold text-primary mt-1">
-                          📋 {entry.assignedMaps.join(", ")}
-                        </p>
-                      )}
-                      {entry.assignedOperators && entry.assignedOperators.length > 0 && (
-                        <p className="text-xs font-mono font-bold text-primary mt-1">
-                          🛡️ {entry.assignedOperators.join(", ")}
-                        </p>
-                      )}
-                      {act.perex && (
-                        <p className="text-xs mt-1 opacity-70">{act.perex}</p>
-                      )}
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="default"
-                      className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs shrink-0 w-full sm:w-auto"
-                       onClick={(e) => {
-                        e.stopPropagation();
-                        setCompletingEntry(entry.activityId);
-                        setSelectedMaps([]);
-                        setSelectedOperators([]);
-                      }}
-                    >
-                      <CheckCircle2 className="h-4 w-4" />
-                      Splnit
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <SortableEntryList
+            entries={remainingEntries}
+            getActivity={getActivity}
+            getCategory={getCategory}
+            onComplete={(activityId) => {
+              setCompletingEntry(activityId);
+              setSelectedMaps([]);
+              setSelectedOperators([]);
+            }}
+            onDetail={(activityId) => {
+              const act = getActivity(activityId);
+              if (act && (act.description || act.videoUrl || act.perex)) setDetailActivityId(act.id);
+            }}
+            onReorder={(reordered) => {
+              // Rebuild full entries with new order for remaining, keeping completed ones
+              const completedEntries = allEntries.filter((e) => isCompleted(e.activityId));
+              const newEntries = [...reordered, ...completedEntries].map((e, i) => ({ ...e, dayOfWeek: i }));
+              updateSchedule({ entries: newEntries });
+            }}
+          />
         )}
       </div>
 
