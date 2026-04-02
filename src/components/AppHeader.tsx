@@ -51,7 +51,7 @@ export function AppHeader({ schedule, completedToday, totalToday }: Props) {
             }
           </div>
           <div>
-            <h1 className="text-sm font-mono font-bold tracking-widest text-primary">R6S COACH</h1>
+            <h1 className="text-sm font-mono font-bold tracking-widest text-primary">Siege Trainer</h1>
             <p className="text-xs text-muted-foreground">{rankName || "Tréninkový plán"}</p>
           </div>
         </Link>
