@@ -185,8 +185,6 @@ const Index = () => {
                         setSelectedMaps([]);
                         setSelectedOperators([]);
                       }}
-                        setSelectedOperators([]);
-                      }}
                     >
                       <CheckCircle2 className="h-4 w-4" />
                       Splnit
