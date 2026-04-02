@@ -16,7 +16,7 @@ import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-
 import { CSS } from "@dnd-kit/utilities";
 
 const Index = () => {
-  const { schedule, completions, addCompletion, loading } = useSchedule();
+  const { schedule, completions, addCompletion, updateSchedule, loading } = useSchedule();
   const { friends, loadingFriends, addFriend, removeFriend } = useFriends();
   const [completingEntry, setCompletingEntry] = useState<string | null>(null);
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
