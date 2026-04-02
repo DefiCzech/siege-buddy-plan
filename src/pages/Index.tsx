@@ -16,7 +16,6 @@ const Index = () => {
   const { schedule, completions, addCompletion, loading } = useSchedule();
   const { friends, loadingFriends, addFriend, removeFriend } = useFriends();
   const [completingEntry, setCompletingEntry] = useState<string | null>(null);
-  const [duration, setDuration] = useState("");
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
   const [selectedOperators, setSelectedOperators] = useState<string[]>([]);
   const [detailActivityId, setDetailActivityId] = useState<string | null>(null);
@@ -39,6 +38,7 @@ const Index = () => {
     completions.some((c) => c.activityId === activityId);
   const completedCount = allEntries.filter((e) => isCompleted(e.activityId)).length;
   const remainingEntries = allEntries.filter((e) => !isCompleted(e.activityId));
+  const totalRemainingMinutes = remainingEntries.reduce((sum, e) => sum + (e.durationMinutes ?? 0), 0);
 
   const getActivity = (id: string) => schedule.activities.find((a) => a.id === id);
   const getCategory = (id: string) => schedule.categories.find((c) => c.id === id);
@@ -79,7 +79,7 @@ const Index = () => {
 
   const completeToday = () => {
     if (!completingEntry) return;
-    const mins = parseInt(duration) || 0;
+    const entryDuration = completingEntryData?.durationMinutes;
     const mapsToSave = hasAssignedMaps
       ? completingEntryData!.assignedMaps!
       : selectedMaps.length > 0
@@ -89,12 +89,11 @@ const Index = () => {
     addCompletion({
       activityId: completingEntry,
       completedDate: todayStr,
-      durationMinutes: mins > 0 ? mins : undefined,
+      durationMinutes: entryDuration ?? undefined,
       completedMaps: isMapLearning ? mapsToSave : undefined,
     });
 
     setCompletingEntry(null);
-    setDuration("");
     setSelectedMaps([]);
     setSelectedOperators([]);
   };
@@ -119,9 +118,14 @@ const Index = () => {
       <MindsetCard />
       <div className="rounded-lg border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-5 space-y-4 shadow-lg shadow-primary/5">
         <div className="flex items-center justify-between">
-          <h2 className="font-mono font-bold tracking-wider text-base text-primary">
-            🎯 CO TĚ ČEKÁ
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="font-mono font-bold tracking-wider text-base text-primary">
+              🎯 CO TĚ ČEKÁ
+            </h2>
+            {totalRemainingMinutes > 0 && remainingEntries.length > 0 && (
+              <span className="text-xs font-mono text-muted-foreground">⏱️ {totalRemainingMinutes} min</span>
+            )}
+          </div>
           {allEntries.length > 0 && completedCount === allEntries.length && (
             <span className="text-xs font-mono text-success">✓ VŠE HOTOVO! 🎮</span>
           )}
@@ -175,10 +179,9 @@ const Index = () => {
                       size="sm"
                       variant="default"
                       className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs shrink-0 w-full sm:w-auto"
-                      onClick={(e) => {
+                       onClick={(e) => {
                         e.stopPropagation();
                         setCompletingEntry(entry.activityId);
-                        setDuration("");
                         setSelectedMaps([]);
                         setSelectedOperators([]);
                       }}
@@ -223,20 +226,10 @@ const Index = () => {
           <DialogHeader>
             <DialogTitle className="font-mono">DOKONČIT TRÉNINK</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Jak dlouho jsi trénoval/a? (volitelné)</p>
-            <div className="flex items-center gap-2">
-              <Input
-                type="number"
-                placeholder="Minuty"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && !isMapLearning && completeToday()}
-                className="bg-secondary border-border"
-                autoFocus
-              />
-              <span className="text-sm text-muted-foreground">min</span>
-            </div>
+           <div className="space-y-4">
+             {completingEntryData?.durationMinutes && (
+               <p className="text-sm text-muted-foreground">⏱️ Přiřazený čas: <strong>{completingEntryData.durationMinutes} min</strong></p>
+             )}
             {isMapLearning && !hasAssignedMaps && (
               <div>
                 <div className="flex items-center justify-between mb-2">
