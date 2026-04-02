@@ -163,11 +163,11 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
   );
 
   const addCompletion = useCallback(
-    (completion: TrainingCompletion) => {
+    async (completion: TrainingCompletion) => {
       if (!user) return;
       setCompletions((prev) => [...prev, completion]);
 
-      supabase.from("training_completions").upsert(
+      const { error } = await supabase.from("training_completions").upsert(
         {
           user_id: user.id,
           activity_id: completion.activityId,
@@ -177,6 +177,12 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
         },
         { onConflict: "user_id,activity_id,completed_date" }
       );
+      if (error) {
+        console.error("Failed to save completion:", error);
+        toast.error("Nepodařilo se uložit splnění tréninku");
+        // Revert optimistic update
+        setCompletions((prev) => prev.filter((c) => c.activityId !== completion.activityId || c.completedDate !== completion.completedDate));
+      }
     },
     [user]
   );
