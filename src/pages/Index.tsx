@@ -18,7 +18,6 @@ const Index = () => {
   const [completingEntry, setCompletingEntry] = useState<string | null>(null);
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
   const [selectedOperators, setSelectedOperators] = useState<string[]>([]);
-  const [selectedOperators, setSelectedOperators] = useState<string[]>([]);
   const [detailActivityId, setDetailActivityId] = useState<string | null>(null);
   const [showStats, setShowStats] = useState(false);
   const [mapFilter, setMapFilter] = useState<"all" | "ranked" | "unranked">("ranked");
