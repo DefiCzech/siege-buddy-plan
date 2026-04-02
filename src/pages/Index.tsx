@@ -5,15 +5,113 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CheckCircle2, Info, ExternalLink, Loader2, BarChart3 } from "lucide-react";
-import { R6S_MAPS, R6S_OPERATORS } from "@/lib/types";
+import { CheckCircle2, Info, ExternalLink, Loader2, BarChart3, GripVertical } from "lucide-react";
+import { R6S_MAPS, R6S_OPERATORS, ScheduleEntry } from "@/lib/types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FriendTracker } from "@/components/FriendTracker";
 import { MindsetCard } from "@/components/MindsetCard";
 import { TrainingStats } from "@/components/TrainingStats";
+import { DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+
+interface SortableEntryItemProps {
+  entry: ScheduleEntry;
+  act: { id: string; name: string; categoryId: string; perex?: string; description?: string; videoUrl?: string };
+  cat: { icon: string; color: string } | undefined;
+  onComplete: (activityId: string) => void;
+  onDetail: (activityId: string) => void;
+}
+
+function SortableEntryItem({ entry, act, cat, onComplete, onDetail }: SortableEntryItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: entry.activityId });
+  const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 50 : undefined, opacity: isDragging ? 0.8 : 1 };
+  const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
+
+  return (
+    <div ref={setNodeRef} style={style} className={`rounded border p-3 ${colorClass} hover:opacity-90 transition-opacity ${isDragging ? "shadow-lg" : ""}`}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <button {...attributes} {...listeners} className="touch-none cursor-grab active:cursor-grabbing p-0.5 -ml-1 opacity-50 hover:opacity-100">
+            <GripVertical className="h-4 w-4" />
+          </button>
+          <div className="flex-1 min-w-0 cursor-pointer" onClick={() => (act.description || act.videoUrl || act.perex) && onDetail(act.id)}>
+            <div className="flex items-center gap-2 text-sm font-medium">
+              {cat && <span>{cat.icon}</span>}
+              {act.name}
+              {entry.durationMinutes && (
+                <span className="text-[10px] font-mono opacity-60">⏱️ {entry.durationMinutes} min</span>
+              )}
+            </div>
+            {entry.assignedMaps && entry.assignedMaps.length > 0 && (
+              <p className="text-xs font-mono font-bold text-primary mt-1">📋 {entry.assignedMaps.join(", ")}</p>
+            )}
+            {entry.assignedOperators && entry.assignedOperators.length > 0 && (
+              <p className="text-xs font-mono font-bold text-primary mt-1">🛡️ {entry.assignedOperators.join(", ")}</p>
+            )}
+            {act.perex && <p className="text-xs mt-1 opacity-70">{act.perex}</p>}
+          </div>
+        </div>
+        <Button
+          size="sm"
+          variant="default"
+          className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs shrink-0 w-full sm:w-auto"
+          onClick={(e) => { e.stopPropagation(); onComplete(entry.activityId); }}
+        >
+          <CheckCircle2 className="h-4 w-4" />
+          Splnit
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+interface SortableEntryListProps {
+  entries: ScheduleEntry[];
+  getActivity: (id: string) => any;
+  getCategory: (id: string) => any;
+  onComplete: (activityId: string) => void;
+  onDetail: (activityId: string) => void;
+  onReorder: (entries: ScheduleEntry[]) => void;
+}
+
+function SortableEntryList({ entries, getActivity, getCategory, onComplete, onDetail, onReorder }: SortableEntryListProps) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = entries.findIndex((e) => e.activityId === active.id);
+    const newIndex = entries.findIndex((e) => e.activityId === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+    const reordered = [...entries];
+    const [moved] = reordered.splice(oldIndex, 1);
+    reordered.splice(newIndex, 0, moved);
+    onReorder(reordered);
+  };
+
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={entries.map((e) => e.activityId)} strategy={verticalListSortingStrategy}>
+        <div className="space-y-2">
+          {entries.map((entry) => {
+            const act = getActivity(entry.activityId);
+            if (!act) return null;
+            const cat = getCategory(act.categoryId);
+            return <SortableEntryItem key={entry.activityId} entry={entry} act={act} cat={cat} onComplete={onComplete} onDetail={onDetail} />;
+          })}
+        </div>
+      </SortableContext>
+    </DndContext>
+  );
+}
 
 const Index = () => {
-  const { schedule, completions, addCompletion, loading } = useSchedule();
+  const { schedule, completions, addCompletion, updateSchedule, loading } = useSchedule();
   const { friends, loadingFriends, addFriend, removeFriend } = useFriends();
   const [completingEntry, setCompletingEntry] = useState<string | null>(null);
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
@@ -140,60 +238,26 @@ const Index = () => {
               : "Vše odtrénováno — teď můžeš bez výčitek rankovat! 🏆"}
           </p>
         ) : (
-          <div className="space-y-2">
-            {remainingEntries.map((entry) => {
-              const act = getActivity(entry.activityId);
-              if (!act) return null;
-              const cat = getCategory(act.categoryId);
-              const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
-              return (
-                <div
-                  key={entry.activityId}
-                   className={`rounded border p-3 ${colorClass} cursor-pointer hover:opacity-90 transition-opacity`}
-                  onClick={() => (act.description || act.videoUrl || act.perex) && setDetailActivityId(act.id)}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 text-sm font-medium">
-                        {cat && <span>{cat.icon}</span>}
-                        {act.name}
-                        {entry.durationMinutes && (
-                          <span className="text-[10px] font-mono opacity-60">⏱️ {entry.durationMinutes} min</span>
-                        )}
-                      </div>
-                      {entry.assignedMaps && entry.assignedMaps.length > 0 && (
-                        <p className="text-xs font-mono font-bold text-primary mt-1">
-                          📋 {entry.assignedMaps.join(", ")}
-                        </p>
-                      )}
-                      {entry.assignedOperators && entry.assignedOperators.length > 0 && (
-                        <p className="text-xs font-mono font-bold text-primary mt-1">
-                          🛡️ {entry.assignedOperators.join(", ")}
-                        </p>
-                      )}
-                      {act.perex && (
-                        <p className="text-xs mt-1 opacity-70">{act.perex}</p>
-                      )}
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="default"
-                      className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs shrink-0 w-full sm:w-auto"
-                       onClick={(e) => {
-                        e.stopPropagation();
-                        setCompletingEntry(entry.activityId);
-                        setSelectedMaps([]);
-                        setSelectedOperators([]);
-                      }}
-                    >
-                      <CheckCircle2 className="h-4 w-4" />
-                      Splnit
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <SortableEntryList
+            entries={remainingEntries}
+            getActivity={getActivity}
+            getCategory={getCategory}
+            onComplete={(activityId) => {
+              setCompletingEntry(activityId);
+              setSelectedMaps([]);
+              setSelectedOperators([]);
+            }}
+            onDetail={(activityId) => {
+              const act = getActivity(activityId);
+              if (act && (act.description || act.videoUrl || act.perex)) setDetailActivityId(act.id);
+            }}
+            onReorder={(reordered) => {
+              // Rebuild full entries with new order for remaining, keeping completed ones
+              const completedEntries = allEntries.filter((e) => isCompleted(e.activityId));
+              const newEntries = [...reordered, ...completedEntries].map((e, i) => ({ ...e, dayOfWeek: i }));
+              updateSchedule({ entries: newEntries });
+            }}
+          />
         )}
       </div>
 
