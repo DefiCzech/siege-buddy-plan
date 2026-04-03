@@ -91,31 +91,6 @@ export function TrainingQueue({ activities, categories, entries, onChange }: Pro
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-mono font-bold tracking-wider">// TRÉNINKOVÝ PLÁN</h2>
-        <Select onValueChange={addEntry}>
-          <SelectTrigger className="w-auto gap-1.5 h-8 text-xs font-mono border-primary/30 hover:border-primary">
-            <Plus className="h-3.5 w-3.5" />
-            <span>Přidat</span>
-          </SelectTrigger>
-          <SelectContent>
-            {activities
-              .filter((a) => !entries.some((e) => e.activityId === a.id))
-              .map((a) => {
-                const cat = getCategory(a.categoryId);
-                return (
-                  <SelectItem key={a.id} value={a.id}>
-                    <span className="inline-flex items-center gap-1">
-                      {cat && <span>{cat.icon}</span>}
-                      {a.name}
-                    </span>
-                  </SelectItem>
-                );
-              })}
-          </SelectContent>
-        </Select>
-      </div>
-
       {sorted.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-6">
           Zatím žádné položky. Přidej aktivity do plánu.
