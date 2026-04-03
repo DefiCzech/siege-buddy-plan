@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CheckCircle2, Info, ExternalLink, Loader2, BarChart3, GripVertical } from "lucide-react";
+import { CheckCircle2, Info, ExternalLink, Loader2, BarChart3, GripVertical, Plus } from "lucide-react";
 import { R6S_MAPS, R6S_OPERATORS, ScheduleEntry } from "@/lib/types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FriendTracker } from "@/components/FriendTracker";
