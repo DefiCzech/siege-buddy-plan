@@ -180,7 +180,7 @@ const Index = () => {
 
   const completeToday = () => {
     if (!completingEntry) return;
-    const entryDuration = completingEntryData?.durationMinutes;
+    const entryDuration = completingEntryData?.durationMinutes ?? completingActivity?.durationMinutes;
     const mapsToSave = hasAssignedMaps
       ? completingEntryData!.assignedMaps!
       : selectedMaps.length > 0
