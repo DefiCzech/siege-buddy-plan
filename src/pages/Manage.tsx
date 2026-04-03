@@ -2,12 +2,10 @@ import { useState } from "react";
 import { useSchedule } from "@/hooks/use-schedule";
 import { useFriends } from "@/hooks/use-friends";
 import { ActivityManager } from "@/components/ActivityManager";
-import { TrainingQueue } from "@/components/TrainingQueue";
 import { CategoryManager } from "@/components/CategoryManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Settings, Tags, AlertTriangle, Loader2, Copy, Check } from "lucide-react";
+import { Settings, Tags, Loader2, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 
 const Manage = () => {
@@ -34,43 +32,21 @@ const Manage = () => {
 
   return (
     <main className="container max-w-6xl mx-auto px-4 py-6 space-y-8">
-      {/* Weekly schedule — always visible */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <Input
-            value={schedule.name}
-            onChange={(e) => updateSchedule({ name: e.target.value })}
-            className="text-lg font-mono font-bold bg-transparent border-none p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 flex-1"
-          />
-          {myShareCode && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5 border-primary/30 hover:border-primary font-mono text-xs shrink-0"
-              onClick={copyShareCode}
-              title="Zkopíruj a pošli kamarádovi, aby viděl tvůj pokrok"
-            >
-              {codeCopied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-              {codeCopied ? "ZKOPÍROVÁNO" : myShareCode}
-            </Button>
-          )}
+      {myShareCode && (
+        <div className="flex justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 border-primary/30 hover:border-primary font-mono text-xs shrink-0"
+            onClick={copyShareCode}
+            title="Zkopíruj a pošli kamarádovi, aby viděl tvůj pokrok"
+          >
+            {codeCopied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+            {codeCopied ? "ZKOPÍROVÁNO" : myShareCode}
+          </Button>
         </div>
-        {schedule.activities.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground space-y-2">
-            <AlertTriangle className="h-8 w-8 mx-auto opacity-50" />
-            <p>Nejdříve si přidej tréninky níže v záložce "Aktivity"</p>
-          </div>
-        ) : (
-          <TrainingQueue
-            activities={schedule.activities}
-            categories={schedule.categories}
-            entries={schedule.entries}
-            onChange={(entries) => updateSchedule({ entries })}
-          />
-        )}
-      </div>
+      )}
 
-      {/* Activities & Categories tabs */}
       <Tabs defaultValue="activities" className="space-y-4">
         <TabsList className="bg-secondary border border-border">
           <TabsTrigger value="activities" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
