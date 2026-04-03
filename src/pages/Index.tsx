@@ -19,7 +19,7 @@ import { CSS } from "@dnd-kit/utilities";
 
 interface SortableEntryItemProps {
   entry: ScheduleEntry;
-  act: { id: string; name: string; categoryId: string; perex?: string; description?: string; videoUrl?: string };
+  act: { id: string; name: string; categoryId: string; perex?: string; description?: string; videoUrl?: string; durationMinutes?: number };
   cat: { icon: string; color: string } | undefined;
   onComplete: (activityId: string) => void;
   onDetail: (activityId: string) => void;
