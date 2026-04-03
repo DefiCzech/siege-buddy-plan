@@ -15,6 +15,7 @@ export interface TrainingActivity {
   description?: string;
   videoUrl?: string;
   activityType?: ActivityType;
+  durationMinutes?: number;
 }
 
 export interface ScheduleEntry {

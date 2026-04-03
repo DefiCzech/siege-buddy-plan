@@ -19,7 +19,7 @@ import { CSS } from "@dnd-kit/utilities";
 
 interface SortableEntryItemProps {
   entry: ScheduleEntry;
-  act: { id: string; name: string; categoryId: string; perex?: string; description?: string; videoUrl?: string };
+  act: { id: string; name: string; categoryId: string; perex?: string; description?: string; videoUrl?: string; durationMinutes?: number };
   cat: { icon: string; color: string } | undefined;
   onComplete: (activityId: string) => void;
   onDetail: (activityId: string) => void;
@@ -41,8 +41,8 @@ function SortableEntryItem({ entry, act, cat, onComplete, onDetail }: SortableEn
             <div className="flex items-center gap-2 text-sm font-medium">
               {cat && <span>{cat.icon}</span>}
               {act.name}
-              {entry.durationMinutes && (
-                <span className="text-[10px] font-mono opacity-60">⏱️ {entry.durationMinutes} min</span>
+              {(entry.durationMinutes || act.durationMinutes) && (
+                <span className="text-[10px] font-mono opacity-60">⏱️ {entry.durationMinutes ?? act.durationMinutes} min</span>
               )}
             </div>
             {entry.assignedMaps && entry.assignedMaps.length > 0 && (
@@ -138,7 +138,8 @@ const Index = () => {
   const completedCount = allEntries.filter((e) => isCompleted(e.activityId)).length;
   const remainingEntries = allEntries.filter((e) => !isCompleted(e.activityId));
   const completedEntries = allEntries.filter((e) => isCompleted(e.activityId));
-  const totalRemainingMinutes = remainingEntries.reduce((sum, e) => sum + (e.durationMinutes ?? 0), 0);
+  const getEntryDuration = (e: ScheduleEntry) => e.durationMinutes ?? getActivity(e.activityId)?.durationMinutes ?? 0;
+  const totalRemainingMinutes = remainingEntries.reduce((sum, e) => sum + getEntryDuration(e), 0);
 
   const getActivity = (id: string) => schedule.activities.find((a) => a.id === id);
   const getCategory = (id: string) => schedule.categories.find((c) => c.id === id);
@@ -179,7 +180,7 @@ const Index = () => {
 
   const completeToday = () => {
     if (!completingEntry) return;
-    const entryDuration = completingEntryData?.durationMinutes;
+    const entryDuration = completingEntryData?.durationMinutes ?? completingActivity?.durationMinutes;
     const mapsToSave = hasAssignedMaps
       ? completingEntryData!.assignedMaps!
       : selectedMaps.length > 0

@@ -111,6 +111,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
             description: a.description ?? undefined,
             videoUrl: a.video_url ?? undefined,
             activityType: (a.activity_type === "map-learning" || a.activity_type === "operator-training") ? a.activity_type : "default",
+            durationMinutes: a.duration_minutes ?? undefined,
           })),
           entries: (entriesRes.data || []).map((e: any) => ({
             dayOfWeek: e.day_of_week,
@@ -242,6 +243,7 @@ async function saveScheduleToDb(userId: string, schedule: Schedule) {
         description: a.description ?? null,
         video_url: a.videoUrl ?? null,
         activity_type: a.activityType ?? "default",
+        duration_minutes: a.durationMinutes ?? null,
         sort_order: i,
       }))
     );

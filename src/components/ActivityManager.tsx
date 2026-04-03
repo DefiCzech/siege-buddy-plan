@@ -19,13 +19,13 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
   const { confirm, ConfirmDialog } = useConfirmDialog();
   const [showForm, setShowForm] = useState(false);
   const [editingActivity, setEditingActivity] = useState<TrainingActivity | null>(null);
-  const [form, setForm] = useState({ name: "", categoryId: categories[0]?.id || "", perex: "", description: "", videoUrl: "", activityType: "default" as ActivityType });
+  const [form, setForm] = useState({ name: "", categoryId: categories[0]?.id || "", perex: "", description: "", videoUrl: "", activityType: "default" as ActivityType, durationMinutes: "" });
   const [detailActivity, setDetailActivity] = useState<TrainingActivity | null>(null);
 
   const getCategory = (id: string) => categories.find((c) => c.id === id);
 
   const resetForm = () => {
-    setForm({ name: "", categoryId: categories[0]?.id || "", perex: "", description: "", videoUrl: "", activityType: "default" });
+    setForm({ name: "", categoryId: categories[0]?.id || "", perex: "", description: "", videoUrl: "", activityType: "default", durationMinutes: "" });
     setEditingActivity(null);
     setShowForm(false);
   };
@@ -36,13 +36,14 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
   };
 
   const openEdit = (a: TrainingActivity) => {
-    setForm({ name: a.name, categoryId: a.categoryId, perex: a.perex || "", description: a.description || "", videoUrl: a.videoUrl || "", activityType: a.activityType || "default" });
+    setForm({ name: a.name, categoryId: a.categoryId, perex: a.perex || "", description: a.description || "", videoUrl: a.videoUrl || "", activityType: a.activityType || "default", durationMinutes: a.durationMinutes?.toString() || "" });
     setEditingActivity(a);
     setShowForm(true);
   };
 
   const saveActivity = () => {
     if (!form.name.trim()) return;
+    const parsedDuration = parseInt(form.durationMinutes);
     const data: TrainingActivity = {
       id: editingActivity?.id || generateId(),
       name: form.name.trim(),
@@ -51,6 +52,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
       description: form.description.trim() || undefined,
       videoUrl: form.videoUrl.trim() || undefined,
       activityType: form.activityType !== "default" ? form.activityType : undefined,
+      durationMinutes: !isNaN(parsedDuration) && parsedDuration > 0 ? parsedDuration : undefined,
     };
     if (editingActivity) {
       onChange(activities.map((a) => (a.id === data.id ? data : a)));
@@ -120,7 +122,10 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
             onClick={() => setDetailActivity(a)}
           >
             {renderCategoryBadge(a.categoryId)}
-            <span className="flex-1 text-sm font-medium">{a.name}</span>
+            <span className="flex-1 text-sm font-medium">
+              {a.name}
+              {a.durationMinutes && <span className="text-[10px] font-mono opacity-60 ml-2">⏱️ {a.durationMinutes} min</span>}
+            </span>
             <div className="flex items-center gap-1">
               {a.videoUrl && <Video className="h-3.5 w-3.5 text-primary opacity-60" />}
               {a.description && <FileText className="h-3.5 w-3.5 text-muted-foreground opacity-60" />}
@@ -198,6 +203,17 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
                 onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
                 placeholder="https://youtube.com/watch?v=..."
                 className="bg-secondary border-border"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-mono text-muted-foreground mb-1 block">Délka tréninku (minuty)</label>
+              <Input
+                type="number"
+                value={form.durationMinutes}
+                onChange={(e) => setForm({ ...form, durationMinutes: e.target.value })}
+                placeholder="např. 30"
+                className="bg-secondary border-border"
+                min={1}
               />
             </div>
             <div>
