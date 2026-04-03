@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CheckCircle2, Info, ExternalLink, Loader2, BarChart3, GripVertical } from "lucide-react";
+import { CheckCircle2, Info, ExternalLink, Loader2, BarChart3, GripVertical, Plus } from "lucide-react";
 import { R6S_MAPS, R6S_OPERATORS, ScheduleEntry } from "@/lib/types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FriendTracker } from "@/components/FriendTracker";
 import { MindsetCard } from "@/components/MindsetCard";
 import { TrainingStats } from "@/components/TrainingStats";
@@ -225,12 +226,40 @@ const Index = () => {
               <span className="text-xs font-mono text-muted-foreground">⏱️ {totalRemainingMinutes} min</span>
             )}
           </div>
-          {allEntries.length > 0 && completedCount === allEntries.length && (
-            <span className="text-xs font-mono text-success">✓ VŠE HOTOVO! 🎮</span>
-          )}
-          {allEntries.length > 0 && completedCount < allEntries.length && (
-            <span className="text-xs font-mono text-muted-foreground">{completedCount}/{allEntries.length}</span>
-          )}
+          <div className="flex items-center gap-2">
+            {allEntries.length > 0 && completedCount === allEntries.length && (
+              <span className="text-xs font-mono text-success">✓ VŠE HOTOVO! 🎮</span>
+            )}
+            {allEntries.length > 0 && completedCount < allEntries.length && (
+              <span className="text-xs font-mono text-muted-foreground">{completedCount}/{allEntries.length}</span>
+            )}
+            {schedule.activities.filter((a) => !schedule.entries.some((e) => e.activityId === a.id)).length > 0 && (
+              <Select onValueChange={(activityId) => {
+                const maxOrder = schedule.entries.length > 0 ? Math.max(...schedule.entries.map((e) => e.dayOfWeek)) + 1 : 0;
+                updateSchedule({ entries: [...schedule.entries, { dayOfWeek: maxOrder, activityId }] });
+              }}>
+                <SelectTrigger className="w-auto gap-1.5 h-7 text-xs font-mono border-primary/30 hover:border-primary">
+                  <Plus className="h-3.5 w-3.5" />
+                  <span>Přidat</span>
+                </SelectTrigger>
+                <SelectContent>
+                  {schedule.activities
+                    .filter((a) => !schedule.entries.some((e) => e.activityId === a.id))
+                    .map((a) => {
+                      const cat = getCategory(a.categoryId);
+                      return (
+                        <SelectItem key={a.id} value={a.id}>
+                          <span className="inline-flex items-center gap-1">
+                            {cat && <span>{cat.icon}</span>}
+                            {a.name}
+                          </span>
+                        </SelectItem>
+                      );
+                    })}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
         </div>
         {remainingEntries.length === 0 && completedEntries.length === 0 ? (
           <p className="text-sm text-muted-foreground">
