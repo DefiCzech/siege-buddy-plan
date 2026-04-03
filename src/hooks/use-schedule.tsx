@@ -243,6 +243,7 @@ async function saveScheduleToDb(userId: string, schedule: Schedule) {
         description: a.description ?? null,
         video_url: a.videoUrl ?? null,
         activity_type: a.activityType ?? "default",
+        duration_minutes: a.durationMinutes ?? null,
         sort_order: i,
       }))
     );
