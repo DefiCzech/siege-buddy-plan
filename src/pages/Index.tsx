@@ -136,6 +136,7 @@ const Index = () => {
     completions.some((c) => c.activityId === activityId && c.completedDate === todayStr);
   const completedCount = allEntries.filter((e) => isCompleted(e.activityId)).length;
   const remainingEntries = allEntries.filter((e) => !isCompleted(e.activityId));
+  const completedEntries = allEntries.filter((e) => isCompleted(e.activityId));
   const totalRemainingMinutes = remainingEntries.reduce((sum, e) => sum + (e.durationMinutes ?? 0), 0);
 
   const getActivity = (id: string) => schedule.activities.find((a) => a.id === id);
