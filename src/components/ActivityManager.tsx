@@ -122,7 +122,10 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
             onClick={() => setDetailActivity(a)}
           >
             {renderCategoryBadge(a.categoryId)}
-            <span className="flex-1 text-sm font-medium">{a.name}</span>
+            <span className="flex-1 text-sm font-medium">
+              {a.name}
+              {a.durationMinutes && <span className="text-[10px] font-mono opacity-60 ml-2">⏱️ {a.durationMinutes} min</span>}
+            </span>
             <div className="flex items-center gap-1">
               {a.videoUrl && <Video className="h-3.5 w-3.5 text-primary opacity-60" />}
               {a.description && <FileText className="h-3.5 w-3.5 text-muted-foreground opacity-60" />}
