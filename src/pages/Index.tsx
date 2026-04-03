@@ -133,7 +133,7 @@ const Index = () => {
   // All entries sorted by order, show uncompleted ones first
   const allEntries = [...schedule.entries].sort((a, b) => a.dayOfWeek - b.dayOfWeek);
   const isCompleted = (activityId: string) =>
-    completions.some((c) => c.activityId === activityId);
+    completions.some((c) => c.activityId === activityId && c.completedDate === todayStr);
   const completedCount = allEntries.filter((e) => isCompleted(e.activityId)).length;
   const remainingEntries = allEntries.filter((e) => !isCompleted(e.activityId));
   const totalRemainingMinutes = remainingEntries.reduce((sum, e) => sum + (e.durationMinutes ?? 0), 0);
