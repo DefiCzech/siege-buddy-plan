@@ -41,8 +41,8 @@ function SortableEntryItem({ entry, act, cat, onComplete, onDetail }: SortableEn
             <div className="flex items-center gap-2 text-sm font-medium">
               {cat && <span>{cat.icon}</span>}
               {act.name}
-              {entry.durationMinutes && (
-                <span className="text-[10px] font-mono opacity-60">⏱️ {entry.durationMinutes} min</span>
+              {(entry.durationMinutes || act.durationMinutes) && (
+                <span className="text-[10px] font-mono opacity-60">⏱️ {entry.durationMinutes ?? act.durationMinutes} min</span>
               )}
             </div>
             {entry.assignedMaps && entry.assignedMaps.length > 0 && (
