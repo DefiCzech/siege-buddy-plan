@@ -146,6 +146,7 @@ export type Database = {
           category_id: string
           created_at: string
           description: string | null
+          duration_minutes: number | null
           id: string
           name: string
           perex: string | null
@@ -158,6 +159,7 @@ export type Database = {
           category_id: string
           created_at?: string
           description?: string | null
+          duration_minutes?: number | null
           id: string
           name: string
           perex?: string | null
@@ -170,6 +172,7 @@ export type Database = {
           category_id?: string
           created_at?: string
           description?: string | null
+          duration_minutes?: number | null
           id?: string
           name?: string
           perex?: string | null

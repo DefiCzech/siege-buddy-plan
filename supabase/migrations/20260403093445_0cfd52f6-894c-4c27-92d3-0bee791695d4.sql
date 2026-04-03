@@ -1,0 +1,1 @@
+ALTER TABLE public.user_activities ADD COLUMN IF NOT EXISTS duration_minutes integer;
