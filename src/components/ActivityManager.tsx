@@ -203,6 +203,17 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
               />
             </div>
             <div>
+              <label className="text-xs font-mono text-muted-foreground mb-1 block">Délka tréninku (minuty)</label>
+              <Input
+                type="number"
+                value={form.durationMinutes}
+                onChange={(e) => setForm({ ...form, durationMinutes: e.target.value })}
+                placeholder="např. 30"
+                className="bg-secondary border-border"
+                min={1}
+              />
+            </div>
+            <div>
               <label className="text-xs font-mono text-muted-foreground mb-1 block">Typ aktivity</label>
               <Select value={form.activityType} onValueChange={(v) => setForm({ ...form, activityType: v as ActivityType })}>
                 <SelectTrigger className="bg-secondary border-border">
