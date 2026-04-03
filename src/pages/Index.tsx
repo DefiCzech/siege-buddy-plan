@@ -232,11 +232,13 @@ const Index = () => {
             <span className="text-xs font-mono text-muted-foreground">{completedCount}/{allEntries.length}</span>
           )}
         </div>
-        {remainingEntries.length === 0 ? (
+        {remainingEntries.length === 0 && completedEntries.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            {allEntries.length === 0
-              ? "Nemáš nic v plánu. Přidej aktivity v nastavení! 😏"
-              : "Vše odtrénováno — teď můžeš bez výčitek rankovat! 🏆"}
+            Nemáš nic v plánu. Přidej aktivity v nastavení! 😏
+          </p>
+        ) : remainingEntries.length === 0 && completedEntries.length > 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Vše odtrénováno — teď můžeš bez výčitek rankovat! 🏆
           </p>
         ) : (
           <SortableEntryList
@@ -253,12 +255,55 @@ const Index = () => {
               if (act && (act.description || act.videoUrl || act.perex)) setDetailActivityId(act.id);
             }}
             onReorder={(reordered) => {
-              // Rebuild full entries with new order for remaining, keeping completed ones
-              const completedEntries = allEntries.filter((e) => isCompleted(e.activityId));
-              const newEntries = [...reordered, ...completedEntries].map((e, i) => ({ ...e, dayOfWeek: i }));
+              const cEntries = allEntries.filter((e) => isCompleted(e.activityId));
+              const newEntries = [...reordered, ...cEntries].map((e, i) => ({ ...e, dayOfWeek: i }));
               updateSchedule({ entries: newEntries });
             }}
           />
+        )}
+
+        {completedEntries.length > 0 && (
+          <div className="space-y-2 pt-3 border-t border-border/50">
+            <p className="text-xs font-mono text-muted-foreground opacity-60">✅ SPLNĚNO DNES</p>
+            {completedEntries.map((entry) => {
+              const act = getActivity(entry.activityId);
+              if (!act) return null;
+              const cat = getCategory(act.categoryId);
+              const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
+              return (
+                <div key={entry.activityId} className={`rounded border p-3 ${colorClass} opacity-40 hover:opacity-60 transition-opacity`}>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div
+                      className="flex-1 min-w-0 cursor-pointer"
+                      onClick={() => (act.description || act.videoUrl || act.perex) && setDetailActivityId(act.id)}
+                    >
+                      <div className="flex items-center gap-2 text-sm font-medium line-through">
+                        {cat && <span>{cat.icon}</span>}
+                        {act.name}
+                        {entry.durationMinutes && (
+                          <span className="text-[10px] font-mono opacity-60">⏱️ {entry.durationMinutes} min</span>
+                        )}
+                      </div>
+                      {act.perex && <p className="text-xs mt-1 opacity-70">{act.perex}</p>}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5 font-mono text-xs shrink-0 w-full sm:w-auto opacity-70"
+                      onClick={() => {
+                        setCompletingEntry(entry.activityId);
+                        setSelectedMaps([]);
+                        setSelectedOperators([]);
+                      }}
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                      Znovu
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
 
