@@ -43,6 +43,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
 
   const saveActivity = () => {
     if (!form.name.trim()) return;
+    const parsedDuration = parseInt(form.durationMinutes);
     const data: TrainingActivity = {
       id: editingActivity?.id || generateId(),
       name: form.name.trim(),
@@ -51,6 +52,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
       description: form.description.trim() || undefined,
       videoUrl: form.videoUrl.trim() || undefined,
       activityType: form.activityType !== "default" ? form.activityType : undefined,
+      durationMinutes: !isNaN(parsedDuration) && parsedDuration > 0 ? parsedDuration : undefined,
     };
     if (editingActivity) {
       onChange(activities.map((a) => (a.id === data.id ? data : a)));
