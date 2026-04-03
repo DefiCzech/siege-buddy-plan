@@ -25,7 +25,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
   const getCategory = (id: string) => categories.find((c) => c.id === id);
 
   const resetForm = () => {
-    setForm({ name: "", categoryId: categories[0]?.id || "", perex: "", description: "", videoUrl: "", activityType: "default" });
+    setForm({ name: "", categoryId: categories[0]?.id || "", perex: "", description: "", videoUrl: "", activityType: "default", durationMinutes: "" });
     setEditingActivity(null);
     setShowForm(false);
   };
