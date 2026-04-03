@@ -19,7 +19,7 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
   const { confirm, ConfirmDialog } = useConfirmDialog();
   const [showForm, setShowForm] = useState(false);
   const [editingActivity, setEditingActivity] = useState<TrainingActivity | null>(null);
-  const [form, setForm] = useState({ name: "", categoryId: categories[0]?.id || "", perex: "", description: "", videoUrl: "", activityType: "default" as ActivityType });
+  const [form, setForm] = useState({ name: "", categoryId: categories[0]?.id || "", perex: "", description: "", videoUrl: "", activityType: "default" as ActivityType, durationMinutes: "" });
   const [detailActivity, setDetailActivity] = useState<TrainingActivity | null>(null);
 
   const getCategory = (id: string) => categories.find((c) => c.id === id);
