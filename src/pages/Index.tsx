@@ -236,6 +236,25 @@ const Index = () => {
             {allEntries.length > 0 && completedCount < allEntries.length && (
               <span className="text-xs font-mono text-muted-foreground">{completedCount}/{allEntries.length}</span>
             )}
+            {schedule.entries.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs font-mono text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  const encoded = encodeScheduleForShare(schedule);
+                  const url = `${window.location.origin}?plan=${encoded}`;
+                  navigator.clipboard.writeText(url).then(() => {
+                    toast.success("Odkaz na plán zkopírován!");
+                  }).catch(() => {
+                    toast.error("Nepodařilo se zkopírovat odkaz");
+                  });
+                }}
+                title="Sdílet plán"
+              >
+                <Share2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
             {schedule.activities.filter((a) => !schedule.entries.some((e) => e.activityId === a.id)).length > 0 && (
               <Select onValueChange={(activityId) => {
                 const maxOrder = schedule.entries.length > 0 ? Math.max(...schedule.entries.map((e) => e.dayOfWeek)) + 1 : 0;
