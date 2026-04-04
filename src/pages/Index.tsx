@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CheckCircle2, Info, ExternalLink, Loader2, BarChart3, GripVertical, Plus, Share2 } from "lucide-react";
+import { CheckCircle2, Info, ExternalLink, Loader2, BarChart3, GripVertical, Plus, Share2, Copy, Check } from "lucide-react";
 import { encodeScheduleForShare } from "@/lib/schedule-store";
 import { R6S_MAPS, R6S_OPERATORS, ScheduleEntry } from "@/lib/types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -115,7 +115,8 @@ function SortableEntryList({ entries, getActivity, getCategory, onComplete, onDe
 
 const Index = () => {
   const { schedule, completions, addCompletion, updateSchedule, loading } = useSchedule();
-  const { friends, loadingFriends, addFriend, removeFriend } = useFriends();
+  const { friends, loadingFriends, addFriend, removeFriend, myShareCode } = useFriends();
+  const [codeCopied, setCodeCopied] = useState(false);
   const [completingEntry, setCompletingEntry] = useState<string | null>(null);
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
   const [selectedOperators, setSelectedOperators] = useState<string[]>([]);
@@ -373,7 +374,28 @@ const Index = () => {
       </div>
 
       {/* Friend tracker */}
-      <div className="mt-2 px-1">
+      <div className="mt-2 px-1 space-y-3">
+        {myShareCode && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground font-mono">Tvůj kód:</span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 border-primary/30 hover:border-primary font-mono text-xs shrink-0"
+              onClick={() => {
+                navigator.clipboard.writeText(myShareCode).then(() => {
+                  setCodeCopied(true);
+                  toast.success("Kód zkopírován!");
+                  setTimeout(() => setCodeCopied(false), 2000);
+                });
+              }}
+              title="Zkopíruj a pošli kamarádovi, aby viděl tvůj pokrok"
+            >
+              {codeCopied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              {codeCopied ? "ZKOPÍROVÁNO" : myShareCode}
+            </Button>
+          </div>
+        )}
         <FriendTracker
           friends={friends}
           loading={loadingFriends}
