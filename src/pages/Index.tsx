@@ -138,11 +138,12 @@ const Index = () => {
   const completedCount = allEntries.filter((e) => isCompleted(e.activityId)).length;
   const remainingEntries = allEntries.filter((e) => !isCompleted(e.activityId));
   const completedEntries = allEntries.filter((e) => isCompleted(e.activityId));
-  const getEntryDuration = (e: ScheduleEntry) => e.durationMinutes ?? getActivity(e.activityId)?.durationMinutes ?? 0;
-  const totalRemainingMinutes = remainingEntries.reduce((sum, e) => sum + getEntryDuration(e), 0);
 
   const getActivity = (id: string) => schedule.activities.find((a) => a.id === id);
   const getCategory = (id: string) => schedule.categories.find((c) => c.id === id);
+
+  const getEntryDuration = (e: ScheduleEntry) => e.durationMinutes ?? getActivity(e.activityId)?.durationMinutes ?? 0;
+  const totalRemainingMinutes = remainingEntries.reduce((sum, e) => sum + getEntryDuration(e), 0);
 
   const getVideoEmbedUrl = (url: string) => {
     try {
