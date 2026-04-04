@@ -13,37 +13,72 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FriendTracker } from "@/components/FriendTracker";
 import { MindsetCard } from "@/components/MindsetCard";
 import { TrainingStats } from "@/components/TrainingStats";
-import { DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-
 interface SortableEntryItemProps {
   entry: ScheduleEntry;
-  act: { id: string; name: string; categoryId: string; perex?: string; description?: string; videoUrl?: string; durationMinutes?: number };
+  act: {
+    id: string;
+    name: string;
+    categoryId: string;
+    perex?: string;
+    description?: string;
+    videoUrl?: string;
+    durationMinutes?: number;
+  };
   cat: { icon: string; color: string } | undefined;
   onComplete: (activityId: string) => void;
   onDetail: (activityId: string) => void;
 }
 
 function SortableEntryItem({ entry, act, cat, onComplete, onDetail }: SortableEntryItemProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: entry.activityId });
-  const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 50 : undefined, opacity: isDragging ? 0.8 : 1 };
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: entry.activityId,
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+    opacity: isDragging ? 0.8 : 1,
+  };
   const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
 
   return (
-    <div ref={setNodeRef} style={style} className={`rounded border p-3 ${colorClass} hover:opacity-90 transition-opacity ${isDragging ? "shadow-lg" : ""}`}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`rounded border p-3 ${colorClass} hover:opacity-90 transition-opacity ${isDragging ? "shadow-lg" : ""}`}
+    >
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <button {...attributes} {...listeners} className="touch-none cursor-grab active:cursor-grabbing p-0.5 -ml-1 opacity-50 hover:opacity-100">
+          <button
+            {...attributes}
+            {...listeners}
+            className="touch-none cursor-grab active:cursor-grabbing p-0.5 -ml-1 opacity-50 hover:opacity-100"
+          >
             <GripVertical className="h-4 w-4" />
           </button>
-          <div className="flex-1 min-w-0 cursor-pointer" onClick={() => (act.description || act.videoUrl || act.perex) && onDetail(act.id)}>
+          <div
+            className="flex-1 min-w-0 cursor-pointer"
+            onClick={() => (act.description || act.videoUrl || act.perex) && onDetail(act.id)}
+          >
             <div className="flex items-center gap-2 text-sm font-medium">
               {cat && <span>{cat.icon}</span>}
               {act.name}
               {(entry.durationMinutes || act.durationMinutes) && (
-                <span className="text-[10px] font-mono opacity-60">⏱️ {entry.durationMinutes ?? act.durationMinutes} min</span>
+                <span className="text-[10px] font-mono opacity-60">
+                  ⏱️ {entry.durationMinutes ?? act.durationMinutes} min
+                </span>
               )}
             </div>
             {entry.assignedMaps && entry.assignedMaps.length > 0 && (
@@ -59,7 +94,10 @@ function SortableEntryItem({ entry, act, cat, onComplete, onDetail }: SortableEn
           size="sm"
           variant="default"
           className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs shrink-0 w-full sm:w-auto"
-          onClick={(e) => { e.stopPropagation(); onComplete(entry.activityId); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onComplete(entry.activityId);
+          }}
         >
           <CheckCircle2 className="h-4 w-4" />
           Splnit
@@ -78,10 +116,17 @@ interface SortableEntryListProps {
   onReorder: (entries: ScheduleEntry[]) => void;
 }
 
-function SortableEntryList({ entries, getActivity, getCategory, onComplete, onDetail, onReorder }: SortableEntryListProps) {
+function SortableEntryList({
+  entries,
+  getActivity,
+  getCategory,
+  onComplete,
+  onDetail,
+  onReorder,
+}: SortableEntryListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -104,7 +149,16 @@ function SortableEntryList({ entries, getActivity, getCategory, onComplete, onDe
             const act = getActivity(entry.activityId);
             if (!act) return null;
             const cat = getCategory(act.categoryId);
-            return <SortableEntryItem key={entry.activityId} entry={entry} act={act} cat={cat} onComplete={onComplete} onDetail={onDetail} />;
+            return (
+              <SortableEntryItem
+                key={entry.activityId}
+                entry={entry}
+                act={act}
+                cat={cat}
+                onComplete={onComplete}
+                onDetail={onDetail}
+              />
+            );
           })}
         </div>
       </SortableContext>
@@ -173,9 +227,7 @@ const Index = () => {
   };
 
   const completingActivity = completingEntry ? getActivity(completingEntry) : null;
-  const completingEntryData = completingEntry
-    ? schedule.entries.find((e) => e.activityId === completingEntry)
-    : null;
+  const completingEntryData = completingEntry ? schedule.entries.find((e) => e.activityId === completingEntry) : null;
   const isMapLearning = completingActivity?.activityType === "map-learning";
   const isOperatorTraining = completingActivity?.activityType === "operator-training";
   const hasAssignedMaps = (completingEntryData?.assignedMaps?.length ?? 0) > 0;
@@ -187,8 +239,8 @@ const Index = () => {
     const mapsToSave = hasAssignedMaps
       ? completingEntryData!.assignedMaps!
       : selectedMaps.length > 0
-      ? selectedMaps
-      : undefined;
+        ? selectedMaps
+        : undefined;
 
     addCompletion({
       activityId: completingEntry,
@@ -203,15 +255,11 @@ const Index = () => {
   };
 
   const toggleMap = (map: string) => {
-    setSelectedMaps((prev) =>
-      prev.includes(map) ? prev.filter((m) => m !== map) : [...prev, map]
-    );
+    setSelectedMaps((prev) => (prev.includes(map) ? prev.filter((m) => m !== map) : [...prev, map]));
   };
 
   const toggleOperator = (op: string) => {
-    setSelectedOperators((prev) =>
-      prev.includes(op) ? prev.filter((o) => o !== op) : [...prev, op]
-    );
+    setSelectedOperators((prev) => (prev.includes(op) ? prev.filter((o) => o !== op) : [...prev, op]));
   };
 
   const detailActivity = detailActivityId ? getActivity(detailActivityId) : null;
@@ -223,9 +271,7 @@ const Index = () => {
       <div className="rounded-lg border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-5 space-y-4 shadow-lg shadow-primary/5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h2 className="font-mono font-bold tracking-wider text-base text-primary">
-              🎯 CO TĚ ČEKÁ
-            </h2>
+            <h2 className="font-mono font-bold tracking-wider text-base text-primary">🎯 CO TĚ ČEKÁ</h2>
             {totalRemainingMinutes > 0 && remainingEntries.length > 0 && (
               <span className="text-xs font-mono text-muted-foreground">⏱️ {totalRemainingMinutes} min</span>
             )}
@@ -235,13 +281,18 @@ const Index = () => {
               <span className="text-xs font-mono text-success">✓ VŠE HOTOVO! 🎮</span>
             )}
             {allEntries.length > 0 && completedCount < allEntries.length && (
-              <span className="text-xs font-mono text-muted-foreground">{completedCount}/{allEntries.length}</span>
+              <span className="text-xs font-mono text-muted-foreground">
+                {completedCount}/{allEntries.length}
+              </span>
             )}
             {schedule.activities.filter((a) => !schedule.entries.some((e) => e.activityId === a.id)).length > 0 && (
-              <Select onValueChange={(activityId) => {
-                const maxOrder = schedule.entries.length > 0 ? Math.max(...schedule.entries.map((e) => e.dayOfWeek)) + 1 : 0;
-                updateSchedule({ entries: [...schedule.entries, { dayOfWeek: maxOrder, activityId }] });
-              }}>
+              <Select
+                onValueChange={(activityId) => {
+                  const maxOrder =
+                    schedule.entries.length > 0 ? Math.max(...schedule.entries.map((e) => e.dayOfWeek)) + 1 : 0;
+                  updateSchedule({ entries: [...schedule.entries, { dayOfWeek: maxOrder, activityId }] });
+                }}
+              >
                 <SelectTrigger className="w-auto gap-1.5 h-7 text-xs font-mono border-primary/30 hover:border-primary">
                   <Plus className="h-3.5 w-3.5" />
                   <span>Přidat</span>
@@ -266,13 +317,9 @@ const Index = () => {
           </div>
         </div>
         {remainingEntries.length === 0 && completedEntries.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Nemáš nic v plánu. Přidej aktivity v nastavení! 😏
-          </p>
+          <p className="text-sm text-muted-foreground">Nemáš nic v plánu. Přidej aktivity v nastavení! 😏</p>
         ) : remainingEntries.length === 0 && completedEntries.length > 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Vše odtrénováno — teď můžeš bez výčitek rankovat! 🏆
-          </p>
+          <p className="text-sm text-muted-foreground">Vše odtrénováno — teď můžeš bez výčitek rankovat! 🏆</p>
         ) : (
           <SortableEntryList
             entries={remainingEntries}
@@ -304,7 +351,10 @@ const Index = () => {
               const cat = getCategory(act.categoryId);
               const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
               return (
-                <div key={entry.activityId} className={`rounded border p-3 ${colorClass} opacity-40 hover:opacity-60 transition-opacity`}>
+                <div
+                  key={entry.activityId}
+                  className={`rounded border p-3 ${colorClass} opacity-40 hover:opacity-60 transition-opacity`}
+                >
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div
                       className="flex-1 min-w-0 cursor-pointer"
@@ -322,6 +372,7 @@ const Index = () => {
                     <Button
                       size="sm"
                       variant="outline"
+                      title="Znovu splníte úkol"
                       className="gap-1.5 font-mono text-xs shrink-0 w-full sm:w-auto opacity-70"
                       onClick={() => {
                         setCompletingEntry(entry.activityId);
@@ -390,10 +441,12 @@ const Index = () => {
           <DialogHeader>
             <DialogTitle className="font-mono">DOKONČIT TRÉNINK</DialogTitle>
           </DialogHeader>
-           <div className="space-y-4">
-             {completingEntryData?.durationMinutes && (
-               <p className="text-sm text-muted-foreground">⏱️ Přiřazený čas: <strong>{completingEntryData.durationMinutes} min</strong></p>
-             )}
+          <div className="space-y-4">
+            {completingEntryData?.durationMinutes && (
+              <p className="text-sm text-muted-foreground">
+                ⏱️ Přiřazený čas: <strong>{completingEntryData.durationMinutes} min</strong>
+              </p>
+            )}
             {isMapLearning && !hasAssignedMaps && (
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -401,23 +454,26 @@ const Index = () => {
                 </div>
                 <Tabs defaultValue="ranked" className="mb-2">
                   <TabsList className="h-7">
-                    <TabsTrigger value="ranked" className="text-xs h-6" onClick={() => setMapFilter("ranked")}>Ranked</TabsTrigger>
-                    <TabsTrigger value="all" className="text-xs h-6" onClick={() => setMapFilter("all")}>Všechny</TabsTrigger>
-                    <TabsTrigger value="unranked" className="text-xs h-6" onClick={() => setMapFilter("unranked")}>Mimo ranked</TabsTrigger>
+                    <TabsTrigger value="ranked" className="text-xs h-6" onClick={() => setMapFilter("ranked")}>
+                      Ranked
+                    </TabsTrigger>
+                    <TabsTrigger value="all" className="text-xs h-6" onClick={() => setMapFilter("all")}>
+                      Všechny
+                    </TabsTrigger>
+                    <TabsTrigger value="unranked" className="text-xs h-6" onClick={() => setMapFilter("unranked")}>
+                      Mimo ranked
+                    </TabsTrigger>
                   </TabsList>
                 </Tabs>
                 <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto">
-                  {R6S_MAPS
-                    .filter((m) => mapFilter === "all" ? true : mapFilter === "ranked" ? m.ranked : !m.ranked)
-                    .map((map) => (
+                  {R6S_MAPS.filter((m) =>
+                    mapFilter === "all" ? true : mapFilter === "ranked" ? m.ranked : !m.ranked,
+                  ).map((map) => (
                     <label
                       key={map.name}
                       className="flex items-center gap-2 text-sm p-1.5 rounded hover:bg-secondary/50 cursor-pointer"
                     >
-                      <Checkbox
-                        checked={selectedMaps.includes(map.name)}
-                        onCheckedChange={() => toggleMap(map.name)}
-                      />
+                      <Checkbox checked={selectedMaps.includes(map.name)} onCheckedChange={() => toggleMap(map.name)} />
                       {map.name}
                     </label>
                   ))}
@@ -431,15 +487,19 @@ const Index = () => {
                 </div>
                 <Tabs defaultValue="all" className="mb-2">
                   <TabsList className="h-7">
-                    <TabsTrigger value="all" className="text-xs h-6" onClick={() => setOpFilter("all")}>Všichni</TabsTrigger>
-                    <TabsTrigger value="attack" className="text-xs h-6" onClick={() => setOpFilter("attack")}>Útok</TabsTrigger>
-                    <TabsTrigger value="defense" className="text-xs h-6" onClick={() => setOpFilter("defense")}>Obrana</TabsTrigger>
+                    <TabsTrigger value="all" className="text-xs h-6" onClick={() => setOpFilter("all")}>
+                      Všichni
+                    </TabsTrigger>
+                    <TabsTrigger value="attack" className="text-xs h-6" onClick={() => setOpFilter("attack")}>
+                      Útok
+                    </TabsTrigger>
+                    <TabsTrigger value="defense" className="text-xs h-6" onClick={() => setOpFilter("defense")}>
+                      Obrana
+                    </TabsTrigger>
                   </TabsList>
                 </Tabs>
                 <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto">
-                  {R6S_OPERATORS
-                    .filter((o) => opFilter === "all" ? true : o.side === opFilter)
-                    .map((op) => (
+                  {R6S_OPERATORS.filter((o) => (opFilter === "all" ? true : o.side === opFilter)).map((op) => (
                     <label
                       key={op.name}
                       className="flex items-center gap-2 text-sm p-1.5 rounded hover:bg-secondary/50 cursor-pointer"
@@ -454,7 +514,9 @@ const Index = () => {
                 </div>
               </div>
             )}
-            <Button onClick={completeToday} className="w-full">Dokončit</Button>
+            <Button onClick={completeToday} className="w-full">
+              Dokončit
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -469,9 +531,7 @@ const Index = () => {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            {detailActivity?.perex && (
-              <p className="text-sm text-muted-foreground">{detailActivity.perex}</p>
-            )}
+            {detailActivity?.perex && <p className="text-sm text-muted-foreground">{detailActivity.perex}</p>}
             {detailActivity?.description && (
               <p className="text-sm whitespace-pre-wrap leading-relaxed">{detailActivity.description}</p>
             )}
