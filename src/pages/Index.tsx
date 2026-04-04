@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { useSchedule } from "@/hooks/use-schedule";
 import { useFriends } from "@/hooks/use-friends";
 import { Input } from "@/components/ui/input";
