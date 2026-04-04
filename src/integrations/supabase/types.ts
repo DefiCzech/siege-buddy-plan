@@ -283,6 +283,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_friend_by_share_code: { Args: { p_code: string }; Returns: string }
       generate_share_code: { Args: never; Returns: string }
       get_user_by_share_code: { Args: { p_code: string }; Returns: string }
       is_friend_of: {
