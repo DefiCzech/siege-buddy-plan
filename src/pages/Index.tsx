@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { useSchedule } from "@/hooks/use-schedule";
 import { useFriends } from "@/hooks/use-friends";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CheckCircle2, Info, ExternalLink, Loader2, BarChart3, GripVertical, Plus } from "lucide-react";
+import { CheckCircle2, Info, ExternalLink, Loader2, BarChart3, GripVertical, Plus, Share2 } from "lucide-react";
+import { encodeScheduleForShare } from "@/lib/schedule-store";
 import { R6S_MAPS, R6S_OPERATORS, ScheduleEntry } from "@/lib/types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -234,6 +236,25 @@ const Index = () => {
             )}
             {allEntries.length > 0 && completedCount < allEntries.length && (
               <span className="text-xs font-mono text-muted-foreground">{completedCount}/{allEntries.length}</span>
+            )}
+            {schedule.entries.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs font-mono text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  const encoded = encodeScheduleForShare(schedule);
+                  const url = `${window.location.origin}?plan=${encoded}`;
+                  navigator.clipboard.writeText(url).then(() => {
+                    toast.success("Odkaz na plán zkopírován!");
+                  }).catch(() => {
+                    toast.error("Nepodařilo se zkopírovat odkaz");
+                  });
+                }}
+                title="Sdílet plán"
+              >
+                <Share2 className="h-3.5 w-3.5" />
+              </Button>
             )}
             {schedule.activities.filter((a) => !schedule.entries.some((e) => e.activityId === a.id)).length > 0 && (
               <Select onValueChange={(activityId) => {
