@@ -133,27 +133,28 @@ export function useFriends() {
     if (!user || friends.length === 0) return;
 
     const friendIds = friends.map((f) => f.userId);
-    const channel = supabase
-      .channel("friend-completions")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "training_completions",
-        },
-        (payload) => {
-          const record = payload.new as any;
-          if (record && friendIds.includes(record.user_id)) {
-            // Reload friends data on change
+    // Subscribe to each friend's completions individually with eq filter
+    // to avoid broadcasting all users' data over a single unscoped channel
+    const channels = friendIds.map((friendId) => {
+      return supabase
+        .channel(`friend-completions-${friendId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "training_completions",
+            filter: `user_id=eq.${friendId}`,
+          },
+          () => {
             loadFriends();
           }
-        }
-      )
-      .subscribe();
+        )
+        .subscribe();
+    });
 
     return () => {
-      supabase.removeChannel(channel);
+      channels.forEach((ch) => supabase.removeChannel(ch));
     };
   }, [user, friends.length, loadFriends]);
 
