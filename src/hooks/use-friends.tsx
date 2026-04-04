@@ -169,13 +169,10 @@ export function useFriends() {
       }
 
       // Look up user by share code
-      const { data: codeData } = await supabase
-        .from("user_share_codes")
-        .select("user_id")
-        .eq("share_code", code)
-        .single();
+      const { data: friendUserId } = await supabase
+        .rpc("get_user_by_share_code", { p_code: code });
 
-      if (!codeData) {
+      if (!friendUserId) {
         toast.error("Kód nenalezen. Zkontroluj ho a zkus znovu.");
         return;
       }
