@@ -182,7 +182,7 @@ export function useFriends() {
         .from("friend_follows")
         .select("id")
         .eq("user_id", user.id)
-        .eq("friend_user_id", codeData.user_id)
+        .eq("friend_user_id", friendUserId)
         .maybeSingle();
 
       if (existing) {
