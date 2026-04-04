@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useSchedule } from "@/hooks/use-schedule";
 import { ActivityManager } from "@/components/ActivityManager";
 import { CategoryManager } from "@/components/CategoryManager";
