@@ -115,7 +115,8 @@ function SortableEntryList({ entries, getActivity, getCategory, onComplete, onDe
 
 const Index = () => {
   const { schedule, completions, addCompletion, updateSchedule, loading } = useSchedule();
-  const { friends, loadingFriends, addFriend, removeFriend } = useFriends();
+  const { friends, loadingFriends, addFriend, removeFriend, myShareCode } = useFriends();
+  const [codeCopied, setCodeCopied] = useState(false);
   const [completingEntry, setCompletingEntry] = useState<string | null>(null);
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
   const [selectedOperators, setSelectedOperators] = useState<string[]>([]);
