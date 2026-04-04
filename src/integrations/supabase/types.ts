@@ -284,6 +284,7 @@ export type Database = {
     }
     Functions: {
       generate_share_code: { Args: never; Returns: string }
+      get_user_by_share_code: { Args: { p_code: string }; Returns: string }
       is_friend_of: {
         Args: { _owner_id: string; _viewer_id: string }
         Returns: boolean
