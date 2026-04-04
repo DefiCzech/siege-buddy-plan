@@ -192,7 +192,7 @@ export function useFriends() {
 
       const { error } = await supabase.from("friend_follows").insert({
         user_id: user.id,
-        friend_user_id: codeData.user_id,
+        friend_user_id: friendUserId,
       });
 
       if (error) {
