@@ -169,13 +169,10 @@ export function useFriends() {
       }
 
       // Look up user by share code
-      const { data: codeData } = await supabase
-        .from("user_share_codes")
-        .select("user_id")
-        .eq("share_code", code)
-        .single();
+      const { data: friendUserId } = await supabase
+        .rpc("get_user_by_share_code", { p_code: code });
 
-      if (!codeData) {
+      if (!friendUserId) {
         toast.error("Kód nenalezen. Zkontroluj ho a zkus znovu.");
         return;
       }
@@ -185,7 +182,7 @@ export function useFriends() {
         .from("friend_follows")
         .select("id")
         .eq("user_id", user.id)
-        .eq("friend_user_id", codeData.user_id)
+        .eq("friend_user_id", friendUserId)
         .maybeSingle();
 
       if (existing) {
@@ -195,7 +192,7 @@ export function useFriends() {
 
       const { error } = await supabase.from("friend_follows").insert({
         user_id: user.id,
-        friend_user_id: codeData.user_id,
+        friend_user_id: friendUserId,
       });
 
       if (error) {
