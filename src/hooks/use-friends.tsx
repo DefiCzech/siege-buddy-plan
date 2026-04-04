@@ -168,35 +168,23 @@ export function useFriends() {
         return;
       }
 
-      // Look up user by share code
-      const { data: friendUserId } = await supabase
-        .rpc("get_user_by_share_code", { p_code: code });
-
-      if (!friendUserId) {
-        toast.error("Kód nenalezen. Zkontroluj ho a zkus znovu.");
-        return;
-      }
-
-      // Check if already following
-      const { data: existing } = await supabase
-        .from("friend_follows")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("friend_user_id", friendUserId)
-        .maybeSingle();
-
-      if (existing) {
-        toast.info("Tohoto kamaráda už sleduješ!");
-        return;
-      }
-
-      const { error } = await supabase.from("friend_follows").insert({
-        user_id: user.id,
-        friend_user_id: friendUserId,
-      });
+      // Use secure RPC that validates share code server-side
+      const { data: friendUserId, error } = await supabase
+        .rpc("add_friend_by_share_code", { p_code: code });
 
       if (error) {
-        toast.error("Nepodařilo se přidat kamaráda");
+        if (error.message?.includes("Invalid share code")) {
+          toast.error("Kód nenalezen. Zkontroluj ho a zkus znovu.");
+        } else if (error.message?.includes("Cannot follow yourself")) {
+          toast.error("Nemůžeš přidat sám sebe!");
+        } else {
+          toast.error("Nepodařilo se přidat kamaráda");
+        }
+        return;
+      }
+
+      if (!friendUserId) {
+        toast.info("Tohoto kamaráda už sleduješ!");
         return;
       }
 
