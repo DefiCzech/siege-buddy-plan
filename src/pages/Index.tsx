@@ -374,7 +374,28 @@ const Index = () => {
       </div>
 
       {/* Friend tracker */}
-      <div className="mt-2 px-1">
+      <div className="mt-2 px-1 space-y-3">
+        {myShareCode && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground font-mono">Tvůj kód:</span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 border-primary/30 hover:border-primary font-mono text-xs shrink-0"
+              onClick={() => {
+                navigator.clipboard.writeText(myShareCode).then(() => {
+                  setCodeCopied(true);
+                  toast.success("Kód zkopírován!");
+                  setTimeout(() => setCodeCopied(false), 2000);
+                });
+              }}
+              title="Zkopíruj a pošli kamarádovi, aby viděl tvůj pokrok"
+            >
+              {codeCopied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              {codeCopied ? "ZKOPÍROVÁNO" : myShareCode}
+            </Button>
+          </div>
+        )}
         <FriendTracker
           friends={friends}
           loading={loadingFriends}
