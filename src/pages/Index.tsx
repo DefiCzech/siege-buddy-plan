@@ -177,6 +177,7 @@ const Index = () => {
   const [showStats, setShowStats] = useState(false);
   const [mapFilter, setMapFilter] = useState<"all" | "ranked" | "unranked">("ranked");
   const [opFilter, setOpFilter] = useState<"all" | "attack" | "defense">("all");
+  const [completionDuration, setCompletionDuration] = useState<string>("");
 
   if (loading) {
     return (
@@ -235,7 +236,8 @@ const Index = () => {
 
   const completeToday = () => {
     if (!completingEntry) return;
-    const entryDuration = completingEntryData?.durationMinutes ?? completingActivity?.durationMinutes;
+    const parsedDuration = parseInt(completionDuration);
+    const finalDuration = !isNaN(parsedDuration) && parsedDuration > 0 ? parsedDuration : undefined;
     const mapsToSave = hasAssignedMaps
       ? completingEntryData!.assignedMaps!
       : selectedMaps.length > 0
@@ -245,7 +247,7 @@ const Index = () => {
     addCompletion({
       activityId: completingEntry,
       completedDate: todayStr,
-      durationMinutes: entryDuration ?? undefined,
+      durationMinutes: finalDuration,
       completedMaps: isMapLearning ? mapsToSave : undefined,
     });
 
@@ -326,7 +328,11 @@ const Index = () => {
             getActivity={getActivity}
             getCategory={getCategory}
             onComplete={(activityId) => {
+              const entry = schedule.entries.find((e) => e.activityId === activityId);
+              const act = getActivity(activityId);
+              const defaultDur = entry?.durationMinutes ?? act?.durationMinutes;
               setCompletingEntry(activityId);
+              setCompletionDuration(defaultDur ? String(defaultDur) : "");
               setSelectedMaps([]);
               setSelectedOperators([]);
             }}
@@ -375,7 +381,11 @@ const Index = () => {
                       title="Znovu splníte úkol"
                       className="gap-1.5 font-mono text-xs shrink-0 w-full sm:w-auto opacity-70"
                       onClick={() => {
+                        const entryData = schedule.entries.find((e) => e.activityId === entry.activityId);
+                        const act = getActivity(entry.activityId);
+                        const defaultDur = entryData?.durationMinutes ?? act?.durationMinutes;
                         setCompletingEntry(entry.activityId);
+                        setCompletionDuration(defaultDur ? String(defaultDur) : "");
                         setSelectedMaps([]);
                         setSelectedOperators([]);
                       }}
@@ -442,11 +452,17 @@ const Index = () => {
             <DialogTitle className="font-mono">DOKONČIT TRÉNINK</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            {completingEntryData?.durationMinutes && (
-              <p className="text-sm text-muted-foreground">
-                ⏱️ Přiřazený čas: <strong>{completingEntryData.durationMinutes} min</strong>
-              </p>
-            )}
+            <div>
+              <label className="text-sm text-muted-foreground block mb-1">⏱️ Čas (minuty):</label>
+              <Input
+                type="number"
+                placeholder="Nepovinné"
+                value={completionDuration}
+                onChange={(e) => setCompletionDuration(e.target.value)}
+                className="h-8 text-sm"
+                min={1}
+              />
+            </div>
             {isMapLearning && !hasAssignedMaps && (
               <div>
                 <div className="flex items-center justify-between mb-2">
