@@ -166,15 +166,38 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
   const addCompletion = useCallback(
     async (completion: TrainingCompletion) => {
       if (!user) return;
-      setCompletions((prev) => [...prev, completion]);
+
+      // Find existing completion for same activity+date to accumulate duration
+      const existing = completions.find(
+        (c) => c.activityId === completion.activityId && c.completedDate === completion.completedDate
+      );
+      const accumulatedDuration =
+        (existing?.durationMinutes ?? 0) + (completion.durationMinutes ?? 0) || undefined;
+
+      const merged: TrainingCompletion = {
+        ...completion,
+        id: existing?.id,
+        durationMinutes: accumulatedDuration,
+      };
+
+      setCompletions((prev) => {
+        if (existing) {
+          return prev.map((c) =>
+            c.activityId === completion.activityId && c.completedDate === completion.completedDate
+              ? merged
+              : c
+          );
+        }
+        return [...prev, merged];
+      });
 
       const { error } = await supabase.from("training_completions").upsert(
         {
           user_id: user.id,
-          activity_id: completion.activityId,
-          completed_date: completion.completedDate,
-          duration_minutes: completion.durationMinutes ?? null,
-          completed_maps: completion.completedMaps ?? null,
+          activity_id: merged.activityId,
+          completed_date: merged.completedDate,
+          duration_minutes: merged.durationMinutes ?? null,
+          completed_maps: merged.completedMaps ?? null,
         },
         { onConflict: "user_id,activity_id,completed_date" }
       );
@@ -182,10 +205,20 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
         console.error("Failed to save completion:", error);
         toast.error("Nepodařilo se uložit splnění tréninku");
         // Revert optimistic update
-        setCompletions((prev) => prev.filter((c) => c.activityId !== completion.activityId || c.completedDate !== completion.completedDate));
+        if (existing) {
+          setCompletions((prev) =>
+            prev.map((c) =>
+              c.activityId === completion.activityId && c.completedDate === completion.completedDate
+                ? existing
+                : c
+            )
+          );
+        } else {
+          setCompletions((prev) => prev.filter((c) => c.activityId !== completion.activityId || c.completedDate !== completion.completedDate));
+        }
       }
     },
-    [user]
+    [user, completions]
   );
 
   return (
