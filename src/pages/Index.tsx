@@ -327,7 +327,11 @@ const Index = () => {
             getActivity={getActivity}
             getCategory={getCategory}
             onComplete={(activityId) => {
+              const entry = schedule.entries.find((e) => e.activityId === activityId);
+              const act = getActivity(activityId);
+              const defaultDur = entry?.durationMinutes ?? act?.durationMinutes;
               setCompletingEntry(activityId);
+              setCompletionDuration(defaultDur ? String(defaultDur) : "");
               setSelectedMaps([]);
               setSelectedOperators([]);
             }}
