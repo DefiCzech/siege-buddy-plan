@@ -380,7 +380,11 @@ const Index = () => {
                       title="Znovu splníte úkol"
                       className="gap-1.5 font-mono text-xs shrink-0 w-full sm:w-auto opacity-70"
                       onClick={() => {
+                        const entryData = schedule.entries.find((e) => e.activityId === entry.activityId);
+                        const act = getActivity(entry.activityId);
+                        const defaultDur = entryData?.durationMinutes ?? act?.durationMinutes;
                         setCompletingEntry(entry.activityId);
+                        setCompletionDuration(defaultDur ? String(defaultDur) : "");
                         setSelectedMaps([]);
                         setSelectedOperators([]);
                       }}
