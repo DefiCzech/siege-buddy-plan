@@ -34,7 +34,16 @@ const Manage = () => {
           <ActivityManager
             activities={schedule.activities}
             categories={schedule.categories}
-            onChange={(activities) => updateSchedule({ activities })}
+            onChange={(activities) => {
+              // Propagate duration changes to schedule entries
+              const updatedEntries = schedule.entries.map((entry) => {
+                const updatedAct = activities.find((a) => a.id === entry.activityId);
+                if (!updatedAct) return entry;
+                // Sync entry duration with activity duration
+                return { ...entry, durationMinutes: updatedAct.durationMinutes };
+              });
+              updateSchedule({ activities, entries: updatedEntries });
+            }}
           />
         </TabsContent>
 
