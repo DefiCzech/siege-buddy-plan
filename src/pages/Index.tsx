@@ -236,7 +236,8 @@ const Index = () => {
 
   const completeToday = () => {
     if (!completingEntry) return;
-    const entryDuration = completingEntryData?.durationMinutes ?? completingActivity?.durationMinutes;
+    const parsedDuration = parseInt(completionDuration);
+    const finalDuration = !isNaN(parsedDuration) && parsedDuration > 0 ? parsedDuration : undefined;
     const mapsToSave = hasAssignedMaps
       ? completingEntryData!.assignedMaps!
       : selectedMaps.length > 0
@@ -246,7 +247,7 @@ const Index = () => {
     addCompletion({
       activityId: completingEntry,
       completedDate: todayStr,
-      durationMinutes: entryDuration ?? undefined,
+      durationMinutes: finalDuration,
       completedMaps: isMapLearning ? mapsToSave : undefined,
     });
 
