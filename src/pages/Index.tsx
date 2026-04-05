@@ -452,11 +452,17 @@ const Index = () => {
             <DialogTitle className="font-mono">DOKONČIT TRÉNINK</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            {completingEntryData?.durationMinutes && (
-              <p className="text-sm text-muted-foreground">
-                ⏱️ Přiřazený čas: <strong>{completingEntryData.durationMinutes} min</strong>
-              </p>
-            )}
+            <div>
+              <label className="text-sm text-muted-foreground block mb-1">⏱️ Čas (minuty):</label>
+              <Input
+                type="number"
+                placeholder="Nepovinné"
+                value={completionDuration}
+                onChange={(e) => setCompletionDuration(e.target.value)}
+                className="h-8 text-sm"
+                min={1}
+              />
+            </div>
             {isMapLearning && !hasAssignedMaps && (
               <div>
                 <div className="flex items-center justify-between mb-2">
