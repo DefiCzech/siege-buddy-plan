@@ -177,6 +177,7 @@ const Index = () => {
   const [showStats, setShowStats] = useState(false);
   const [mapFilter, setMapFilter] = useState<"all" | "ranked" | "unranked">("ranked");
   const [opFilter, setOpFilter] = useState<"all" | "attack" | "defense">("all");
+  const [completionDuration, setCompletionDuration] = useState<string>("");
 
   if (loading) {
     return (
