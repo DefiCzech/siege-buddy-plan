@@ -356,6 +356,10 @@ const Index = () => {
               if (!act) return null;
               const cat = getCategory(act.categoryId);
               const colorClass = cat?.color || "bg-muted text-muted-foreground border-border";
+              const todayCompletion = completions.find(
+                (c) => c.activityId === entry.activityId && c.completedDate === todayStr
+              );
+              const totalMinutes = todayCompletion?.durationMinutes;
               return (
                 <div
                   key={entry.activityId}
@@ -369,8 +373,8 @@ const Index = () => {
                       <div className="flex items-center gap-2 text-sm font-medium line-through">
                         {cat && <span>{cat.icon}</span>}
                         {act.name}
-                        {entry.durationMinutes && (
-                          <span className="text-[10px] font-mono opacity-60">⏱️ {entry.durationMinutes} min</span>
+                        {totalMinutes && (
+                          <span className="text-[10px] font-mono opacity-60 no-underline">⏱️ {totalMinutes} min celkem</span>
                         )}
                       </div>
                       {act.perex && <p className="text-xs mt-1 opacity-70">{act.perex}</p>}
