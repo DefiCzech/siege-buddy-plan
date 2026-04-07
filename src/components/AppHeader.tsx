@@ -75,11 +75,6 @@ export function AppHeader({ schedule, completedToday, totalToday }: Props) {
 
             })}
           </nav>
-          {totalToday > 0 &&
-          <div className="text-xs font-mono text-muted-foreground">
-              <span className="text-success">{completedToday}</span>/{totalToday}
-            </div>
-          }
           
           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={signOut} title="Odhlásit se">
             <LogOut className="h-4 w-4" />
