@@ -64,7 +64,7 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-mono font-bold text-primary">🎯 R6S TRAINER</h1>
+          <h1 className="text-2xl font-mono font-bold text-primary">🎯 SIEGE TRAINER</h1>
           <p className="text-sm text-muted-foreground">
             {mode === "login" && "Přihlaš se ke svému účtu"}
             {mode === "signup" && "Vytvoř si nový účet"}
