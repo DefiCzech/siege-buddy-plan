@@ -288,7 +288,48 @@ export function ActivityManager({ activities, categories, onChange }: Props) {
                     })()}
                   </div>
                 )}
-                {!detailActivity.perex && !detailActivity.description && !detailActivity.videoUrl && (
+                {/* Category Videos */}
+                {(() => {
+                  const cat = getCategory(detailActivity.categoryId);
+                  if (!cat?.videoUrls?.length) return null;
+                  return (
+                    <div className="border-t border-border pt-4">
+                      <p className="text-xs font-mono text-muted-foreground mb-2">
+                        📂 Videa kategorie „{cat.name}"
+                      </p>
+                      <div className="space-y-3">
+                        {cat.videoUrls.map((url, i) => {
+                          const embedUrl = getVideoEmbedUrl(url);
+                          if (embedUrl) {
+                            return (
+                              <div key={i} className="aspect-video rounded overflow-hidden border border-border">
+                                <iframe
+                                  src={embedUrl}
+                                  className="w-full h-full"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                />
+                              </div>
+                            );
+                          }
+                          return (
+                            <a
+                              key={i}
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 text-sm text-primary hover:underline"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                              {url}
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
+                {!detailActivity.perex && !detailActivity.description && !detailActivity.videoUrl && !(getCategory(detailActivity.categoryId)?.videoUrls?.length) && (
                   <p className="text-sm text-muted-foreground text-center py-4">Žádné detaily. Uprav aktivitu pro přidání popisu nebo videa.</p>
                 )}
               </div>
