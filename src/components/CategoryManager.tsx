@@ -97,6 +97,11 @@ export function CategoryManager({ categories, onChange }: Props) {
             <span className={`text-xs px-2 py-0.5 rounded border font-mono ${c.color}`}>
               {c.name}
             </span>
+            {(c.videoUrls?.length ?? 0) > 0 && (
+              <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
+                <Video className="h-3 w-3" /> {c.videoUrls!.length}
+              </span>
+            )}
             <span className="flex-1" />
             <Button size="icon" variant="ghost" onClick={() => openEdit(c)} className="h-7 w-7">
               <Edit2 className="h-3 w-3" />
