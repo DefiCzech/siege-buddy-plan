@@ -191,6 +191,7 @@ export type Database = {
           name: string
           sort_order: number
           user_id: string
+          video_urls: string[] | null
         }
         Insert: {
           color?: string
@@ -200,6 +201,7 @@ export type Database = {
           name: string
           sort_order?: number
           user_id: string
+          video_urls?: string[] | null
         }
         Update: {
           color?: string
@@ -209,6 +211,7 @@ export type Database = {
           name?: string
           sort_order?: number
           user_id?: string
+          video_urls?: string[] | null
         }
         Relationships: []
       }

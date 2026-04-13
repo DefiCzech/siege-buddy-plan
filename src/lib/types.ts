@@ -3,6 +3,7 @@ export interface Category {
   name: string;
   icon: string; // emoji or text
   color: string; // tailwind color classes
+  videoUrls?: string[]; // YouTube video links for this category
 }
 
 export type ActivityType = "default" | "map-learning" | "operator-training";

@@ -1,0 +1,1 @@
+ALTER TABLE public.user_categories ADD COLUMN video_urls text[] DEFAULT '{}'::text[];
