@@ -102,6 +102,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
             name: c.name,
             icon: c.icon,
             color: c.color,
+            videoUrls: c.video_urls?.length ? c.video_urls : undefined,
           })),
           activities: (actsRes.data || []).map((a: any) => ({
             id: a.id,
@@ -259,6 +260,7 @@ async function saveScheduleToDb(userId: string, schedule: Schedule) {
         name: c.name,
         icon: c.icon,
         color: c.color,
+        video_urls: c.videoUrls ?? [],
         sort_order: i,
       }))
     );
