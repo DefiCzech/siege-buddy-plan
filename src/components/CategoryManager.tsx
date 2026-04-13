@@ -5,7 +5,7 @@ import { generateId } from "@/lib/schedule-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit2 } from "lucide-react";
+import { Plus, Trash2, Edit2, Video, X } from "lucide-react";
 
 interface Props {
   categories: Category[];
@@ -18,25 +18,40 @@ export function CategoryManager({ categories, onChange }: Props) {
   const { confirm, ConfirmDialog } = useConfirmDialog();
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [form, setForm] = useState({ name: "", icon: "", color: COLOR_OPTIONS[0] });
+  const [form, setForm] = useState({ name: "", icon: "", color: COLOR_OPTIONS[0], videoUrls: [] as string[] });
+  const [newVideoUrl, setNewVideoUrl] = useState("");
 
   const resetForm = () => {
-    setForm({ name: "", icon: "", color: COLOR_OPTIONS[0] });
+    setForm({ name: "", icon: "", color: COLOR_OPTIONS[0], videoUrls: [] });
+    setNewVideoUrl("");
     setEditingCategory(null);
     setShowForm(false);
   };
 
   const openAdd = () => {
     const nextColor = COLOR_OPTIONS[categories.length % COLOR_OPTIONS.length];
-    setForm({ name: "", icon: "", color: nextColor });
+    setForm({ name: "", icon: "", color: nextColor, videoUrls: [] });
+    setNewVideoUrl("");
     setEditingCategory(null);
     setShowForm(true);
   };
 
   const openEdit = (c: Category) => {
-    setForm({ name: c.name, icon: c.icon, color: c.color });
+    setForm({ name: c.name, icon: c.icon, color: c.color, videoUrls: c.videoUrls || [] });
+    setNewVideoUrl("");
     setEditingCategory(c);
     setShowForm(true);
+  };
+
+  const addVideoUrl = () => {
+    const url = newVideoUrl.trim();
+    if (!url) return;
+    setForm({ ...form, videoUrls: [...form.videoUrls, url] });
+    setNewVideoUrl("");
+  };
+
+  const removeVideoUrl = (index: number) => {
+    setForm({ ...form, videoUrls: form.videoUrls.filter((_, i) => i !== index) });
   };
 
   const saveCategory = () => {
@@ -46,6 +61,7 @@ export function CategoryManager({ categories, onChange }: Props) {
       name: form.name.trim(),
       icon: form.icon.trim() || "📌",
       color: form.color,
+      videoUrls: form.videoUrls.length > 0 ? form.videoUrls : undefined,
     };
     if (editingCategory) {
       onChange(categories.map((c) => (c.id === data.id ? data : c)));
