@@ -180,6 +180,7 @@ export function CategoryManager({ categories, onChange }: Props) {
                   <Plus className="h-3 w-3" />
                 </Button>
               </div>
+            </div>
             <Button onClick={saveCategory} className="w-full">
               {editingCategory ? "Uložit" : "Přidat"}
             </Button>
