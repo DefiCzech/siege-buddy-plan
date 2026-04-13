@@ -158,6 +158,28 @@ export function CategoryManager({ categories, onChange }: Props) {
                 ))}
               </div>
             </div>
+            <div>
+              <label className="text-xs font-mono text-muted-foreground mb-1 block">YouTube videa</label>
+              {form.videoUrls.map((url, i) => (
+                <div key={i} className="flex items-center gap-2 mb-1.5">
+                  <span className="text-xs text-muted-foreground truncate flex-1">{url}</span>
+                  <Button size="icon" variant="ghost" onClick={() => removeVideoUrl(i)} className="h-6 w-6 shrink-0">
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
+              <div className="flex gap-2">
+                <Input
+                  value={newVideoUrl}
+                  onChange={(e) => setNewVideoUrl(e.target.value)}
+                  placeholder="https://youtube.com/watch?v=..."
+                  className="bg-secondary border-border text-xs"
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addVideoUrl())}
+                />
+                <Button size="sm" variant="outline" onClick={addVideoUrl} type="button">
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </div>
             <Button onClick={saveCategory} className="w-full">
               {editingCategory ? "Uložit" : "Přidat"}
             </Button>
