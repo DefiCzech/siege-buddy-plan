@@ -72,6 +72,10 @@ async function fetchRankFromApi(username: string): Promise<{
     const json = await seasonalRes.json();
     console.log("seasonalStats response:", JSON.stringify(json).slice(0, 2000));
 
+    if (json?.error) {
+      throw new Error(`r6data API: ${json.error}`);
+    }
+
     const history: Array<[string, SeasonalEntry]> = json?.data?.history?.data;
     if (history && history.length > 0) {
       // First entry is the most recent (sorted newest-first)
